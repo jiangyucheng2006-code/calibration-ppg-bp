@@ -83,7 +83,7 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
-pytest
+python -m pytest
 ```
 
 On Windows PowerShell, activate the environment with:
