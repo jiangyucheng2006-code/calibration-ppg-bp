@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pulsedb-fewshot"
+version = "0.1.0"
+description = "Leakage-safe event-level few-shot calibration protocol for PulseDB"
+requires-python = ">=3.10"
+dependencies = [
+  "h5py>=3.16,<4",
+  "numpy>=1.26,<3",
+  "pandas>=2.1,<3",
+  "pyarrow>=14,<20",
+]
+
+[project.optional-dependencies]
+train = ["torch==2.13.0"]
+dev = ["pytest>=8,<9", "torch==2.13.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -1,0 +1,66 @@
+# Python caches and generated package metadata
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Local environments and caches
+.venv/
+venv/
+env/
+envs/
+.conda/
+.cache/
+pip-cache/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Raw/processed data and evaluator-only targets
+data/
+artifacts/
+*.mat
+*.h5
+*.hdf5
+*.parquet
+*.npy
+*.npz
+
+# Training outputs and model parameters
+logs/
+outputs/
+checkpoints/
+runs/
+wandb/
+tensorboard/
+*.pt
+*.pth
+*.ckpt
+
+# Temporary acquisition credentials and short-lived URLs
+*signed_manifest*
+*signed_url*
+*signed*.json
+*.partial
+*.part
+*.tmp
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*
+secrets*
+
+# Local research history (paper text, audits, temporary download metadata)
+local_archive/
