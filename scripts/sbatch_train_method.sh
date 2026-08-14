@@ -13,11 +13,28 @@ set -euo pipefail
 method="${1:?method is required}"
 seed="${2:-20260813}"
 population_checkpoint="${3:-}"
+max_epochs="${4:-25}"
+patience="${5:-5}"
+run_prefix="${6:-event120-v1}"
 work_root="/home/$USER/work/ppg_bp"
 archive_root="/home/$USER/nas/ppg_bp"
 project_root="$work_root/code/pulsedb_fewshot"
-run_id="event120-v1_${method}_seed${seed}_job${SLURM_JOB_ID}"
+run_id="${run_prefix}_${method}_seed${seed}_job${SLURM_JOB_ID}"
 output="$work_root/outputs/$run_id"
+
+case "$max_epochs" in
+  ''|*[!0-9]*) echo "ERROR: max_epochs must be a nonnegative integer" >&2; exit 2 ;;
+esac
+case "$patience" in
+  ''|*[!0-9]*) echo "ERROR: patience must be a positive integer" >&2; exit 2 ;;
+esac
+if [ "$patience" -lt 1 ]; then
+  echo "ERROR: patience must be positive" >&2
+  exit 2
+fi
+case "$run_prefix" in
+  ''|*[!A-Za-z0-9._-]*) echo "ERROR: run_prefix contains unsafe characters" >&2; exit 2 ;;
+esac
 
 source /opt/conda/etc/profile.d/conda.sh
 conda activate "$work_root/envs/train"
@@ -37,8 +54,8 @@ command=(
   --store-root "$work_root/data/processed/event120-v1"
   --output "$output"
   --seed "$seed"
-  --epochs 25
-  --patience 5
+  --epochs "$max_epochs"
+  --patience "$patience"
   --batch-size "$batch_size"
   --workers 4
   --learning-rate 0.0003

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Iterable
 from datetime import datetime, timezone
+import itertools
 import json
 import os
 from pathlib import Path
@@ -75,7 +77,19 @@ def _load_population_checkpoint(
     return model, checkpoint["target_scaler"]
 
 
+def _epoch_numbers(max_epochs: int) -> Iterable[int]:
+    """Yield one-based epoch numbers; zero means early-stopping-only training."""
+
+    if max_epochs < 0:
+        raise ValueError("epochs must be nonnegative; use 0 for no epoch-count cap")
+    if max_epochs == 0:
+        return itertools.count(1)
+    return range(1, max_epochs + 1)
+
+
 def train(args: argparse.Namespace) -> dict[str, object]:
+    if args.patience < 1:
+        raise ValueError("patience must be positive")
     seed_everything(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if args.require_cuda and device.type != "cuda":
@@ -89,6 +103,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         train_metadata = train_metadata.head(args.max_train_examples).copy()
     if args.max_validation_examples is not None:
         validation_metadata = validation_metadata.head(args.max_validation_examples).copy()
+    # fit_target_scaler explicitly selects meta_train rows. Passing the full
+    # development metadata preserves a single audited entry point while
+    # keeping meta-validation targets out of preprocessing parameters.
     scaler = fit_target_scaler(metadata)
     validation_metadata = validation_metadata.loc[
         validation_metadata["common_query"]
@@ -176,9 +193,11 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     args.output.mkdir(parents=True, exist_ok=False)
     history: list[dict[str, object]] = []
     best_score = float("inf")
+    best_epoch: int | None = None
     epochs_without_improvement = 0
+    stop_reason = "epoch_cap"
     checkpoint_path = args.output / "best.pt"
-    for epoch in range(1, args.epochs + 1):
+    for epoch in _epoch_numbers(args.epochs):
         model.train()
         if isinstance(model, VariableKPersonalizer):
             # The population mapping is a frozen reference for residual
@@ -241,6 +260,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         score = float(metrics["mean_mae"])
         if score < best_score:
             best_score = score
+            best_epoch = epoch
             epochs_without_improvement = 0
             torch.save(
                 {
@@ -258,11 +278,17 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             epochs_without_improvement += 1
         save_json(args.output / "history.json", history)
         if epochs_without_improvement >= args.patience:
+            stop_reason = "early_stopping"
             break
+
+    if best_epoch is None:
+        raise RuntimeError("training completed without a valid checkpoint")
 
     result = {
         "status": "complete",
         "method": args.method,
+        "split": "meta_validation",
+        "locked_test_accessed": False,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed,
         "device": str(device),
@@ -277,6 +303,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         "validation_events": int(len(validation_metadata)),
         "target_scaler": scaler,
         "best_validation_mean_mae": best_score,
+        "best_epoch": best_epoch,
+        "epochs_completed": len(history),
+        "stop_reason": stop_reason,
         "checkpoint": str(checkpoint_path),
         "checkpoint_sha256": file_sha256(checkpoint_path),
         "store_manifest_sha256": file_sha256(args.store_root / "materialization.json"),
@@ -300,7 +329,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--population-checkpoint", type=Path)
     parser.add_argument("--seed", type=int, default=20260813)
-    parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=20,
+        help="maximum epochs; use 0 for no epoch-count cap and stop by patience",
+    )
     parser.add_argument("--patience", type=int, default=4)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--workers", type=int, default=4)
