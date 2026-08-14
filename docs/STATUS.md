@@ -1,6 +1,6 @@
 # Verified project status
 
-Last updated: 2026-08-13.
+Last updated: 2026-08-14.
 
 ## Completed gates
 
@@ -27,32 +27,37 @@ Last updated: 2026-08-13.
 
 ## Development-only training
 
-The single-seed calibration-free population run completed after early stopping.
-Its best meta-validation participant-macro result was:
+The single-seed population, M0, M1, M2, calibration-control, and corrected
+first-anchor Siamese runs completed successfully. Their formal stderr files are
+empty, and the work/NAS result trees and checkpoint archives passed bytewise
+verification.
 
-| Metric | Value |
-|---|---:|
-| SBP MAE | 14.552 mmHg |
-| DBP MAE | 8.725 mmHg |
-| Mean of SBP/DBP MAE | 11.638 mmHg |
+M0 is the current meta-validation winner. Its participant-macro SBP/DBP/mean
+MAE was:
 
-This is a development result, not a locked-test or final-paper result.
+| K | SBP MAE | DBP MAE | Mean MAE |
+|---:|---:|---:|---:|
+| 1 | 12.865 | 7.131 | 9.998 |
+| 2 | 12.155 | 6.714 | 9.435 |
+| 3 | 11.770 | 6.468 | 9.119 |
+| 5 | 11.219 | 6.157 | 8.688 |
 
-At the status timestamp, M0 was running and M1/M2, calibration controls, and the
-corrected first-anchor Siamese comparator were queued. M0 had successfully
-written separate `K=1,2,3,5` validation outputs for its first epoch. Finalists
-require multiple seeds and reproducibility from saved per-event predictions.
+All values are mmHg and come from 697 meta-validation participants and the
+same 103,564 future query events per K. The locked meta-test was not accessed.
+See [RESULTS_PHASE5.md](RESULTS_PHASE5.md) for the comparator table,
+uncertainty, source diagnostics, limitations, and next gate.
 
 ## Current gate
 
-Complete the meta-validation comparison and determine whether M0/M1/M2 add
-value beyond last-cuff persistence, residual offset, and architecture-matched
-adaptation. Do not submit locked-test scoring yet.
+Resolve M0 convergence beyond the original 25-epoch cap and run the
+prespecified repeat-seed comparison. Freeze the final configuration, seed
+policy, statistics, and source/tail reporting before submitting a one-time
+locked-test evaluation.
 
 ## Not yet established
 
 - no locked-test result;
-- no final multi-seed model comparison;
+- no final multi-seed model comparison or frozen finalist;
 - no real pressure-, motion-, or device-shift robustness result;
 - no independent external validation;
 - no clinical validation or standards claim.
