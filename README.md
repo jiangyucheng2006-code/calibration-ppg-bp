@@ -60,7 +60,9 @@ model passes the calibration gate.
 
 See [METHODS.md](docs/METHODS.md) for equations and allowed inputs,
 [PROTOCOL.md](docs/PROTOCOL.md) for leakage controls, and
-[STATUS.md](docs/STATUS.md) for the current verified development state.
+[STATUS.md](docs/STATUS.md) for the current verified development state. The
+prespecified five-seed, early-stopping-only rerun is documented in
+[REPEAT_SEED_PLAN.md](docs/REPEAT_SEED_PLAN.md).
 
 ## Repository layout
 
@@ -125,9 +127,10 @@ accepted experiment.
 
 The complete PulseDB audit, participant split, `event120-v1` construction,
 label-isolated query artifacts, waveform materialization, GPU smoke test, and
-single-seed population training are complete. Development-only calibration
-models are being evaluated. No locked-test or final-paper result is reported in
-this repository at this stage.
+single-seed development matrix are complete. A five-seed M0/M1/M2 and
+calibration-control repeat is queued with no epoch-count cap and patience 8.
+No locked-test or final-paper result is reported in this repository at this
+stage.
 
 ## License and citation
 
