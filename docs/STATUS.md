@@ -1,6 +1,6 @@
 # Verified project status
 
-Last updated: 2026-08-14.
+Last updated: 2026-08-15.
 
 ## Completed gates
 
@@ -47,12 +47,34 @@ same 103,564 future query events per K. The locked meta-test was not accessed.
 See [RESULTS_PHASE5.md](RESULTS_PHASE5.md) for the comparator table,
 uncertainty, source diagnostics, limitations, and next gate.
 
+The saved first-run predictions have now been independently reprocessed into a
+90-row BP-specific extended table. It includes event-pooled MAE, R², signed
+mean error, error SD, cumulative 5/10/15-mmHg percentages, and qualified
+AAMI/BHS numerical screens. Every row fails the AAMI numerical screen; the BHS
+distribution is 19 Grade-C and 71 Grade-D rows. These are not formal device-
+validation determinations. See
+[RESULTS_PHASE5_FIRST_RUN_EXTENDED.md](RESULTS_PHASE5_FIRST_RUN_EXTENDED.md).
+
+The complete first-run data-selection funnel and acceptance/exclusion rules are
+documented in
+[DATA_SELECTION_AND_TRAINING_COHORT.md](DATA_SELECTION_AND_TRAINING_COHORT.md).
+
 ## Current gate
 
 Resolve M0 convergence beyond the original 25-epoch cap and run the
 prespecified repeat-seed comparison. Freeze the final configuration, seed
 policy, statistics, and source/tail reporting before submitting a one-time
 locked-test evaluation.
+
+After the repeated-seed development result is available, run a development-
+only residual-tail analysis before robustness expansion. It will identify
+high-error participants/events and test prespecified associations with source,
+BP range, support-query BP change, time since calibration, event history, and
+PPG-derived input-only quality/morphology measures. Candidate interventions
+include robust loss or reweighting, hard-example training, and an input-only
+uncertainty/quality gate with coverage reporting. Query error or reference ABP
+must never be used to decide at inference time whether a case is kept. Any rule
+is frozen on development data and applied unchanged to locked/external data.
 
 ## Not yet established
 

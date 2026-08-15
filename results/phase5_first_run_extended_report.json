@@ -1,0 +1,69 @@
+{
+  "status": "pass",
+  "generated_at_utc": "2026-08-15T15:20:46.286558+00:00",
+  "analysis": "exploratory single-seed meta-validation",
+  "seed": 20260813,
+  "locked_test_accessed": false,
+  "error_sign": "prediction_minus_reference",
+  "std_ddof": 1,
+  "primary_project_metric": "participant-macro MAE",
+  "table_metric_scope": "event-pooled diagnostics plus participant-macro MAE",
+  "aami_numeric_screen": "abs(ME) <= 5 mmHg and error STD <= 8 mmHg; criterion-1-style only",
+  "bhs_numeric_screen": {
+    "A": [
+      60,
+      85,
+      95
+    ],
+    "B": [
+      50,
+      75,
+      90
+    ],
+    "C": [
+      40,
+      65,
+      85
+    ],
+    "D": "below Grade C",
+    "binary_display": "PASS for A/B; FAIL for C/D"
+  },
+  "formal_standard_compliance": "not established",
+  "inputs": [
+    {
+      "name": "controls",
+      "file_name": "validation_predictions.parquet",
+      "sha256": "468fdc4e7814e663893897d69da3cfec985bc9135e5ff0bade2c5b2a8ddbe1c5",
+      "rows": 3314048
+    },
+    {
+      "name": "m0",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "695710811c52c7a31705d3f0824bfbf45b55aad69e1f05ff69047a5744f35c1a",
+      "rows": 414256
+    },
+    {
+      "name": "m1",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "364cff649714c92897ab4840cc279940cd62412afe4e890e359c0c6010007434",
+      "rows": 414256
+    },
+    {
+      "name": "m2",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "c8e045c32c8ee834b325278b297448dfc868ce8594890157ef8f46172d5d9a71",
+      "rows": 414256
+    },
+    {
+      "name": "siamese",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "94e89f6bb4097472b27695e1c1419538c64f6a2944040cf1542a33ec9bb24e80",
+      "rows": 103564
+    }
+  ],
+  "outputs": {
+    "csv_name": "phase5_first_run_extended_metrics.csv",
+    "markdown_name": "RESULTS_PHASE5_FIRST_RUN_EXTENDED.md",
+    "rows": 90
+  }
+}

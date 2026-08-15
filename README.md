@@ -64,6 +64,12 @@ See [METHODS.md](docs/METHODS.md) for equations and allowed inputs,
 single-seed Phase-5 development snapshot is reported in
 [RESULTS_PHASE5.md](docs/RESULTS_PHASE5.md), with a machine-readable table in
 [`results/phase5_meta_validation_summary.csv`](results/phase5_meta_validation_summary.csv).
+The [extended first-run table](docs/RESULTS_PHASE5_FIRST_RUN_EXTENDED.md)
+recomputes event-pooled MAE, R², signed mean error, error SD, cumulative
+5/10/15-mmHg percentages, and explicitly qualified AAMI/BHS numerical screens
+from saved predictions. The complete [data-selection and training-cohort
+report](docs/DATA_SELECTION_AND_TRAINING_COHORT.md) documents why the first run
+uses a leakage-safe subset of the original segment rows.
 
 ## Repository layout
 

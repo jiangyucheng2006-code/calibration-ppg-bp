@@ -47,6 +47,22 @@ result under the current seed and shared optimization configuration.
 The complete rounded metric table is available in
 [`results/phase5_meta_validation_summary.csv`](../results/phase5_meta_validation_summary.csv).
 
+## Extended diagnostic table
+
+The first-run prediction artifacts were also re-evaluated with event-pooled
+MAE, R², signed mean error, sample SD of error, and cumulative percentages
+within 5, 10, and 15 mmHg. The complete 90-row SBP/DBP table is available in
+[RESULTS_PHASE5_FIRST_RUN_EXTENDED.md](RESULTS_PHASE5_FIRST_RUN_EXTENDED.md)
+and
+[`results/phase5_first_run_extended_metrics.csv`](../results/phase5_first_run_extended_metrics.csv).
+
+All 90 method/K/BP rows fail the AAMI Criterion-1-style numerical screen; 19
+receive historical BHS Grade C and 71 receive Grade D. These labels are
+diagnostic screens only. PulseDB retrospective model evaluation does not meet
+the full study-design, reference-measurement, participant-distribution, or
+repeated-measure requirements for formal device validation, so no standards
+compliance claim is made.
+
 ## M0 SBP and DBP results
 
 | K | SBP MAE | DBP MAE | Mean MAE | SBP RMSE | DBP RMSE | SBP bias | DBP bias |
@@ -143,3 +159,7 @@ Before any locked-test evaluation:
 
 Robustness training for contact pressure, motion, and device/acquisition shift
 begins only after this base personalization gate is passed.
+
+The exact raw-file, segment, event, eligibility, split, and sampler rules used
+before this first run are documented in
+[DATA_SELECTION_AND_TRAINING_COHORT.md](DATA_SELECTION_AND_TRAINING_COHORT.md).
