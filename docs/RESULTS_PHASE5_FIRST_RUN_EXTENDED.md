@@ -2,21 +2,21 @@
 
 Last updated: 2026-08-15.
 
-This is an exploratory, single-seed (`20260813`) `meta_validation` 
-report reconstructed from saved event-level predictions. The locked test 
-was not accessed. Every row contains 697 participants and 103,564 common 
-future query events. `ME` is prediction minus reference; `STD` uses the 
-sample standard deviation (`ddof=1`). MAE, R², ME, STD, and threshold 
-percentages in this table are event-pooled diagnostics. The project primary 
+This is an exploratory, single-seed (`20260813`) `meta_validation`
+report reconstructed from saved event-level predictions. The locked test
+was not accessed. Every row contains 697 participants and 103,564 common
+future query events. `ME` is prediction minus reference; `STD` uses the
+sample standard deviation (`ddof=1`). MAE, R², ME, STD, and threshold
+percentages in this table are event-pooled diagnostics. The project primary
 MAE remains the participant-macro value reported in `RESULTS_PHASE5.md`.
 
-`AAMI` is only a Criterion-1-style numerical screen: `|ME| <= 5 mmHg` 
-and `STD <= 8 mmHg`, evaluated separately for SBP and DBP. The full 
-AAMI/ESH/ISO protocol also has design, population, reference-measurement, 
-and repeated-measure requirements that this retrospective ML benchmark does 
-not satisfy. `BHS` is a historical numerical grade based on cumulative 
-percentages within 5/10/15 mmHg; Grade A/B is displayed as PASS and C/D as 
-FAIL. Every asterisk therefore means **numerical screen only; formal device 
+`AAMI` is only a Criterion-1-style numerical screen: `|ME| <= 5 mmHg`
+and `STD <= 8 mmHg`, evaluated separately for SBP and DBP. The full
+AAMI/ESH/ISO protocol also has design, population, reference-measurement,
+and repeated-measure requirements that this retrospective ML benchmark does
+not satisfy. `BHS` is a historical numerical grade based on cumulative
+percentages within 5/10/15 mmHg; Grade A/B is displayed as PASS and C/D as
+FAIL. Every asterisk therefore means **numerical screen only; formal device
 compliance is not established**.
 
 Primary references: [AAMI/ESH/ISO collaboration statement](https://pmc.ncbi.nlm.nih.gov/articles/PMC5796427/), [current ISO 81060-2:2018 status](https://www.iso.org/standard/73339.html), and the [original BHS protocol](https://pubmed.ncbi.nlm.nih.gov/2168451/).
@@ -114,6 +114,6 @@ Primary references: [AAMI/ESH/ISO collaboration statement](https://pmc.ncbi.nlm.
 | M2 M1 + reliability weighting (K=5) | SBP | 12.669 | 0.396 | 1.098 | 17.067 | 29.31 | 52.47 | 68.64 | FAIL* | FAIL (Grade D)* |
 | M2 M1 + reliability weighting (K=5) | DBP | 7.437 | 0.372 | 0.492 | 10.422 | 47.36 | 74.23 | 87.92 | FAIL* | FAIL (Grade C)* |
 
-The machine-readable CSV also contains participant-macro MAE, participant 
-and event counts, method/K identifiers, aggregation scope, and the formal 
+The machine-readable CSV also contains participant-macro MAE, participant
+and event counts, method/K identifiers, aggregation scope, and the formal
 standards limitation.
