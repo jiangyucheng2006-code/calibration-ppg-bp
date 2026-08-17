@@ -1,0 +1,337 @@
+{
+  "status": "pass",
+  "generated_at_utc": "2026-08-17T06:35:48.809962+00:00",
+  "analysis": "five-seed internal meta-validation",
+  "run_prefix": "event120-v1_repeat5-v1",
+  "seeds": [
+    20260813,
+    20260814,
+    20260815,
+    20260816,
+    20260817
+  ],
+  "n_seeds": 5,
+  "split": "meta_validation",
+  "locked_test_accessed": false,
+  "error_sign": "prediction_minus_reference",
+  "error_std_ddof": 1,
+  "seed_std_ddof": 1,
+  "primary_project_metric": "participant-macro MAE",
+  "table_metric_scope": "mean across seed-specific event-pooled diagnostics plus participant-macro MAE",
+  "aami_numeric_screen": "abs(ME) <= 5 mmHg and error STD <= 8 mmHg; criterion-1-style numerical screen only",
+  "bhs_numeric_screen": {
+    "A": [
+      60,
+      85,
+      95
+    ],
+    "B": [
+      50,
+      75,
+      90
+    ],
+    "C": [
+      40,
+      65,
+      85
+    ],
+    "D": "below Grade C",
+    "binary_display": "PASS for A/B; FAIL for C/D"
+  },
+  "formal_standard_compliance": "not established",
+  "coverage": {
+    "participants_per_setting": 697,
+    "common_query_events_per_setting": 103564,
+    "methods": [
+      "population_mean",
+      "last_cuff",
+      "support_mean",
+      "population",
+      "residual_offset",
+      "head",
+      "full",
+      "lora",
+      "m0",
+      "m1",
+      "m2"
+    ],
+    "k": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "per_seed_extended_rows": 440,
+    "participant_macro_rows": 44,
+    "extended_summary_rows": 88
+  },
+  "inputs": [
+    {
+      "run_id": "event120-v1_repeat5-v1_population_seed20260813_job782",
+      "file_name": "run.json",
+      "sha256": "fdaee79860f583c3ce2ddd92bf3d646d752b0a0ede3c87f632ea41ca06de0603"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260813_job786",
+      "file_name": "metrics.json",
+      "sha256": "66cd7aa3237c92f6933e10a9d68e02b21f24a6e89017f0f30929b940d5bfa167"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260813_job786",
+      "file_name": "validation_predictions.parquet",
+      "sha256": "468fdc4e7814e663893897d69da3cfec985bc9135e5ff0bade2c5b2a8ddbe1c5",
+      "rows": 3314048
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260813_job783",
+      "file_name": "run.json",
+      "sha256": "e6a6fce29b13ab7a637b69ae5f4b9866f9c2686e05bffadb1e4df3c38276f60c"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260813_job783",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "695710811c52c7a31705d3f0824bfbf45b55aad69e1f05ff69047a5744f35c1a",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260813_job784",
+      "file_name": "run.json",
+      "sha256": "833d14537e12929e72c383af69d29c49fe8b1524a4a8bbace3735c47b40a0857"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260813_job784",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "c0566f8fa60d8e76383631960c24f229f87e22d7b70bae24538832c4635fc999",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260813_job785",
+      "file_name": "run.json",
+      "sha256": "e9f7ca801ca50fa5b0be988d7e1a33a961f3241c2288dbf7d9da49b0364d3d4f"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260813_job785",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "5c46daaca805815ce46c26373d5493008c3d1cc92fe3e6c66e8e7e3237637034",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_population_seed20260814_job787",
+      "file_name": "run.json",
+      "sha256": "9dc82abd0a49eb1d77c395d38212e8ac176168450213d4bcb0c488cf5b8326d8"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260814_job791",
+      "file_name": "metrics.json",
+      "sha256": "78a37ee7a8c992c509c86e4ecb18cab38681ba9b3839ef3380d77b76e1626d88"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260814_job791",
+      "file_name": "validation_predictions.parquet",
+      "sha256": "af0c6e64ccea9510300f7c8f5e34c88b86789e77e2b80833bc519ff04acb5336",
+      "rows": 3314048
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260814_job788",
+      "file_name": "run.json",
+      "sha256": "465882bd5a2bdf691cdf16c6d0564847a0eb9d2cbb43a2eb8c9ab60280781f76"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260814_job788",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "2575e5596d4f75259cc9d6002bfe3f9d9157f74c11d4388ed5cbb816810d0f1f",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260814_job789",
+      "file_name": "run.json",
+      "sha256": "aa611c1a361f2c1a8b68ea41a62245e9f3b8a9154be32d47623b62985750f678"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260814_job789",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "289e287f193840e491d8743b871caf8bd60b685d0d5082208572c7e56b7e35e8",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260814_job790",
+      "file_name": "run.json",
+      "sha256": "6238dbc34413d574bd6503003c363b4ca00c84a1b020d5cc0a005633b477687e"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260814_job790",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "49ac45cdbb50cbaff50c34e6caf3375b0e5c3f29164ecaeae001b87457ceeee9",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_population_seed20260815_job792",
+      "file_name": "run.json",
+      "sha256": "97fc7025da73789a65d6e58e931f659d08d12f5f454c9381b2d1c9a90c89ccc3"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260815_job796",
+      "file_name": "metrics.json",
+      "sha256": "fbdbac3005487d3698490a1ece7b2e99a7b0deed1877d28714b2154fb3741390"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260815_job796",
+      "file_name": "validation_predictions.parquet",
+      "sha256": "e0e49ef227210288abe88909c22e1c779520ffc41560b68dd72f904fe08be9f7",
+      "rows": 3314048
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260815_job793",
+      "file_name": "run.json",
+      "sha256": "05726477d3435f8776064f9c52cad93e2961dc4b65a41bd2a3c1275327f63bfc"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260815_job793",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "c96eb7d19047466038b028808699d46c745b00ead1c7a58c1f3d013333d4c672",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260815_job794",
+      "file_name": "run.json",
+      "sha256": "f24ef30a880d37731321dd145ad3ebf7c87117554004bf8871bef23bbe012561"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260815_job794",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "2e5a31e5f0c43751020c6feb04710b9fad3a2969f8bf7357737dfc9e9cb8402e",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260815_job795",
+      "file_name": "run.json",
+      "sha256": "f69ec2613122a112ac0c279767bf5ab901b7b896faadd1a4ed87b9b6f2ca18b2"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260815_job795",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "3a448b3436d2c53705fdae226376b35938948735a55a837e5882cc04763cf748",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_population_seed20260816_job797",
+      "file_name": "run.json",
+      "sha256": "79073f90f6f76cc2f6d45557cd5511d1216f1d8f3bd020834288d4652d162ecf"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260816_job801",
+      "file_name": "metrics.json",
+      "sha256": "f1aa1c5ce0fdf35d78c2325657b959ee9c809de5abbafc3048e9f75bf43a784a"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260816_job801",
+      "file_name": "validation_predictions.parquet",
+      "sha256": "c6581d442daee98e71e27805bec65ca097e70feddf6a312e87a3946d14ef40ce",
+      "rows": 3314048
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260816_job798",
+      "file_name": "run.json",
+      "sha256": "0a2638b9e5cceac85a5d6efd82a83c62a6283c13068e96f027f385f033e95e9e"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260816_job798",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "0050bb2940ddba392399d901b18b8bb70508913ea723c04457844b4b6d121a08",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260816_job799",
+      "file_name": "run.json",
+      "sha256": "880decd3e71f63841f7bbe55a05e4bb9d27e31dc6cbb0e65992c44059c642083"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260816_job799",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "b04ef346299858b4f1f6fd9a8b4016131851fe2c237c498fcb9ed32f43832291",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260816_job800",
+      "file_name": "run.json",
+      "sha256": "2addaf3cdd0d3049662bf951d588b98bd2b6087d06066aca6f23e8e2490ffa3d"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260816_job800",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "af93a1d35939a90b60e3ab7f32b0571cd7e3fe9ba75cca856aba52371186b285",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_population_seed20260817_job802",
+      "file_name": "run.json",
+      "sha256": "3bb1906848e22710f6594609dae2b628f7baa824b6b79140cb903153f7def2db"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260817_job806",
+      "file_name": "metrics.json",
+      "sha256": "fcba1cb83d921d51f4f69a5dd6af3cbbbbf6e7d1a1937f914d2186a7bcf5b0bd"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_calibration_controls_seed20260817_job806",
+      "file_name": "validation_predictions.parquet",
+      "sha256": "b88218e5287a27d5fe2b0b4b337d9b3b639934c5cae5adbdfc54fdcc74144c46",
+      "rows": 3314048
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260817_job803",
+      "file_name": "run.json",
+      "sha256": "55c3fd3a3a2566ebce7e713e2bf96bd57dca567283fc58d4a9644a7036b1aece"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m0_seed20260817_job803",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "9416ab9edc1e6167b69709fb1aee9fc060d3ca6dc03837d790ccde235c3738d7",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260817_job804",
+      "file_name": "run.json",
+      "sha256": "fbdf9ed2a6a6ddfc398ebbe9cddafcdd0bb48e0a5959d5c6d9fcebfea96a6adb"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m1_seed20260817_job804",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "ec2a038ddcd4dd82e3e1da312d0be2b5a4c8946f5251c1790a320c41a5eaa099",
+      "rows": 414256
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260817_job805",
+      "file_name": "run.json",
+      "sha256": "b09f9f7aaaff2793e8d690cb55f6629151962cf46b1d1f514c7ac483e4df3d78"
+    },
+    {
+      "run_id": "event120-v1_repeat5-v1_m2_seed20260817_job805",
+      "file_name": "best_validation_predictions.parquet",
+      "sha256": "07609f9e0b5f0436421855f09aca1d463bb7ca2a58323a0ad74e584c91205d5c",
+      "rows": 414256
+    }
+  ],
+  "outputs": [
+    {
+      "file_name": "phase5_repeat5_extended_metrics_by_seed.csv",
+      "sha256": "12b592c458f37d3aceb6c7c0c26902da6d0386c209c3c1fab4ad7c9d694b147a",
+      "bytes": 107982
+    },
+    {
+      "file_name": "phase5_repeat5_participant_macro.csv",
+      "sha256": "c1e438ce72b6761b0b8ee7bae053b6725e7e1778b5d29b9b5d53fd607397fe5d",
+      "bytes": 5635
+    },
+    {
+      "file_name": "phase5_repeat5_extended_summary.csv",
+      "sha256": "b18ff6beb8cd66c5503fd7f18e7b10da8705d4b53e171d04a2c953e074987155",
+      "bytes": 34036
+    },
+    {
+      "file_name": "RESULTS_PHASE5_REPEAT5.md",
+      "sha256": "afcb94abfc8ba9b3c67b0c928acef1993c189c6f730a1a8bba7ff9f4eb5e9b30",
+      "bytes": 24786
+    }
+  ]
+}
