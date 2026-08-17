@@ -28,6 +28,13 @@ No repeated-seed or multi-fold job is part of this submission. Every candidate
 changes only one factor relative to the original M0 configuration; combinations
 will be considered only after isolated screening.
 
+The fixed-first protocol ablation (job 818) completed at epoch 4 after 12
+epochs with patience-8 early stopping. Its participant-macro mean MAE was
+9.559, 9.189, 9.018, and 8.782 mmHg for K=1/2/3/5, giving a four-K mean of
+9.137 mmHg. Relative to the same-seed rolling-support M0 result, K=1/2/3
+improved by 0.439/0.246/0.101 mmHg and K=5 worsened by 0.094 mmHg. This is a
+single-seed protocol result, not a confirmed final-model improvement.
+
 ## Residual-tail audit
 
 The development-only K=5 audit contains 697 participants and 103,564 common queries. Participant mean-MAE quantiles are:
