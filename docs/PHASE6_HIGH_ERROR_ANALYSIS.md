@@ -54,10 +54,49 @@ The source difference may reflect population, recording, clinical-state, or
 device/domain differences and should not be interpreted as a device effect
 without source-specific confounder analysis.
 
+## BP level and range association
+
+The worst-tail participants have a modest upward shift in average BP, but they
+are not simply a group of uniformly high-BP participants.
+
+| Participant-level BP summary | Remaining 80% | Worst 20% |
+|---|---:|---:|
+| Mean of participant mean SBP | 117.63 | 121.45 |
+| Median of participant mean SBP | 115.73 | 118.77 |
+| Participants with mean SBP >=130 | 20.3% | 27.1% |
+| Participants with mean SBP <110 | 33.6% | 21.4% |
+| Mean of participant mean DBP | 62.12 | 64.81 |
+| Median of participant mean DBP | 61.57 | 62.78 |
+| Participants with mean DBP >=70 | 21.0% | 30.0% |
+| Participants with mean DBP <60 | 44.0% | 35.7% |
+
+At the event level, high-range events are over-represented in the worst tail:
+
+| Event range | Remaining 80% | Worst 20% |
+|---|---:|---:|
+| SBP >=150 | 6.9% | 13.8% |
+| SBP <90 | 6.6% | 8.0% |
+| DBP >=80 | 7.3% | 13.9% |
+| DBP <50 | 15.1% | 13.8% |
+
+Within the worst-tail participants, SBP MAE is 34.0, 23.6, 18.1, 16.5, and
+23.6 mmHg in the `<90`, `90--109`, `110--129`, `130--149`, and `>=150`
+ranges. DBP MAE is 13.4, 11.1, 8.9, 9.5, and 17.8 mmHg in the `<50`,
+`50--59`, `60--69`, `70--79`, and `>=80` ranges. Error therefore rises at
+both BP extremes rather than being confined to one high-BP interval.
+
+The Spearman correlation between participant mean MAE and participant mean
+SBP/DBP is weak (`rho=0.109/0.094`). In contrast, correlation with
+within-participant SBP/DBP variability is `0.470/0.477`, and correlation with
+mean support-to-query SBP/DBP change is `0.568/0.587`. The primary association
+is therefore BP variability and calibration drift; a mild upward BP shift and
+more high-range events are secondary associations.
+
 ## Training response
 
-Phase-6 screens each intervention separately against the original rolling-
-support M0 configuration using one development seed:
+The corrected Phase-6 set screens each intervention separately against the
+fixed-first M0 configuration using one development seed. Both meta-training
+and validation use the first K events as support and predict event 6 onward:
 
 1. Huber loss;
 2. BP-change-aware sampling on meta-train episodes only;
@@ -69,7 +108,10 @@ Age is aggregated as the participant median of valid adult values in 18 to 100
 years. Invalid age is retained as `age_z=0` with `age_valid=0`; age
 normalization is fitted using meta-train participants only. Sex uses the
 participant mode, with ties or unavailable values encoded as unknown. The
-fixed-first support experiment is retained separately as a protocol ablation.
+completed fixed-first M0 experiment is the common reference for these
+candidates. The earlier rolling-support Huber run is retained only as a
+historical protocol comparison and is not part of the senior-aligned candidate
+set.
 
 Multi-seed and multi-fold experiments remain deferred until a candidate shows
 a meaningful development improvement across multiple K values and does not

@@ -16,17 +16,21 @@ Phase 6 searches for a meaningful improvement over the parsimonious M0 model wit
 
 | Candidate | Single changed factor | Purpose | Slurm job |
 |---|---|---|---:|
-| M0 reference | none | Existing rolling-support comparison result | 783 |
-| Fixed-first protocol ablation | support policy | Match meta-training support to the frozen evaluation support | 818 |
-| Robust loss | Huber loss, delta 0.5 standardized units | Reduce sensitivity to large residuals | 819 |
-| BP-change sampling | meta-train episode sampler | Emphasize calibration-drift episodes without validation leakage | 822 |
-| Robust anchor | coordinate-wise median support residual | Reduce sensitivity to an atypical cuff calibration event | 823 |
-| PPG quality gate | PPG-only personalization gate | Attenuate unreliable personalization without query BP/error | 824 |
-| Demographic conditioning | cleaned age/sex vector | Test whether subject context adds information beyond PPG and cuff anchors | 825 |
+| Original rolling-support M0 | support policy | Historical comparison result | 783 |
+| Fixed-first M0 reference | support policy | Train and validate with events 1 to K; predict event 6 onward | 818 |
+| Robust loss | Huber loss, delta 0.5 standardized units | Reduce sensitivity to large residuals | 826 |
+| BP-change sampling | meta-train episode sampler | Emphasize calibration-drift episodes without validation leakage | 827 |
+| Robust anchor | coordinate-wise median support residual | Reduce sensitivity to an atypical cuff calibration event | 828 |
+| PPG quality gate | PPG-only personalization gate | Attenuate unreliable personalization without query BP/error | 829 |
+| Demographic conditioning | cleaned age/sex vector | Test whether subject context adds information beyond PPG and cuff anchors | 830 |
 
-No repeated-seed or multi-fold job is part of this submission. Every candidate
-changes only one factor relative to the original M0 configuration; combinations
-will be considered only after isolated screening.
+No repeated-seed or multi-fold job is part of this submission. Every corrected
+candidate uses the senior-proposed fixed-first protocol and changes only one
+factor relative to job 818. Jobs 822--825 were cancelled while still pending
+and before using GPU time because they had retained the old rolling-support
+training policy. Job 819 had already started and is retained only as an
+old-protocol Huber comparison; it is not part of the corrected candidate set.
+Combinations will be considered only after isolated screening.
 
 The fixed-first protocol ablation (job 818) completed at epoch 4 after 12
 epochs with patience-8 early stopping. Its participant-macro mean MAE was
