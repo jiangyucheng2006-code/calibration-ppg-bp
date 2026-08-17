@@ -55,11 +55,26 @@ def _participant_balanced_sampler(
 
 
 def _episodic_balanced_sampler(
-    dataset: EpisodicDataset, seed: int, num_samples: int
+    dataset: EpisodicDataset,
+    seed: int,
+    num_samples: int,
+    *,
+    mode: str = "participant_balanced",
+    bp_change_alpha: float = 2.0,
 ) -> WeightedRandomSampler:
     identities = pd.Series(dataset.participant_ids)
     counts = identities.value_counts()
-    weights = identities.map(lambda value: 1.0 / counts[value]).to_numpy()
+    weights = identities.map(lambda value: 1.0 / counts[value]).to_numpy(dtype=float)
+    if mode == "bp_change_aware":
+        if bp_change_alpha <= 0:
+            raise ValueError("bp_change_alpha must be positive")
+        changes = pd.Series(dataset.bp_change_scores(), dtype=float).to_numpy()
+        scale = float(pd.Series(changes).quantile(0.90))
+        if not scale > 0:
+            raise ValueError("BP-change sampler requires a positive training change scale")
+        weights *= 1.0 + bp_change_alpha * (changes / scale).clip(0.0, 1.0)
+    elif mode != "participant_balanced":
+        raise ValueError(f"unsupported episodic sampling mode: {mode}")
     return WeightedRandomSampler(
         torch.as_tensor(weights, dtype=torch.double),
         num_samples=min(num_samples, len(dataset)),
@@ -92,6 +107,15 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         raise ValueError("patience must be positive")
     if args.loss == "huber" and args.huber_delta <= 0:
         raise ValueError("--huber-delta must be positive")
+    if args.use_demographics and args.demographics_path is None:
+        raise ValueError("--use-demographics requires --demographics-path")
+    if (
+        args.anchor_mode != "mean"
+        or args.use_quality_gate
+        or args.use_demographics
+        or args.episode_sampling != "participant_balanced"
+    ) and args.method != "m0":
+        raise ValueError("Phase-6 isolated candidate options are defined for method m0 only")
     seed_everything(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if args.require_cuda and device.type != "cuda":
@@ -113,6 +137,28 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         validation_metadata["common_query"]
         | validation_metadata["support_candidate"]
     ].copy()
+    demographics = None
+    if args.use_demographics:
+        demographics = pd.read_parquet(args.demographics_path)
+        required_demo = {
+            "subject_uid",
+            "split",
+            "age_z",
+            "age_valid",
+            "sex_female",
+            "sex_male",
+            "sex_unknown",
+        }
+        missing_demo = required_demo - set(demographics.columns)
+        if missing_demo:
+            raise ValueError(f"demographic table missing columns: {sorted(missing_demo)}")
+        if demographics["split"].eq("meta_test").any():
+            raise AssertionError("development demographic table contains meta-test rows")
+        expected_subjects = set(train_metadata["subject_uid"]) | set(
+            validation_metadata["subject_uid"]
+        )
+        if not expected_subjects.issubset(set(demographics["subject_uid"])):
+            raise AssertionError("demographic table does not cover the development subjects")
 
     siamese = args.method == "siamese"
     if args.method == "population":
@@ -145,7 +191,12 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             }
             use_film, attention = configuration[args.method]
             model = VariableKPersonalizer(
-                population, use_film=use_film, query_conditioned_weights=attention
+                population,
+                use_film=use_film,
+                query_conditioned_weights=attention,
+                anchor_mode=args.anchor_mode,
+                use_quality_gate=args.use_quality_gate,
+                use_demographics=args.use_demographics,
             )
             for parameter in model.population.parameters():
                 parameter.requires_grad = False
@@ -158,6 +209,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             rolling_support=(
                 not siamese and args.train_support_policy == "rolling_recent"
             ),
+            demographics=demographics if args.use_demographics else None,
         )
         validation_dataset = EpisodicDataset(
             validation_metadata,
@@ -165,9 +217,14 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             scaler,
             ks=episodic_ks,
             rolling_support=False,
+            demographics=demographics if args.use_demographics else None,
         )
         sampler = _episodic_balanced_sampler(
-            train_dataset, args.seed, args.episodes_per_epoch
+            train_dataset,
+            args.seed,
+            args.episodes_per_epoch,
+            mode=args.episode_sampling,
+            bp_change_alpha=args.bp_change_alpha,
         )
 
     model = model.to(device)
@@ -227,11 +284,15 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                         batch["support_bp"][:, 0].to(device, non_blocking=True),
                     )
                 else:
+                    demographics_batch = batch.get("demographics")
                     prediction = model(
                         batch["query_ppg"].to(device, non_blocking=True),
                         batch["support_ppg"].to(device, non_blocking=True),
                         batch["support_bp"].to(device, non_blocking=True),
                         batch["support_mask"].to(device, non_blocking=True),
+                        demographics_batch.to(device, non_blocking=True)
+                        if demographics_batch is not None
+                        else None,
                     )
                 loss = loss_function(prediction.float(), target.float())
             loss.backward()
@@ -325,6 +386,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             "population_checkpoint": str(args.population_checkpoint)
             if args.population_checkpoint
             else None,
+            "demographics_path": str(args.demographics_path)
+            if args.demographics_path
+            else None,
         },
     }
     save_json(args.output / "run.json", result)
@@ -366,6 +430,16 @@ def main() -> None:
         help="Huber transition in standardized BP units; used only with --loss huber.",
     )
     parser.add_argument("--episodes-per-epoch", type=int, default=200000)
+    parser.add_argument(
+        "--episode-sampling",
+        choices=["participant_balanced", "bp_change_aware"],
+        default="participant_balanced",
+    )
+    parser.add_argument("--bp-change-alpha", type=float, default=2.0)
+    parser.add_argument("--anchor-mode", choices=["mean", "median"], default="mean")
+    parser.add_argument("--use-quality-gate", action="store_true")
+    parser.add_argument("--use-demographics", action="store_true")
+    parser.add_argument("--demographics-path", type=Path)
     parser.add_argument("--max-train-examples", type=int)
     parser.add_argument("--max-validation-examples", type=int)
     parser.add_argument("--require-cuda", action="store_true")

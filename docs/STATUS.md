@@ -72,15 +72,13 @@ tail analysis, decide whether it motivates one prespecified training change,
 and then freeze M0 (or a justified alternative), the seed/checkpoint policy,
 statistics, exclusions, and reporting script.
 
-After the repeated-seed development result is available, run a development-
-only residual-tail analysis before robustness expansion. It will identify
-high-error participants/events and test prespecified associations with source,
-BP range, support-query BP change, time since calibration, event history, and
-PPG-derived input-only quality/morphology measures. Candidate interventions
-include robust loss or reweighting, hard-example training, and an input-only
-uncertainty/quality gate with coverage reporting. Query error or reference ABP
-must never be used to decide at inference time whether a case is kept. Any rule
-is frozen on development data and applied unchanged to locked/external data.
+The development-only worst-20% participant audit is complete and is documented
+in [PHASE6_HIGH_ERROR_ANALYSIS.md](PHASE6_HIGH_ERROR_ANALYSIS.md). Phase-6 now
+screens robust loss, BP-change-aware meta-train sampling, a robust support
+anchor, a PPG-only quality gate, and cleaned age/sex conditioning as isolated
+single-factor changes. Query error or reference ABP is never an input to a
+deployable gate. Multi-seed confirmation remains deferred until one candidate
+passes the development screening gate.
 
 ## Not yet established
 

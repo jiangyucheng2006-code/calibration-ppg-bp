@@ -59,3 +59,36 @@ def test_adaptation_modes_expose_only_intended_parameters() -> None:
     trainable = [name for name, parameter in lora.named_parameters() if parameter.requires_grad]
     assert trainable
     assert all(".a." in name or ".b." in name for name in trainable)
+
+
+def test_masked_median_uses_midpoint_for_even_k_and_ignores_padding() -> None:
+    values = torch.tensor(
+        [
+            [[1.0, 10.0], [9.0, 30.0], [100.0, 100.0], [200.0, 200.0]],
+            [[1.0, 5.0], [9.0, 1.0], [3.0, 8.0], [500.0, 500.0]],
+        ]
+    )
+    mask = torch.tensor([[1, 1, 0, 0], [1, 1, 1, 0]], dtype=torch.bool)
+    actual = VariableKPersonalizer._masked_median(values, mask)
+    expected = torch.tensor([[5.0, 20.0], [3.0, 5.0]])
+    assert torch.equal(actual, expected)
+
+
+def test_quality_gate_and_demographic_conditioning_accept_expected_inputs() -> None:
+    query = torch.randn(2, 1, 1250)
+    support = torch.randn(2, 5, 1, 1250)
+    support_bp = torch.randn(2, 5, 2)
+    mask = torch.tensor([[1, 0, 0, 0, 0], [1, 1, 1, 1, 1]], dtype=torch.bool)
+    demographics = torch.tensor(
+        [[0.0, 0.0, 0.0, 0.0, 1.0], [1.2, 1.0, 1.0, 0.0, 0.0]]
+    )
+    gate = VariableKPersonalizer(
+        use_film=False, query_conditioned_weights=False, use_quality_gate=True
+    )
+    assert gate(query, support, support_bp, mask).shape == (2, 2)
+    demographic = VariableKPersonalizer(
+        use_film=False, query_conditioned_weights=False, use_demographics=True
+    )
+    assert demographic(query, support, support_bp, mask, demographics).shape == (2, 2)
+    with pytest.raises(ValueError, match="demographic"):
+        demographic(query, support, support_bp, mask)

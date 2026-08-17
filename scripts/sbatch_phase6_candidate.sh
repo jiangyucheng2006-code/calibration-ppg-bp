@@ -16,6 +16,12 @@ population_checkpoint="${3:?population checkpoint is required}"
 support_policy="${4:?support policy is required}"
 loss_name="${5:?loss name is required}"
 huber_delta="${6:-0.5}"
+episode_sampling="${7:-participant_balanced}"
+anchor_mode="${8:-mean}"
+quality_gate="${9:-no}"
+use_demographics="${10:-no}"
+demographics_path="${11:-}"
+bp_change_alpha="${12:-2.0}"
 
 work_root="/home/$USER/work/ppg_bp"
 archive_root="/home/$USER/nas/ppg_bp"
@@ -26,6 +32,18 @@ output="$work_root/outputs/$run_id"
 source /opt/conda/etc/profile.d/conda.sh
 conda activate "$work_root/envs/train"
 cd "$project_root"
+
+extra_args=()
+if [[ "$quality_gate" == "yes" ]]; then
+  extra_args+=(--use-quality-gate)
+fi
+if [[ "$use_demographics" == "yes" ]]; then
+  test -f "$demographics_path" || {
+    echo "ERROR: demographic feature table is missing: $demographics_path" >&2
+    exit 1
+  }
+  extra_args+=(--use-demographics --demographics-path "$demographics_path")
+fi
 
 python -m pulsedb_fewshot.train \
   --method m0 \
@@ -43,6 +61,10 @@ python -m pulsedb_fewshot.train \
   --train-support-policy "$support_policy" \
   --loss "$loss_name" \
   --huber-delta "$huber_delta" \
+  --episode-sampling "$episode_sampling" \
+  --bp-change-alpha "$bp_change_alpha" \
+  --anchor-mode "$anchor_mode" \
+  "${extra_args[@]}" \
   --require-cuda
 
 mkdir -p "$archive_root/outputs/$run_id" "$archive_root/checkpoints/$run_id"

@@ -14,13 +14,19 @@ Phase 6 searches for a meaningful improvement over the parsimonious M0 model wit
 
 ## Current candidates
 
-| Candidate | Meta-training support | Loss | Purpose |
-|---|---|---|---|
-| M0 reference | latest K prior events | MSE | Existing comparison result |
-| Fixed-first M0 | events 1 to K | MSE | Match meta-training support to the frozen evaluation support |
-| Robust-loss M0 | latest K prior events | Huber, delta 0.5 standardized units | Reduce sensitivity to large residuals |
+| Candidate | Single changed factor | Purpose | Slurm job |
+|---|---|---|---:|
+| M0 reference | none | Existing rolling-support comparison result | 783 |
+| Fixed-first protocol ablation | support policy | Match meta-training support to the frozen evaluation support | 818 |
+| Robust loss | Huber loss, delta 0.5 standardized units | Reduce sensitivity to large residuals | 819 |
+| BP-change sampling | meta-train episode sampler | Emphasize calibration-drift episodes without validation leakage | 822 |
+| Robust anchor | coordinate-wise median support residual | Reduce sensitivity to an atypical cuff calibration event | 823 |
+| PPG quality gate | PPG-only personalization gate | Attenuate unreliable personalization without query BP/error | 824 |
+| Demographic conditioning | cleaned age/sex vector | Test whether subject context adds information beyond PPG and cuff anchors | 825 |
 
-Slurm jobs 818 and 819 run the fixed-first and robust-loss candidates, respectively. No repeated-seed or multi-fold job is part of this submission.
+No repeated-seed or multi-fold job is part of this submission. Every candidate
+changes only one factor relative to the original M0 configuration; combinations
+will be considered only after isolated screening.
 
 ## Residual-tail audit
 
@@ -33,11 +39,23 @@ The development-only K=5 audit contains 697 participants and 103,564 common quer
 | 95% | 16.919 |
 | 99% | 22.492 |
 
-The top 10% error group has larger within-participant BP variability and a later average event horizon. MIMIC also has a higher high-error proportion than VitalDB. Coverage-error calculations based on observed query error are labelled oracle-only; they are not deployable quality screening and must not be presented as headline model accuracy.
+The prespecified worst-20% participant analysis is reported in
+[PHASE6_HIGH_ERROR_ANALYSIS.md](PHASE6_HIGH_ERROR_ANALYSIS.md). The tail has
+larger within-participant BP variability, larger support-to-query BP changes,
+more targets outside the support BP range, and a later average event horizon.
+MIMIC also has a higher tail proportion than VitalDB. PPG amplitude and mean
+age are nearly unchanged. Coverage-error calculations based on observed query
+error remain oracle-only and cannot be used as deployable quality screening.
 
 ## Demographic audit decision
 
-Age and sex were audited on the development manifest before any conditioning model was submitted. Sex is complete and internally consistent. Age is not ready for model input: 76 participants have more than one age value within the same participant, 25 participants are younger than 18, and the minimum recorded value is zero. Demographic conditioning is therefore paused until a prespecified aggregation and validity rule is implemented using development data only.
+Age and sex were audited and converted to a participant-level development
+table. Age uses the participant median of finite values from 18 to 100 years;
+25 participants without a valid adult age are retained with `age_valid=0`, and
+76 participants with multiple valid age records are summarized by the median.
+Age normalization is fitted on meta-train participants only. Sex uses the
+participant mode with an explicit unknown channel. This cleaned representation
+is evaluated as one isolated candidate rather than being added to every model.
 
 ## Leakage controls
 

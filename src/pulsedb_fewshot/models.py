@@ -163,6 +163,10 @@ class VariableKPersonalizer(nn.Module):
         *,
         use_film: bool = True,
         query_conditioned_weights: bool = False,
+        anchor_mode: str = "mean",
+        use_quality_gate: bool = False,
+        use_demographics: bool = False,
+        demographic_dim: int = 5,
     ) -> None:
         super().__init__()
         self.population = population or PopulationRegressor()
@@ -173,6 +177,11 @@ class VariableKPersonalizer(nn.Module):
         )
         self.use_film = use_film
         self.query_conditioned_weights = query_conditioned_weights
+        if anchor_mode not in {"mean", "median"}:
+            raise ValueError("anchor_mode must be 'mean' or 'median'")
+        self.anchor_mode = anchor_mode
+        self.use_quality_gate = use_quality_gate
+        self.use_demographics = use_demographics
         if query_conditioned_weights:
             self.reliability = nn.Sequential(
                 nn.Linear(dimension * 2 + 2, dimension),
@@ -183,8 +192,26 @@ class VariableKPersonalizer(nn.Module):
             self.film = nn.Linear(dimension, dimension * 2)
             nn.init.zeros_(self.film.weight)
             nn.init.zeros_(self.film.bias)
+        if use_demographics:
+            self.demographic_encoder = nn.Sequential(
+                nn.Linear(demographic_dim, 32),
+                nn.SiLU(),
+                nn.Linear(32, dimension),
+                nn.LayerNorm(dimension),
+            )
+        if use_quality_gate:
+            self.quality_gate = nn.Sequential(
+                nn.Linear(dimension * 3, dimension),
+                nn.SiLU(),
+                nn.Linear(dimension, 2),
+            )
+            quality_final = self.quality_gate[-1]
+            assert isinstance(quality_final, nn.Linear)
+            nn.init.zeros_(quality_final.weight)
+            nn.init.constant_(quality_final.bias, 4.0)
+        correction_inputs = dimension * (3 if use_demographics else 2)
         self.correction = nn.Sequential(
-            nn.Linear(dimension * 2, dimension),
+            nn.Linear(correction_inputs, dimension),
             nn.SiLU(),
             nn.Linear(dimension, 2),
         )
@@ -202,12 +229,30 @@ class VariableKPersonalizer(nn.Module):
         masked = logits.masked_fill(~mask, torch.finfo(logits.dtype).min)
         return torch.softmax(masked, dim=1)
 
+    @staticmethod
+    def _masked_median(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Coordinate-wise median with an exact midpoint for even support counts."""
+
+        if mask.dtype != torch.bool:
+            mask = mask.bool()
+        if not mask.any(dim=1).all():
+            raise ValueError("every episode requires at least one support event")
+        masked = values.masked_fill(~mask[..., None], torch.inf)
+        ordered = masked.sort(dim=1).values
+        counts = mask.sum(dim=1)
+        lower = ((counts - 1) // 2)[:, None, None].expand(-1, 1, values.shape[-1])
+        upper = (counts // 2)[:, None, None].expand(-1, 1, values.shape[-1])
+        lower_values = ordered.gather(1, lower).squeeze(1)
+        upper_values = ordered.gather(1, upper).squeeze(1)
+        return (lower_values + upper_values) / 2
+
     def forward(
         self,
         query_ppg: torch.Tensor,
         support_ppg: torch.Tensor,
         support_bp: torch.Tensor,
         support_mask: torch.Tensor,
+        demographics: torch.Tensor | None = None,
     ) -> torch.Tensor:
         if support_ppg.ndim != 4:
             raise ValueError("support PPG must have shape [batch, Kmax, 1, time]")
@@ -237,15 +282,41 @@ class VariableKPersonalizer(nn.Module):
                 batch, maximum_k, dtype=query_features.dtype, device=query_features.device
             )
         weights = self._masked_weights(logits, support_mask)
-        anchor_residual = torch.sum(weights[..., None] * support_residual, dim=1)
+        if self.anchor_mode == "median":
+            anchor_residual = self._masked_median(support_residual, support_mask)
+        else:
+            anchor_residual = torch.sum(weights[..., None] * support_residual, dim=1)
         context = torch.sum(weights[..., None] * tokens, dim=1)
+        support_ppg_context = torch.sum(weights[..., None] * support_features, dim=1)
 
         personalized_query = query_features
         if self.use_film:
             gamma, beta = self.film(context).chunk(2, dim=-1)
             personalized_query = (1.0 + gamma) * personalized_query + beta
-        correction = self.correction(torch.cat([personalized_query, context], dim=-1))
-        return population_query + anchor_residual + correction
+        correction_inputs = [personalized_query, context]
+        if self.use_demographics:
+            if demographics is None:
+                raise ValueError("demographic conditioning requires demographic features")
+            correction_inputs.append(self.demographic_encoder(demographics))
+        correction = self.correction(torch.cat(correction_inputs, dim=-1))
+        personalization = anchor_residual + correction
+        if self.use_quality_gate:
+            # The gate receives PPG-derived features only. It never observes the
+            # query BP, query error, or reference ABP.
+            gate = torch.sigmoid(
+                self.quality_gate(
+                    torch.cat(
+                        [
+                            query_features,
+                            support_ppg_context,
+                            (query_features - support_ppg_context).abs(),
+                        ],
+                        dim=-1,
+                    )
+                )
+            )
+            personalization = gate * personalization
+        return population_query + personalization
 
 
 class LoRALinear(nn.Module):

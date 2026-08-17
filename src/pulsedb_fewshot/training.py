@@ -169,6 +169,7 @@ class EpisodicDataset(Dataset):
         *,
         ks: tuple[int, ...] = KS,
         rolling_support: bool = False,
+        demographics: pd.DataFrame | None = None,
     ) -> None:
         self.metadata = metadata.reset_index(drop=True)
         self.accessor = WaveformAccessor(store_root)
@@ -176,6 +177,22 @@ class EpisodicDataset(Dataset):
         self.std = torch.tensor(scaler["std"], dtype=torch.float32)
         self.ks = tuple(ks)
         self.rolling_support = rolling_support
+        self.demographics = None
+        if demographics is not None:
+            required = {
+                "subject_uid",
+                "age_z",
+                "age_valid",
+                "sex_female",
+                "sex_male",
+                "sex_unknown",
+            }
+            missing = required - set(demographics.columns)
+            if missing:
+                raise ValueError(f"demographic table missing columns: {sorted(missing)}")
+            if demographics["subject_uid"].duplicated().any():
+                raise AssertionError("demographic table contains duplicate participants")
+            self.demographics = demographics.set_index("subject_uid")
         support_rows: dict[str, list[int]] = defaultdict(list)
         all_rows: dict[str, list[int]] = defaultdict(list)
         query_rows: list[int] = []
@@ -212,7 +229,7 @@ class EpisodicDataset(Dataset):
     def _waveform(self, row: pd.Series) -> torch.Tensor:
         return self.accessor.get(row.waveform_file, int(row.waveform_row))
 
-    def __getitem__(self, index: int) -> dict[str, object]:
+    def _query_and_support_indexes(self, index: int) -> tuple[pd.Series, list[int], int]:
         query_position, k_position = divmod(index, len(self.ks))
         k = self.ks[k_position]
         query = self.metadata.iloc[self.query_rows[query_position]]
@@ -228,6 +245,23 @@ class EpisodicDataset(Dataset):
             support_indexes = candidate_pool[-k:]
         else:
             support_indexes = self.support_rows[str(query.subject_uid)][:k]
+        return query, support_indexes, k
+
+    def bp_change_scores(self) -> list[float]:
+        """Return train-episode BP-change magnitudes without loading waveforms."""
+
+        scores: list[float] = []
+        scale = self.std.numpy()
+        for index in range(len(self)):
+            query, support_indexes, _ = self._query_and_support_indexes(index)
+            support = self.metadata.iloc[support_indexes]
+            query_bp = np.asarray([query.sbp, query.dbp], dtype=np.float64)
+            support_bp = support[["sbp", "dbp"]].to_numpy(dtype=np.float64).mean(axis=0)
+            scores.append(float(np.abs((query_bp - support_bp) / scale).mean()))
+        return scores
+
+    def __getitem__(self, index: int) -> dict[str, object]:
+        query, support_indexes, k = self._query_and_support_indexes(index)
         support_ppg = torch.zeros(max(KS), 1, int(query.n_samples), dtype=torch.float32)
         support_bp = torch.zeros(max(KS), 2, dtype=torch.float32)
         support_mask = torch.zeros(max(KS), dtype=torch.bool)
@@ -238,7 +272,7 @@ class EpisodicDataset(Dataset):
             support_bp[position] = (bp - self.mean) / self.std
             support_mask[position] = True
         query_bp = torch.tensor([query.sbp, query.dbp], dtype=torch.float32)
-        return {
+        item = {
             "query_ppg": self._waveform(query),
             "support_ppg": support_ppg,
             "support_bp": support_bp,
@@ -248,6 +282,22 @@ class EpisodicDataset(Dataset):
             "event_id": query.event_id,
             "k": k,
         }
+        if self.demographics is not None:
+            subject = str(query.subject_uid)
+            if subject not in self.demographics.index:
+                raise AssertionError(f"missing demographics for participant {subject}")
+            row = self.demographics.loc[subject]
+            item["demographics"] = torch.tensor(
+                [
+                    row.age_z,
+                    row.age_valid,
+                    row.sex_female,
+                    row.sex_male,
+                    row.sex_unknown,
+                ],
+                dtype=torch.float32,
+            )
+        return item
 
 
 @torch.no_grad()
@@ -303,7 +353,16 @@ def predict_episodic(
         if siamese:
             predictions = model(query, support[:, 0], support_bp[:, 0])
         else:
-            predictions = model(query, support, support_bp, mask)
+            demographics = batch.get("demographics")
+            predictions = model(
+                query,
+                support,
+                support_bp,
+                mask,
+                demographics.to(device, non_blocking=True)
+                if demographics is not None
+                else None,
+            )
         predictions = predictions * std + mean
         targets = targets * std + mean
         for index in range(len(batch["event_id"])):

@@ -142,6 +142,11 @@ concern. M0 and M1 remain close, so M0 is the parsimonious provisional finalist
 rather than a conclusively superior model. No locked-test, robustness,
 external-validation, or final-paper result is reported at this stage.
 
+The current development-only error-tail diagnosis and isolated Phase-6
+candidate plan are documented in
+[docs/PHASE6_HIGH_ERROR_ANALYSIS.md](docs/PHASE6_HIGH_ERROR_ANALYSIS.md) and
+[docs/PHASE6_EXPLORATION.md](docs/PHASE6_EXPLORATION.md).
+
 ## License and citation
 
 No open-source license has yet been granted. The public repository is intended
