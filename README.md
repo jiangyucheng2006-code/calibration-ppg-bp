@@ -61,15 +61,15 @@ model passes the calibration gate.
 See [METHODS.md](docs/METHODS.md) for equations and allowed inputs,
 [PROTOCOL.md](docs/PROTOCOL.md) for leakage controls, and
 [STATUS.md](docs/STATUS.md) for the current verified development state. The
-single-seed Phase-5 development snapshot is reported in
-[RESULTS_PHASE5.md](docs/RESULTS_PHASE5.md), with a machine-readable table in
-[`results/phase5_meta_validation_summary.csv`](results/phase5_meta_validation_summary.csv).
-The [extended first-run table](docs/RESULTS_PHASE5_FIRST_RUN_EXTENDED.md)
-recomputes event-pooled MAE, R², signed mean error, error SD, cumulative
-5/10/15-mmHg percentages, and explicitly qualified AAMI/BHS numerical screens
-from saved predictions. The complete [data-selection and training-cohort
-report](docs/DATA_SELECTION_AND_TRAINING_COHORT.md) documents why the first run
-uses a leakage-safe subset of the original segment rows.
+current Phase-5 development comparison is the [five-seed report](docs/RESULTS_PHASE5_REPEAT5.md),
+with a [participant-macro table](results/phase5_repeat5_participant_macro.csv),
+an [88-row extended summary](results/phase5_repeat5_extended_summary.csv), and
+the [440 seed-specific diagnostic rows](results/phase5_repeat5_extended_metrics_by_seed.csv)
+needed to reconstruct the summary. The original [single-seed snapshot](docs/RESULTS_PHASE5.md)
+is retained as a historical development record. The complete [data-selection
+and training-cohort report](docs/DATA_SELECTION_AND_TRAINING_COHORT.md)
+documents why the experiment uses a leakage-safe subset of the original
+segment rows.
 
 ## Repository layout
 
@@ -135,11 +135,12 @@ accepted experiment.
 
 The complete PulseDB audit, participant split, `event120-v1` construction,
 label-isolated query artifacts, waveform materialization, GPU smoke test, and
-single-seed Phase-5 development comparison are complete. M0 is the current
-meta-validation winner at every K, but it reached the 25-epoch cap and all
-learned methods currently have only one seed. Convergence sensitivity and
-repeat-seed experiments must precede configuration freeze. No locked-test or
-final-paper result is reported in this repository at this stage.
+five-seed Phase-5 development comparison are complete. M0 has the lowest mean
+participant-macro MAE at every K. The repeated runs used no epoch cap and all
+stopped through patience-8 early stopping, resolving the original convergence
+concern. M0 and M1 remain close, so M0 is the parsimonious provisional finalist
+rather than a conclusively superior model. No locked-test, robustness,
+external-validation, or final-paper result is reported at this stage.
 
 ## License and citation
 

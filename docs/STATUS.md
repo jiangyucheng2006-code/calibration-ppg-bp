@@ -1,6 +1,6 @@
 # Verified project status
 
-Last updated: 2026-08-15.
+Last updated: 2026-08-17.
 
 ## Completed gates
 
@@ -27,33 +27,38 @@ Last updated: 2026-08-15.
 
 ## Development-only training
 
-The single-seed population, M0, M1, M2, calibration-control, and corrected
-first-anchor Siamese runs completed successfully. Their formal stderr files are
-empty, and the work/NAS result trees and checkpoint archives passed bytewise
-verification.
+The five prespecified seed pipelines (`20260813`--`20260817`) completed for the
+population model, M0, M1, M2, and the shared calibration controls. Scheduler
+jobs 782--807 all exited `0:0`; the final aggregation and independently rebuilt
+report were archived identically to work and NAS. The locked meta-test was not
+accessed.
 
-M0 is the current meta-validation winner. Its participant-macro SBP/DBP/mean
-MAE was:
+M0 has the lowest five-seed mean participant-macro MAE at every calibration
+budget. Values below are mean ± sample SD across training seeds:
 
 | K | SBP MAE | DBP MAE | Mean MAE |
 |---:|---:|---:|---:|
-| 1 | 12.865 | 7.131 | 9.998 |
-| 2 | 12.155 | 6.714 | 9.435 |
-| 3 | 11.770 | 6.468 | 9.119 |
-| 5 | 11.219 | 6.157 | 8.688 |
+| 1 | 12.920 ± 0.111 | 7.242 ± 0.096 | 10.081 ± 0.096 |
+| 2 | 12.240 ± 0.136 | 6.812 ± 0.095 | 9.526 ± 0.112 |
+| 3 | 11.894 ± 0.144 | 6.576 ± 0.095 | 9.235 ± 0.116 |
+| 5 | 11.318 ± 0.110 | 6.253 ± 0.086 | 8.785 ± 0.094 |
 
-All values are mmHg and come from 697 meta-validation participants and the
-same 103,564 future query events per K. The locked meta-test was not accessed.
-See [RESULTS_PHASE5.md](RESULTS_PHASE5.md) for the comparator table,
-uncertainty, source diagnostics, limitations, and next gate.
+All rows contain the same 697 meta-validation participants and 103,564 future
+query events per K. Across K, M0 has mean MAE 9.407 ± 0.104 mmHg, followed by
+M1 at 9.453 ± 0.143 and M2 at 9.510 ± 0.102. The M0--M1 difference is small
+relative to seed variability; M0 is therefore the parsimonious provisional
+finalist, not a conclusively superior model.
 
-The saved first-run predictions have now been independently reprocessed into a
-90-row BP-specific extended table. It includes event-pooled MAE, R², signed
-mean error, error SD, cumulative 5/10/15-mmHg percentages, and qualified
-AAMI/BHS numerical screens. Every row fails the AAMI numerical screen; the BHS
-distribution is 19 Grade-C and 71 Grade-D rows. These are not formal device-
-validation determinations. See
-[RESULTS_PHASE5_FIRST_RUN_EXTENDED.md](RESULTS_PHASE5_FIRST_RUN_EXTENDED.md).
+The unlimited-epoch runs all stopped by patience-8 early stopping. M0 selected
+best epochs 10--33 across seeds, confirming that the original fixed 25-epoch
+cap was not adequate for every initialization while showing that the new runs
+did converge under the prespecified stopping rule.
+
+The five-seed [extended report](RESULTS_PHASE5_REPEAT5.md) contains the required
+Setting/BP/MAE/R²/ME/STD/5--10--15-mmHg/AAMI/BHS columns. All 88 method/K/BP
+summary rows fail the AAMI numerical screen in every seed, and no row obtains
+a BHS Grade A or B in any seed. These are retrospective numerical screens, not
+formal device-validation determinations.
 
 The complete first-run data-selection funnel and acceptance/exclusion rules are
 documented in
@@ -61,10 +66,11 @@ documented in
 
 ## Current gate
 
-Resolve M0 convergence beyond the original 25-epoch cap and run the
-prespecified repeat-seed comparison. Freeze the final configuration, seed
-policy, statistics, and source/tail reporting before submitting a one-time
-locked-test evaluation.
+The convergence and repeat-seed gates are complete. Before a one-time locked-
+test evaluation, use development data only to complete the planned residual-
+tail analysis, decide whether it motivates one prespecified training change,
+and then freeze M0 (or a justified alternative), the seed/checkpoint policy,
+statistics, exclusions, and reporting script.
 
 After the repeated-seed development result is available, run a development-
 only residual-tail analysis before robustness expansion. It will identify
@@ -78,8 +84,7 @@ is frozen on development data and applied unchanged to locked/external data.
 
 ## Not yet established
 
-- no locked-test result;
-- no final multi-seed model comparison or frozen finalist;
+- no locked-test result or frozen final configuration;
 - no real pressure-, motion-, or device-shift robustness result;
 - no independent external validation;
 - no clinical validation or standards claim.

@@ -2,6 +2,10 @@
 
 Last updated: 2026-08-14.
 
+> This file preserves the original single-seed development snapshot. The
+> current model-selection evidence is the five-seed report in
+> [RESULTS_PHASE5_REPEAT5.md](RESULTS_PHASE5_REPEAT5.md).
+
 ## Result status
 
 This document reports an **exploratory, single-seed meta-validation snapshot**.
@@ -142,20 +146,18 @@ does **not** yet establish multi-seed stability, locked-test generalization,
 pressure or motion robustness, device transfer, external validation, clinical
 accuracy, or compliance with a medical-device standard.
 
-## Next decision gate
+## Current decision gate
 
-Before any locked-test evaluation:
+The unlimited-epoch convergence sensitivity and five-seed comparison were
+completed on 2026-08-17. The current development evidence recommends M0 as the
+parsimonious provisional finalist, while recognizing that its average margin
+over M1 is small. Before any locked-test evaluation:
 
-1. Run a one-factor M0 convergence sensitivity with a higher epoch cap while
-   keeping all other settings unchanged.
-2. Repeat the population-to-personalization pipeline under at least three
-   prespecified seeds; five seeds are preferred if compute permits.
-3. Retain M0, M1, M2, LoRA, head-only, residual offset, and last cuff in the
-   development comparison so training-seed variability is not confused with
-   participant-bootstrap uncertainty.
-4. Freeze the final configuration, seed policy, result script, checkpoint rule,
-   and source/tail reporting plan.
-5. Run the quarantined locked meta-test once.
+1. complete the planned development-only residual-tail analysis;
+2. decide whether one prespecified training intervention is justified;
+3. freeze the final architecture, seed/checkpoint rule, reporting script,
+   exclusions, and statistics; and
+4. evaluate the quarantined locked meta-test once.
 
 Robustness training for contact pressure, motion, and device/acquisition shift
 begins only after this base personalization gate is passed.
