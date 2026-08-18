@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import platform
 
+import numpy as np
 import pandas as pd
 import torch
 from torch import nn
@@ -61,6 +62,7 @@ def _episodic_balanced_sampler(
     *,
     mode: str = "participant_balanced",
     bp_change_alpha: float = 2.0,
+    participant_multipliers: dict[str, float] | None = None,
 ) -> WeightedRandomSampler:
     identities = pd.Series(dataset.participant_ids)
     counts = identities.value_counts()
@@ -75,6 +77,18 @@ def _episodic_balanced_sampler(
         weights *= 1.0 + bp_change_alpha * (changes / scale).clip(0.0, 1.0)
     elif mode != "participant_balanced":
         raise ValueError(f"unsupported episodic sampling mode: {mode}")
+    if participant_multipliers is not None:
+        missing = set(identities.astype(str)) - set(participant_multipliers)
+        if missing:
+            raise ValueError(
+                "participant multiplier table does not cover the episodic dataset"
+            )
+        multipliers = identities.astype(str).map(participant_multipliers).to_numpy(
+            dtype=float
+        )
+        if not np.isfinite(multipliers).all() or not (multipliers > 0).all():
+            raise ValueError("participant sampling multipliers must be finite and positive")
+        weights *= multipliers
     return WeightedRandomSampler(
         torch.as_tensor(weights, dtype=torch.double),
         num_samples=min(num_samples, len(dataset)),
@@ -262,6 +276,23 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         raise ValueError("--tail-weight must be in [0, 1]")
     if args.tail_objective != "mean" and args.method != "m0":
         raise ValueError("participant-tail training is currently defined for method m0 only")
+    if (args.crossfit_folds is None) != (args.crossfit_heldout_fold is None):
+        raise ValueError(
+            "--crossfit-folds and --crossfit-heldout-fold must be provided together"
+        )
+    if args.crossfit_heldout_fold is not None and args.crossfit_heldout_fold < 0:
+        raise ValueError("--crossfit-heldout-fold must be nonnegative")
+    if args.participant_risk_labels is not None and args.method != "m0":
+        raise ValueError("cross-fitted participant weighting is defined for method m0 only")
+    if args.participant_risk_labels is not None and args.tail_objective != "mean":
+        raise ValueError(
+            "cross-fitted participant weighting cannot be combined with another "
+            "tail objective in the same single-factor run"
+        )
+    if args.hard_participant_only and args.participant_risk_labels is None:
+        raise ValueError("--hard-participant-only requires --participant-risk-labels")
+    if args.hard_participant_weight < 1.0:
+        raise ValueError("--hard-participant-weight must be at least one")
     if args.use_demographics and args.demographics_path is None:
         raise ValueError("--use-demographics requires --demographics-path")
     if (
@@ -276,8 +307,56 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     if args.require_cuda and device.type != "cuda":
         raise RuntimeError("CUDA was required but is unavailable")
     metadata = load_store_metadata(args.store_root, "development")
-    train_metadata = metadata.loc[metadata["split"].eq("meta_train")].copy()
-    validation_metadata = metadata.loc[metadata["split"].eq("meta_validation")].copy()
+    original_train = metadata.loc[metadata["split"].eq("meta_train")].copy()
+    if args.crossfit_folds is None:
+        train_metadata = original_train
+        validation_metadata = metadata.loc[metadata["split"].eq("meta_validation")].copy()
+        run_split = "meta_validation"
+        scaler_metadata = metadata
+    else:
+        folds = pd.read_parquet(args.crossfit_folds)
+        required_folds = {"subject_uid", "source", "fold"}
+        missing_folds = required_folds - set(folds.columns)
+        if missing_folds:
+            raise ValueError(f"cross-fit fold table missing {sorted(missing_folds)}")
+        if folds["subject_uid"].duplicated().any():
+            raise AssertionError("cross-fit fold table contains duplicate participants")
+        expected_subjects = set(original_train["subject_uid"].astype(str))
+        observed_subjects = set(folds["subject_uid"].astype(str))
+        if observed_subjects != expected_subjects:
+            raise AssertionError("cross-fit folds do not exactly cover meta-train participants")
+        subject_source = (
+            original_train[["subject_uid", "source"]]
+            .drop_duplicates()
+            .assign(subject_uid=lambda frame: frame["subject_uid"].astype(str))
+        )
+        checked = folds.assign(subject_uid=folds["subject_uid"].astype(str)).merge(
+            subject_source,
+            on="subject_uid",
+            how="left",
+            suffixes=("_fold", "_metadata"),
+            validate="one_to_one",
+        )
+        if not checked["source_fold"].astype(str).equals(
+            checked["source_metadata"].astype(str)
+        ):
+            raise AssertionError("cross-fit fold sources differ from metadata")
+        heldout = int(args.crossfit_heldout_fold)
+        if heldout not in set(pd.to_numeric(folds["fold"]).astype(int)):
+            raise ValueError(f"held-out cross-fit fold {heldout} is absent")
+        fold_lookup = folds.assign(
+            subject_uid=folds["subject_uid"].astype(str),
+            fold=pd.to_numeric(folds["fold"], errors="raise").astype(int),
+        ).set_index("subject_uid")["fold"]
+        event_folds = original_train["subject_uid"].astype(str).map(fold_lookup)
+        if event_folds.isna().any():
+            raise AssertionError("at least one meta-train event has no cross-fit fold")
+        train_metadata = original_train.loc[event_folds.ne(heldout)].copy()
+        validation_metadata = original_train.loc[event_folds.eq(heldout)].copy()
+        if train_metadata.empty or validation_metadata.empty:
+            raise ValueError("cross-fit train or held-out fold is empty")
+        run_split = f"meta_train_crossfit_fold_{heldout}"
+        scaler_metadata = train_metadata
     if set(train_metadata["subject_uid"]) & set(validation_metadata["subject_uid"]):
         raise AssertionError("participant leakage between training and validation")
     if args.max_train_examples is not None:
@@ -287,7 +366,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     # fit_target_scaler explicitly selects meta_train rows. Passing the full
     # development metadata preserves a single audited entry point while
     # keeping meta-validation targets out of preprocessing parameters.
-    scaler = fit_target_scaler(metadata)
+    scaler = fit_target_scaler(scaler_metadata)
     validation_metadata = validation_metadata.loc[
         validation_metadata["common_query"]
         | validation_metadata["support_candidate"]
@@ -314,6 +393,64 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         )
         if not expected_subjects.issubset(set(demographics["subject_uid"])):
             raise AssertionError("demographic table does not cover the development subjects")
+
+    participant_multipliers: dict[str, float] | None = None
+    if args.participant_risk_labels is not None:
+        risk_labels = pd.read_parquet(args.participant_risk_labels)
+        required_labels = {"subject_uid", "source", "hard_oof", "label_split"}
+        missing_labels = required_labels - set(risk_labels.columns)
+        if missing_labels:
+            raise ValueError(
+                f"participant risk label table missing {sorted(missing_labels)}"
+            )
+        if risk_labels["subject_uid"].duplicated().any():
+            raise AssertionError("participant risk labels contain duplicate subjects")
+        if set(risk_labels["label_split"].astype(str)) != {
+            "meta_train_crossfit_oof"
+        }:
+            raise AssertionError("participant risk labels are not cross-fitted meta-train labels")
+        labelled_subjects = set(risk_labels["subject_uid"].astype(str))
+        expected_labelled_subjects = set(original_train["subject_uid"].astype(str))
+        if labelled_subjects != expected_labelled_subjects:
+            raise AssertionError(
+                "participant risk labels do not exactly cover meta-train participants"
+            )
+        label_source = risk_labels[["subject_uid", "source"]].assign(
+            subject_uid=lambda frame: frame["subject_uid"].astype(str)
+        )
+        metadata_source = original_train[["subject_uid", "source"]].drop_duplicates().assign(
+            subject_uid=lambda frame: frame["subject_uid"].astype(str)
+        )
+        checked_sources = label_source.merge(
+            metadata_source,
+            on="subject_uid",
+            how="left",
+            suffixes=("_label", "_metadata"),
+            validate="one_to_one",
+        )
+        if not checked_sources["source_label"].astype(str).equals(
+            checked_sources["source_metadata"].astype(str)
+        ):
+            raise AssertionError("participant risk label sources differ from metadata")
+        labels = risk_labels.assign(
+            subject_uid=risk_labels["subject_uid"].astype(str),
+            hard_oof=risk_labels["hard_oof"].astype(bool),
+        ).set_index("subject_uid")["hard_oof"]
+        training_subjects = set(train_metadata["subject_uid"].astype(str))
+        if not training_subjects.issubset(set(labels.index)):
+            raise AssertionError("risk labels do not cover all training participants")
+        if args.hard_participant_only:
+            hard_subjects = set(labels.index[labels.to_numpy(dtype=bool)])
+            train_metadata = train_metadata.loc[
+                train_metadata["subject_uid"].astype(str).isin(hard_subjects)
+            ].copy()
+            if train_metadata.empty:
+                raise AssertionError("hard-participant-only training set is empty")
+        else:
+            participant_multipliers = {
+                subject: args.hard_participant_weight if bool(labels.loc[subject]) else 1.0
+                for subject in training_subjects
+            }
 
     siamese = args.method == "siamese"
     if args.method == "population":
@@ -355,7 +492,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             )
             for parameter in model.population.parameters():
                 parameter.requires_grad = False
-            episodic_ks = (1, 2, 3, 5)
+            episodic_ks = tuple(args.ks)
         train_dataset = EpisodicDataset(
             train_metadata,
             args.store_root,
@@ -383,6 +520,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                 args.episodes_per_epoch,
                 mode=args.episode_sampling,
                 bp_change_alpha=args.bp_change_alpha,
+                participant_multipliers=participant_multipliers,
             )
         )
 
@@ -580,7 +718,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     result = {
         "status": "complete",
         "method": args.method,
-        "split": "meta_validation",
+        "split": run_split,
         "locked_test_accessed": False,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed,
@@ -594,6 +732,17 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         "validation_participants": int(validation_metadata["subject_uid"].nunique()),
         "train_events": int(len(train_metadata)),
         "validation_events": int(len(validation_metadata)),
+        "crossfit_heldout_fold": args.crossfit_heldout_fold,
+        "participant_risk_weighting": args.participant_risk_labels is not None,
+        "hard_participant_only": args.hard_participant_only,
+        "crossfit_folds_sha256": (
+            file_sha256(args.crossfit_folds) if args.crossfit_folds else None
+        ),
+        "participant_risk_labels_sha256": (
+            file_sha256(args.participant_risk_labels)
+            if args.participant_risk_labels
+            else None
+        ),
         "target_scaler": scaler,
         "best_validation_mean_mae": float(best_metrics["mean_mae"]),
         "best_validation_worst_30_mean_mae": (
@@ -621,6 +770,12 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             else None,
             "demographics_path": str(args.demographics_path)
             if args.demographics_path
+            else None,
+            "crossfit_folds": str(args.crossfit_folds)
+            if args.crossfit_folds
+            else None,
+            "participant_risk_labels": str(args.participant_risk_labels)
+            if args.participant_risk_labels
             else None,
         },
     }
@@ -703,6 +858,24 @@ def main() -> None:
     parser.add_argument("--use-quality-gate", action="store_true")
     parser.add_argument("--use-demographics", action="store_true")
     parser.add_argument("--demographics-path", type=Path)
+    parser.add_argument(
+        "--ks",
+        type=int,
+        nargs="+",
+        choices=[1, 2, 3, 5],
+        default=[1, 2, 3, 5],
+        help="Episodic calibration budgets to train and validate.",
+    )
+    parser.add_argument("--crossfit-folds", type=Path)
+    parser.add_argument("--crossfit-heldout-fold", type=int)
+    parser.add_argument("--participant-risk-labels", type=Path)
+    parser.add_argument("--hard-participant-only", action="store_true")
+    parser.add_argument(
+        "--hard-participant-weight",
+        type=float,
+        default=4.0,
+        help="Sampling multiplier for cross-fitted hard participants.",
+    )
     parser.add_argument("--max-train-examples", type=int)
     parser.add_argument("--max-validation-examples", type=int)
     parser.add_argument("--require-cuda", action="store_true")

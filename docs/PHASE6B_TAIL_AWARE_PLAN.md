@@ -38,6 +38,48 @@ input uncertainty from BP-range imbalance.
 6. All result packages must report the prespecified aggregate result and the
    two PulseDB sources separately: overall, MIMIC, and VitalDB.
 
+## Implemented Phase-6C two-stage experiment
+
+The first deployable two-stage experiment is now specified as follows. It is a
+development-only `K=5` prototype because the observed worst-30% analysis and
+the cross-fitted target are defined from the five-cuff M0 setting. It does not
+change the project's primary `K=1/2/3/5` result matrix.
+
+1. Divide only `meta_train` participants into five source-stratified,
+   participant-disjoint folds.
+2. For every fold, retrain the population model and M0 without that fold and
+   predict the held-out fold at `K=5`. The concatenated predictions are
+   out-of-fold (OOF); no participant is labelled by a model trained on that
+   participant.
+3. Within MIMIC and VitalDB separately, label exactly the highest-error
+   `ceil(0.30*N)` OOF participants as difficult. Source is used to prevent one
+   database from monopolising the label, but source is not an input to the
+   risk classifier.
+4. Train a small risk MLP from current M0 predictions, first-five support BP
+   dispersion, raw filtered-PPG summary statistics and query-to-support PPG
+   distances, plus event horizon. Query BP, query error, target-range flags,
+   and participant identity are prohibited inputs. One cross-fitting fold is
+   reserved for risk-model early stopping; its threshold is fixed from the
+   risk-training folds rather than fitted to `meta_validation`.
+5. Train three specialist candidates from the same OOF labels: all
+   `meta_train` participants with the difficult group sampled four times as
+   often; difficult participants only; and difficult participants only with
+   the PPG quality gate. These runs use no meta-validation tail labels.
+6. Compare the ordinary M0, each specialist alone, hard routing, and soft
+   risk-weighted fusion on `meta_validation`. Hard routing uses the frozen
+   event-risk threshold; soft fusion uses the risk probability as the expert
+   mixing weight.
+
+The specialists are not accepted merely because they improve the oracle tail.
+Promotion requires an input-visible risk classifier with useful held-out
+participant AUPRC, a gain in the predicted-high-risk group, no material loss in
+full-coverage performance, and consistent Overall/MIMIC/VitalDB reporting.
+The current classifier uses only information available at the current query,
+so its decision is an event-level risk decision rather than an immediate
+post-calibration participant diagnosis. Extending this prototype to K=1/2/3
+requires separate features that use no more than the corresponding K cuff
+measurements.
+
 ## 1. Three different tail definitions
 
 ### 1.1 Oracle participant tail
@@ -80,7 +122,9 @@ in-sample optimism:
 3. Define participant- or event-tail targets from these out-of-fold errors
    only.
 4. Train the risk model on deployment-visible features.
-5. Use `meta_validation` to select one risk threshold or target coverage.
+5. Fix one risk threshold or target coverage using cross-fitted meta-train
+   risk-training predictions; use `meta_validation` to compare the frozen
+   policy, not to fit its threshold.
 6. Freeze the base model, feature computation, risk model, and threshold before
    any locked-test evaluation.
 

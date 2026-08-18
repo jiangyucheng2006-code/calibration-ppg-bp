@@ -158,6 +158,15 @@ and participant-tail CVaR. The full method boundary is documented in
 robustness, external-validation, or final-paper result is reported at this
 stage.
 
+A leakage-safe Phase-6C prototype adds explicit hard-case identification and
+specialisation at K=5. Five participant-disjoint meta-train cross-fitting runs
+create out-of-fold difficult-participant labels; an input-visible risk MLP
+then identifies similar query events, while separately trained tail experts
+are evaluated through hard routing and soft fusion with M0. Neither the risk
+classifier nor the experts use meta-validation or locked-test error labels for
+training. This is an exploratory mixture-of-experts screen, not a replacement
+for M0 until its classifier and full-coverage gains pass the development gate.
+
 ## License and citation
 
 No open-source license has yet been granted. The public repository is intended

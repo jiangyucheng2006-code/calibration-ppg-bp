@@ -91,6 +91,26 @@ in [PHASE6B_TAIL_AWARE_PLAN.md](PHASE6B_TAIL_AWARE_PLAN.md). Multi-seed
 confirmation remains deferred until a candidate improves the full cohort and
 the tail without a material loss in either source.
 
+An additional Phase-6C two-stage experiment has been implemented and submitted
+to answer the separate deployment question: can difficult cases be recognised
+without seeing their reference BP, and can a dedicated model improve them?
+Five source-stratified participant folds inside `meta_train` create K=5
+out-of-fold M0 errors and exact within-source worst-30% labels. A 22-feature
+input-visible risk MLP is then trained without query BP, true error, source, or
+participant identity. Three specialist variants test 4x difficult-group
+sampling, difficult-group-only training, and difficult-group-only training
+with the PPG quality gate. Each will be evaluated alone, through a frozen hard
+router, and through soft risk-weighted fusion with M0.
+
+The new implementation passed 61 server regression tests and a read-only real-
+store preflight covering all 3,143 meta-train participants and all 103,564 K=5
+meta-validation query rows. The dependent jobs are queued; no Phase-6C result
+is reported yet. This prototype is deliberately K=5. It may be extended to
+K=1/2/3 only with support-budget-specific features that do not use unavailable
+cuff measurements. Promotion requires useful held-out participant AUPRC and a
+full-coverage gain in Overall, MIMIC, and VitalDB; a single-seed gain would
+still require confirmation.
+
 ## Not yet established
 
 - no locked-test result or frozen final configuration;
