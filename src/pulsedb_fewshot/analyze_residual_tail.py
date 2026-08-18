@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -179,9 +180,18 @@ def analyze(
 
     participant = _participant_table(events)
     quantile = 1.0 - tail_fraction
-    threshold = float(participant["mean_mae"].quantile(quantile))
     tail_column = f"high_error_q{int(round(quantile * 100))}"
-    participant[tail_column] = participant["mean_mae"].ge(threshold)
+    ordered_tail = participant.sort_values(
+        ["mean_mae", "subject_uid"],
+        ascending=[False, True],
+        kind="mergesort",
+    )
+    tail_n = int(math.ceil(tail_fraction * len(ordered_tail)))
+    tail_ids = set(ordered_tail.iloc[:tail_n]["subject_uid"])
+    threshold = float(ordered_tail.iloc[tail_n - 1]["mean_mae"])
+    participant[tail_column] = participant["subject_uid"].isin(tail_ids)
+    if int(participant[tail_column].sum()) != tail_n:
+        raise AssertionError("deterministic tail assignment returned the wrong size")
 
     source_summary = (
         participant.groupby("source", as_index=False)
@@ -243,8 +253,8 @@ def analyze(
     quantiles = participant["mean_mae"].quantile([0.5, 0.75, 0.9, 0.95, 0.99])
     summary = {
         "analysis": "development-only residual-tail analysis",
-        "predictions": str(predictions_path),
-        "store_root": str(store_root),
+        "predictions_file_name": predictions_path.name,
+        "store_directory_name": store_root.name,
         "k": k,
         "split": "meta_validation",
         "locked_meta_test_accessed": False,
@@ -257,6 +267,11 @@ def analyze(
             str(index): float(value) for index, value in quantiles.items()
         },
         "tail_fraction": tail_fraction,
+        "tail_participants": tail_n,
+        "tail_selection_rule": (
+            "participant mean MAE descending, subject_uid ascending tie-break; "
+            "first ceil(tail_fraction*N); oracle diagnostic only"
+        ),
         "high_error_threshold_quantile": quantile,
         "high_error_threshold_mean_mae": threshold,
         "oracle_warning": (

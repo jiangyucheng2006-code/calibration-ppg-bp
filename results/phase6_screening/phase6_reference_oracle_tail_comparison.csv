@@ -1,0 +1,73 @@
+Setting,Scope,K,Reference tail setting,Reference-tail participants,Mean MAE on reference worst 30%,Selection
+Fixed-first M0,Overall,1,Fixed-first M0,210,15.028148,reference observed query error; oracle diagnostic only
+Fixed-first M0,Overall,2,Fixed-first M0,210,14.397813,reference observed query error; oracle diagnostic only
+Fixed-first M0,Overall,3,Fixed-first M0,210,14.153361,reference observed query error; oracle diagnostic only
+Fixed-first M0,Overall,5,Fixed-first M0,210,13.714241,reference observed query error; oracle diagnostic only
+Huber,Overall,1,Fixed-first M0,210,14.631775,reference observed query error; oracle diagnostic only
+Huber,Overall,2,Fixed-first M0,210,14.078257,reference observed query error; oracle diagnostic only
+Huber,Overall,3,Fixed-first M0,210,13.896322,reference observed query error; oracle diagnostic only
+Huber,Overall,5,Fixed-first M0,210,13.523750,reference observed query error; oracle diagnostic only
+BP-change sampling,Overall,1,Fixed-first M0,210,15.300404,reference observed query error; oracle diagnostic only
+BP-change sampling,Overall,2,Fixed-first M0,210,14.670981,reference observed query error; oracle diagnostic only
+BP-change sampling,Overall,3,Fixed-first M0,210,14.438654,reference observed query error; oracle diagnostic only
+BP-change sampling,Overall,5,Fixed-first M0,210,13.882271,reference observed query error; oracle diagnostic only
+Median anchor,Overall,1,Fixed-first M0,210,15.053592,reference observed query error; oracle diagnostic only
+Median anchor,Overall,2,Fixed-first M0,210,14.512690,reference observed query error; oracle diagnostic only
+Median anchor,Overall,3,Fixed-first M0,210,14.179523,reference observed query error; oracle diagnostic only
+Median anchor,Overall,5,Fixed-first M0,210,13.876547,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,1,Fixed-first M0,210,14.309776,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,2,Fixed-first M0,210,13.618513,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,3,Fixed-first M0,210,13.361885,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,5,Fixed-first M0,210,12.921177,reference observed query error; oracle diagnostic only
+Age and sex,Overall,1,Fixed-first M0,210,14.892865,reference observed query error; oracle diagnostic only
+Age and sex,Overall,2,Fixed-first M0,210,14.306156,reference observed query error; oracle diagnostic only
+Age and sex,Overall,3,Fixed-first M0,210,14.097101,reference observed query error; oracle diagnostic only
+Age and sex,Overall,5,Fixed-first M0,210,13.698288,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,1,Fixed-first M0,95,16.165237,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,2,Fixed-first M0,95,15.827256,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,3,Fixed-first M0,95,15.693497,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,5,Fixed-first M0,95,15.363870,reference observed query error; oracle diagnostic only
+Huber,MIMIC,1,Fixed-first M0,95,15.645131,reference observed query error; oracle diagnostic only
+Huber,MIMIC,2,Fixed-first M0,95,15.350731,reference observed query error; oracle diagnostic only
+Huber,MIMIC,3,Fixed-first M0,95,15.105083,reference observed query error; oracle diagnostic only
+Huber,MIMIC,5,Fixed-first M0,95,14.909210,reference observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,1,Fixed-first M0,95,16.490043,reference observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,2,Fixed-first M0,95,16.351438,reference observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,3,Fixed-first M0,95,16.203848,reference observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,5,Fixed-first M0,95,15.776850,reference observed query error; oracle diagnostic only
+Median anchor,MIMIC,1,Fixed-first M0,95,16.149114,reference observed query error; oracle diagnostic only
+Median anchor,MIMIC,2,Fixed-first M0,95,15.895686,reference observed query error; oracle diagnostic only
+Median anchor,MIMIC,3,Fixed-first M0,95,15.782631,reference observed query error; oracle diagnostic only
+Median anchor,MIMIC,5,Fixed-first M0,95,15.547071,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,1,Fixed-first M0,95,15.271434,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,2,Fixed-first M0,95,14.590287,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,3,Fixed-first M0,95,14.305415,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,5,Fixed-first M0,95,13.865970,reference observed query error; oracle diagnostic only
+Age and sex,MIMIC,1,Fixed-first M0,95,16.143343,reference observed query error; oracle diagnostic only
+Age and sex,MIMIC,2,Fixed-first M0,95,15.874889,reference observed query error; oracle diagnostic only
+Age and sex,MIMIC,3,Fixed-first M0,95,15.754248,reference observed query error; oracle diagnostic only
+Age and sex,MIMIC,5,Fixed-first M0,95,15.490167,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,1,Fixed-first M0,115,13.886228,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,2,Fixed-first M0,115,12.976147,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,3,Fixed-first M0,115,12.661637,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,5,Fixed-first M0,115,12.109617,reference observed query error; oracle diagnostic only
+Huber,VitalDB,1,Fixed-first M0,115,13.663418,reference observed query error; oracle diagnostic only
+Huber,VitalDB,2,Fixed-first M0,115,12.920446,reference observed query error; oracle diagnostic only
+Huber,VitalDB,3,Fixed-first M0,115,12.592809,reference observed query error; oracle diagnostic only
+Huber,VitalDB,5,Fixed-first M0,115,12.110952,reference observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,1,Fixed-first M0,115,13.985229,reference observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,2,Fixed-first M0,115,13.235778,reference observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,3,Fixed-first M0,115,12.892506,reference observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,5,Fixed-first M0,115,12.160724,reference observed query error; oracle diagnostic only
+Median anchor,VitalDB,1,Fixed-first M0,115,13.960248,reference observed query error; oracle diagnostic only
+Median anchor,VitalDB,2,Fixed-first M0,115,13.158657,reference observed query error; oracle diagnostic only
+Median anchor,VitalDB,3,Fixed-first M0,115,12.698889,reference observed query error; oracle diagnostic only
+Median anchor,VitalDB,5,Fixed-first M0,115,12.353822,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,1,Fixed-first M0,115,13.312653,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,2,Fixed-first M0,115,12.788997,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,3,Fixed-first M0,115,12.415669,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,5,Fixed-first M0,115,11.898590,reference observed query error; oracle diagnostic only
+Age and sex,VitalDB,1,Fixed-first M0,115,13.662999,reference observed query error; oracle diagnostic only
+Age and sex,VitalDB,2,Fixed-first M0,115,12.773622,reference observed query error; oracle diagnostic only
+Age and sex,VitalDB,3,Fixed-first M0,115,12.472246,reference observed query error; oracle diagnostic only
+Age and sex,VitalDB,5,Fixed-first M0,115,12.034489,reference observed query error; oracle diagnostic only

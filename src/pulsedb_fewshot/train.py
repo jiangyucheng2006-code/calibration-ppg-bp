@@ -14,7 +14,7 @@ import platform
 import pandas as pd
 import torch
 from torch import nn
-from torch.utils.data import DataLoader, RandomSampler, WeightedRandomSampler
+from torch.utils.data import DataLoader, RandomSampler, Sampler, WeightedRandomSampler
 
 from .models import PopulationRegressor, SiameseDeltaRegressor, VariableKPersonalizer
 from .training import (
@@ -83,6 +83,70 @@ def _episodic_balanced_sampler(
     )
 
 
+class ParticipantEpisodeBatchSampler(Sampler[list[int]]):
+    """Create batches with repeated episodes from distinct participants.
+
+    Ordinary episode sampling often places only one episode per participant in
+    a batch, which would make a so-called participant CVaR effectively an event
+    CVaR.  This sampler draws a fixed number of episodes for each of several
+    distinct, uniformly sampled participants, so participant aggregation is
+    real rather than nominal.
+    """
+
+    def __init__(
+        self,
+        dataset: EpisodicDataset,
+        *,
+        seed: int,
+        num_samples: int,
+        batch_size: int,
+        episodes_per_participant: int,
+    ) -> None:
+        if episodes_per_participant < 1:
+            raise ValueError("episodes_per_participant must be positive")
+        if batch_size < episodes_per_participant:
+            raise ValueError("batch_size must cover at least one participant")
+        if batch_size % episodes_per_participant:
+            raise ValueError(
+                "batch_size must be divisible by episodes_per_participant"
+            )
+        groups: dict[str, list[int]] = {}
+        for index, subject_uid in enumerate(dataset.participant_ids):
+            groups.setdefault(str(subject_uid), []).append(index)
+        if not groups:
+            raise ValueError("participant batch sampler received an empty dataset")
+        self.subjects = sorted(groups)
+        self.indexes = groups
+        self.participants_per_batch = batch_size // episodes_per_participant
+        if self.participants_per_batch > len(self.subjects):
+            raise ValueError("batch requests more distinct participants than available")
+        available_samples = min(int(num_samples), len(dataset))
+        self.n_batches = max(1, available_samples // batch_size)
+        self.episodes_per_participant = episodes_per_participant
+        self.generator = torch.Generator().manual_seed(seed)
+
+    def __iter__(self):
+        for _ in range(self.n_batches):
+            participant_positions = torch.randperm(
+                len(self.subjects), generator=self.generator
+            )[: self.participants_per_batch]
+            batch: list[int] = []
+            for position in participant_positions.tolist():
+                subject_uid = self.subjects[position]
+                candidates = self.indexes[subject_uid]
+                draws = torch.randint(
+                    len(candidates),
+                    (self.episodes_per_participant,),
+                    generator=self.generator,
+                )
+                batch.extend(candidates[index] for index in draws.tolist())
+            order = torch.randperm(len(batch), generator=self.generator).tolist()
+            yield [batch[index] for index in order]
+
+    def __len__(self) -> int:
+        return self.n_batches
+
+
 def _load_population_checkpoint(
     path: Path, device: torch.device
 ) -> tuple[PopulationRegressor, dict[str, list[float]]]:
@@ -102,11 +166,102 @@ def _epoch_numbers(max_epochs: int) -> Iterable[int]:
     return range(1, max_epochs + 1)
 
 
+def _coordinate_loss(
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    *,
+    loss_name: str,
+    huber_delta: float,
+) -> torch.Tensor:
+    """Return an unreduced loss for each BP coordinate.
+
+    Keeping this loss unreduced is required for the participant-level tail
+    objective below.  The target values are standardized SBP/DBP values, so
+    ``huber_delta`` is expressed in standardized BP units.
+    """
+
+    if loss_name == "mse":
+        return (prediction - target).square()
+    if loss_name == "huber":
+        return nn.functional.huber_loss(
+            prediction,
+            target,
+            reduction="none",
+            delta=huber_delta,
+        )
+    raise ValueError(f"unsupported loss: {loss_name}")
+
+
+def _participant_tail_objective(
+    prediction: torch.Tensor,
+    target: torch.Tensor,
+    subject_uids: list[str] | tuple[str, ...],
+    *,
+    loss_name: str,
+    huber_delta: float,
+    tail_fraction: float,
+    tail_weight: float,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    """Combine ordinary risk with empirical participant-level CVaR.
+
+    The batch is sampled with participant balancing.  Coordinate losses are
+    first averaged within each episode, then within each participant appearing
+    in the batch.  The empirical CVaR term is the mean loss of the highest-loss
+    ``ceil(tail_fraction * n_participants)`` participants.  This uses only
+    meta-train labels during supervised training and never creates an
+    inference-time tail flag.
+    """
+
+    if not 0.0 < tail_fraction <= 1.0:
+        raise ValueError("tail_fraction must be in (0, 1]")
+    if not 0.0 <= tail_weight <= 1.0:
+        raise ValueError("tail_weight must be in [0, 1]")
+    if len(subject_uids) != len(prediction):
+        raise ValueError("subject_uids length must match the batch size")
+    if prediction.shape != target.shape or prediction.ndim != 2:
+        raise ValueError("prediction and target must have equal [batch, BP] shape")
+
+    episode_loss = _coordinate_loss(
+        prediction.float(),
+        target.float(),
+        loss_name=loss_name,
+        huber_delta=huber_delta,
+    ).mean(dim=1)
+    participant_losses: list[torch.Tensor] = []
+    # dict insertion order is deterministic and follows the collated batch.
+    positions: dict[str, list[int]] = {}
+    for index, subject_uid in enumerate(subject_uids):
+        positions.setdefault(str(subject_uid), []).append(index)
+    for indexes in positions.values():
+        participant_losses.append(episode_loss[indexes].mean())
+    participant_loss = torch.stack(participant_losses)
+    mean_risk = participant_loss.mean()
+    tail_n = max(
+        1,
+        int(torch.ceil(torch.tensor(tail_fraction * len(participant_losses))).item()),
+    )
+    tail_risk = participant_loss.topk(tail_n, largest=True, sorted=False).values.mean()
+    objective = (1.0 - tail_weight) * mean_risk + tail_weight * tail_risk
+    diagnostics = {
+        "mean_participant_batch_risk": float(mean_risk.detach()),
+        "tail_participant_batch_risk": float(tail_risk.detach()),
+        "batch_participants": float(len(participant_losses)),
+        "tail_participants": float(tail_n),
+    }
+    return objective, diagnostics
+
+
 def train(args: argparse.Namespace) -> dict[str, object]:
     if args.patience < 1:
         raise ValueError("patience must be positive")
     if args.loss == "huber" and args.huber_delta <= 0:
         raise ValueError("--huber-delta must be positive")
+    if not 0.0 < args.tail_fraction <= 1.0:
+        raise ValueError("--tail-fraction must be in (0, 1]")
+    if not 0.0 <= args.tail_weight <= 1.0:
+        raise ValueError("--tail-weight must be in [0, 1]")
+    if args.tail_objective != "mean" and args.method != "m0":
+        raise ValueError("participant-tail training is currently defined for method m0 only")
     if args.use_demographics and args.demographics_path is None:
         raise ValueError("--use-demographics requires --demographics-path")
     if (
@@ -219,12 +374,16 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             rolling_support=False,
             demographics=demographics if args.use_demographics else None,
         )
-        sampler = _episodic_balanced_sampler(
-            train_dataset,
-            args.seed,
-            args.episodes_per_epoch,
-            mode=args.episode_sampling,
-            bp_change_alpha=args.bp_change_alpha,
+        sampler = (
+            None
+            if args.tail_objective == "mean_cvar"
+            else _episodic_balanced_sampler(
+                train_dataset,
+                args.seed,
+                args.episodes_per_epoch,
+                mode=args.episode_sampling,
+                bp_change_alpha=args.bp_change_alpha,
+            )
         )
 
     model = model.to(device)
@@ -238,15 +397,36 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         loss_function = nn.HuberLoss(delta=args.huber_delta)
     else:  # pragma: no cover - argparse guards this branch.
         raise ValueError(f"unsupported loss: {args.loss}")
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args.batch_size,
-        sampler=sampler,
-        num_workers=args.workers,
-        pin_memory=device.type == "cuda",
-        persistent_workers=args.workers > 0,
-        drop_last=True,
-    )
+    loader_common = {
+        "num_workers": args.workers,
+        "pin_memory": device.type == "cuda",
+        "persistent_workers": args.workers > 0,
+    }
+    if args.tail_objective == "mean_cvar":
+        if not isinstance(train_dataset, EpisodicDataset):
+            raise AssertionError("tail training requires an episodic dataset")
+        participant_batch_sampler = ParticipantEpisodeBatchSampler(
+            train_dataset,
+            seed=args.seed,
+            num_samples=args.episodes_per_epoch,
+            batch_size=args.batch_size,
+            episodes_per_participant=args.tail_episodes_per_participant,
+        )
+        train_loader = DataLoader(
+            train_dataset,
+            batch_sampler=participant_batch_sampler,
+            **loader_common,
+        )
+    else:
+        if sampler is None:
+            raise AssertionError("ordinary training requires a sampler")
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            sampler=sampler,
+            drop_last=True,
+            **loader_common,
+        )
     validation_loader = DataLoader(
         validation_dataset,
         batch_size=args.batch_size,
@@ -260,6 +440,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     history: list[dict[str, object]] = []
     best_score = float("inf")
     best_epoch: int | None = None
+    best_metrics: dict[str, object] | None = None
     epochs_without_improvement = 0
     stop_reason = "epoch_cap"
     checkpoint_path = args.output / "best.pt"
@@ -271,6 +452,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             model.population.eval()
         total_loss = 0.0
         total_examples = 0
+        total_mean_batch_risk = 0.0
+        total_tail_batch_risk = 0.0
+        tail_batches = 0
         for batch in train_loader:
             target = batch["target"].to(device, non_blocking=True)
             optimizer.zero_grad(set_to_none=True)
@@ -294,7 +478,25 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                         if demographics_batch is not None
                         else None,
                     )
-                loss = loss_function(prediction.float(), target.float())
+                if args.tail_objective == "mean_cvar":
+                    loss, tail_diagnostics = _participant_tail_objective(
+                        prediction,
+                        target,
+                        batch["subject_uid"],
+                        loss_name=args.loss,
+                        huber_delta=args.huber_delta,
+                        tail_fraction=args.tail_fraction,
+                        tail_weight=args.tail_weight,
+                    )
+                    total_mean_batch_risk += tail_diagnostics[
+                        "mean_participant_batch_risk"
+                    ]
+                    total_tail_batch_risk += tail_diagnostics[
+                        "tail_participant_batch_risk"
+                    ]
+                    tail_batches += 1
+                else:
+                    loss = loss_function(prediction.float(), target.float())
             loss.backward()
             torch.nn.utils.clip_grad_norm_(parameters, max_norm=5.0)
             optimizer.step()
@@ -318,19 +520,40 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                 "mean_mae": float(
                     sum(item["mean_mae"] for item in by_k.values()) / len(by_k)
                 ),
+                "worst_30_mean_mae": float(
+                    sum(item["worst_30_mean_mae"] for item in by_k.values())
+                    / len(by_k)
+                ),
+                "retained_70_mean_mae": float(
+                    sum(item["retained_70_mean_mae"] for item in by_k.values())
+                    / len(by_k)
+                ),
                 "by_k": by_k,
             }
         record = {
             "epoch": epoch,
+            # ``train_mse`` is retained for backward-compatible readers.  For
+            # Huber or CVaR runs it stores the actual optimized objective, not
+            # literal MSE; ``train_objective`` is the unambiguous field.
             "train_mse": total_loss / max(total_examples, 1),
+            "train_objective": total_loss / max(total_examples, 1),
+            "train_objective_name": args.tail_objective,
             "validation": metrics,
         }
+        if tail_batches:
+            record["train_mean_participant_batch_risk"] = (
+                total_mean_batch_risk / tail_batches
+            )
+            record["train_tail_participant_batch_risk"] = (
+                total_tail_batch_risk / tail_batches
+            )
         history.append(record)
         print(json.dumps(record, ensure_ascii=False), flush=True)
         score = float(metrics["mean_mae"])
         if score < best_score:
             best_score = score
             best_epoch = epoch
+            best_metrics = metrics
             epochs_without_improvement = 0
             torch.save(
                 {
@@ -351,7 +574,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             stop_reason = "early_stopping"
             break
 
-    if best_epoch is None:
+    if best_epoch is None or best_metrics is None:
         raise RuntimeError("training completed without a valid checkpoint")
 
     result = {
@@ -372,7 +595,17 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         "train_events": int(len(train_metadata)),
         "validation_events": int(len(validation_metadata)),
         "target_scaler": scaler,
-        "best_validation_mean_mae": best_score,
+        "best_validation_mean_mae": float(best_metrics["mean_mae"]),
+        "best_validation_worst_30_mean_mae": (
+            float(best_metrics["worst_30_mean_mae"])
+            if "worst_30_mean_mae" in best_metrics
+            else None
+        ),
+        "best_validation_retained_70_mean_mae": (
+            float(best_metrics["retained_70_mean_mae"])
+            if "retained_70_mean_mae" in best_metrics
+            else None
+        ),
         "best_epoch": best_epoch,
         "epochs_completed": len(history),
         "stop_reason": stop_reason,
@@ -428,6 +661,36 @@ def main() -> None:
         type=float,
         default=0.5,
         help="Huber transition in standardized BP units; used only with --loss huber.",
+    )
+    parser.add_argument(
+        "--tail-objective",
+        choices=["mean", "mean_cvar"],
+        default="mean",
+        help=(
+            "mean uses the ordinary batch loss; mean_cvar combines ordinary "
+            "participant-balanced risk with the highest-loss participant tail."
+        ),
+    )
+    parser.add_argument(
+        "--tail-fraction",
+        type=float,
+        default=0.30,
+        help="Fraction of highest-loss batch participants used by mean_cvar.",
+    )
+    parser.add_argument(
+        "--tail-weight",
+        type=float,
+        default=0.50,
+        help="Convex weight assigned to empirical participant CVaR.",
+    )
+    parser.add_argument(
+        "--tail-episodes-per-participant",
+        type=int,
+        default=4,
+        help=(
+            "Episodes sampled per distinct participant in each mean_cvar batch; "
+            "the batch size must be divisible by this value."
+        ),
     )
     parser.add_argument("--episodes-per-epoch", type=int, default=200000)
     parser.add_argument(

@@ -1,0 +1,161 @@
+{
+  "status": "pass",
+  "analysis": "Phase-6 fixed-first single-seed development screening",
+  "generated_at_utc": "2026-08-18T02:31:13.637860+00:00",
+  "split": "meta_validation",
+  "locked_test_accessed": false,
+  "seed": 20260813,
+  "reference_setting": "Fixed-first M0",
+  "settings": [
+    "Fixed-first M0",
+    "Huber",
+    "BP-change sampling",
+    "Median anchor",
+    "PPG quality gate",
+    "Age and sex"
+  ],
+  "k": [
+    1,
+    2,
+    3,
+    5
+  ],
+  "scopes": [
+    "Overall",
+    "MIMIC",
+    "VitalDB"
+  ],
+  "sources": [
+    "MIMIC",
+    "VitalDB"
+  ],
+  "source_interpretation": "PulseDB source strata; not independent external validation",
+  "primary_metric": "participant-macro MAE",
+  "event_table_scope": "event-pooled secondary diagnostics",
+  "aami_bhs_warning": "retrospective numerical screens only; formal compliance not established",
+  "oracle_tail_warning": "Worst-30% membership and remaining-70% accuracy use observed query error. They are diagnostic upper bounds and cannot be used as deployment filters.",
+  "coverage": {
+    "Overall": {
+      "participants": 697,
+      "common_query_events_per_setting_k": 103564
+    },
+    "MIMIC": {
+      "participants": 316,
+      "common_query_events_per_setting_k": 80874
+    },
+    "VitalDB": {
+      "participants": 381,
+      "common_query_events_per_setting_k": 22690
+    }
+  },
+  "inputs": [
+    {
+      "setting": "Fixed-first M0",
+      "run_directory_name": "event120-v1_phase6_fixed_first_seed20260813_job818",
+      "run_json": {
+        "file_name": "run.json",
+        "sha256": "8c862ca09255145042aad8c825449eeb753a1a02986fae37fd38ffbded62a843"
+      },
+      "predictions": {
+        "file_name": "best_validation_predictions.parquet",
+        "sha256": "88daa58ff9db02602cf83b0c31e06fada4e77e55f3fa5ef7f6cec68d83c4ea16",
+        "rows": 414256
+      }
+    },
+    {
+      "setting": "Huber",
+      "run_directory_name": "event120-v1_phase6_fixedfirst_huber_seed20260813_job826",
+      "run_json": {
+        "file_name": "run.json",
+        "sha256": "7302d7a8283325dcb7a6124cfbf09ecc68c5236225af4c20f13e785d3cac7180"
+      },
+      "predictions": {
+        "file_name": "best_validation_predictions.parquet",
+        "sha256": "a6dff9bacf7b883e12399e85c1a7869fdf024fcc6c9e4c119b3feae6becbb29a",
+        "rows": 414256
+      }
+    },
+    {
+      "setting": "BP-change sampling",
+      "run_directory_name": "event120-v1_phase6_fixedfirst_bp_change_seed20260813_job827",
+      "run_json": {
+        "file_name": "run.json",
+        "sha256": "06f6d5db0f0dab789e1ad9587f1a804de8878de06e89f2185821c1a6d3fc04d5"
+      },
+      "predictions": {
+        "file_name": "best_validation_predictions.parquet",
+        "sha256": "e13f49d1bd5c42e5a1c9b7018e1efd6f137446dd5c2bba0d45bac098d1f480a2",
+        "rows": 414256
+      }
+    },
+    {
+      "setting": "Median anchor",
+      "run_directory_name": "event120-v1_phase6_fixedfirst_median_anchor_seed20260813_job828",
+      "run_json": {
+        "file_name": "run.json",
+        "sha256": "41d26bb5ecb695dde21ea1240cb27b662f554631b8f514f64e9f24b8c73942fc"
+      },
+      "predictions": {
+        "file_name": "best_validation_predictions.parquet",
+        "sha256": "77bd648357eb7ea58258e8430c9b1dbedc776fcdd464ef689441af7db99c34a4",
+        "rows": 414256
+      }
+    },
+    {
+      "setting": "PPG quality gate",
+      "run_directory_name": "event120-v1_phase6_fixedfirst_ppg_quality_gate_seed20260813_job829",
+      "run_json": {
+        "file_name": "run.json",
+        "sha256": "689ff95e336bc01536566ea6eea1e9fa4af7dd7990f5ca33533dbf881fec5b82"
+      },
+      "predictions": {
+        "file_name": "best_validation_predictions.parquet",
+        "sha256": "73d2ae8c4fbb126eddbb780cd192fbe2984dfb9caecede8a120aa8e0b42a4b7a",
+        "rows": 414256
+      }
+    },
+    {
+      "setting": "Age and sex",
+      "run_directory_name": "event120-v1_phase6_fixedfirst_demographics_seed20260813_job830",
+      "run_json": {
+        "file_name": "run.json",
+        "sha256": "e58cb36cf087f69bd9ec8ed535f8f1ac951a847231a31a8d678af8a827b75ddd"
+      },
+      "predictions": {
+        "file_name": "best_validation_predictions.parquet",
+        "sha256": "b32f78f685cc09558784e46ec5b0b94a9032c619c87af12728609c7858b97081",
+        "rows": 414256
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "file_name": "phase6_participant_macro_by_scope.csv",
+      "sha256": "cec463d62fa3c166ed5d97a72473bd3b46496924a98b64dc381237488d21c8cf"
+    },
+    {
+      "file_name": "phase6_oracle_tail_by_scope.csv",
+      "sha256": "e29224a42a777744b0f85c566bb1f04b7d46d0dc7224d317976e7126941efa43"
+    },
+    {
+      "file_name": "phase6_reference_oracle_tail_comparison.csv",
+      "sha256": "8c70d5c7fb35d070a74347f87e7c03a6561127373b9cf8928155f7edd804965e"
+    },
+    {
+      "file_name": "PHASE6_SCREENING_RESULTS.md",
+      "sha256": "377f472f9ed692dbb9aa070c2129f04629a9bcc6f06345dbdc7e0f94146b36ca"
+    },
+    {
+      "file_name": "phase6_overall_metrics.csv",
+      "sha256": "83c526eaf200295c052e9919fb70ef5c8f88385f2b6c3228ecc50242a0d0ad79"
+    },
+    {
+      "file_name": "phase6_mimic_metrics.csv",
+      "sha256": "8a04c4d94144af6e470518ed360c2958159980b21e8baefbc722a90e7694e72d"
+    },
+    {
+      "file_name": "phase6_vitaldb_metrics.csv",
+      "sha256": "395d0b4a6028979d42f46d13180e5299a868ee8a4bb617051fafe5ec9531c3fe"
+    }
+  ]
+}

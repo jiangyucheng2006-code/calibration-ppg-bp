@@ -71,6 +71,12 @@ and training-cohort report](docs/DATA_SELECTION_AND_TRAINING_COHORT.md)
 documents why the experiment uses a leakage-safe subset of the original
 segment rows.
 
+The completed fixed-first Phase-6 single-seed screen is reported in
+[RESULTS_PHASE6_SCREENING.md](docs/RESULTS_PHASE6_SCREENING.md). Its complete
+Overall, MIMIC, and VitalDB result tables and exact worst-30% oracle diagnostics
+are under [results/phase6_screening](results/phase6_screening). MIMIC and
+VitalDB are internal PulseDB source strata, not external validation datasets.
+
 ## Repository layout
 
 ```text
@@ -142,10 +148,15 @@ concern. M0 and M1 remain close, so M0 is the parsimonious provisional finalist
 rather than a conclusively superior model. No locked-test, robustness,
 external-validation, or final-paper result is reported at this stage.
 
-The current development-only error-tail diagnosis and isolated Phase-6
-candidate plan are documented in
-[docs/PHASE6_HIGH_ERROR_ANALYSIS.md](docs/PHASE6_HIGH_ERROR_ANALYSIS.md) and
-[docs/PHASE6_EXPLORATION.md](docs/PHASE6_EXPLORATION.md).
+The fixed-first Phase-6 screen is complete. The PPG-only quality gate improved
+the four-K participant-macro mean MAE from 9.137 to 8.962 mmHg in the fixed
+seed, but the gain was concentrated in MIMIC; it is therefore a provisional
+component rather than a confirmed replacement for M0. Round 4 is a
+development-only tail-aware factorial screen of quality gating, Huber loss,
+and participant-tail CVaR. The full method boundary is documented in
+[PHASE6B_TAIL_AWARE_PLAN.md](docs/PHASE6B_TAIL_AWARE_PLAN.md). No locked-test,
+robustness, external-validation, or final-paper result is reported at this
+stage.
 
 ## License and citation
 

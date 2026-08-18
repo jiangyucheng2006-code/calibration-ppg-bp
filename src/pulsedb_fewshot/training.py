@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 import hashlib
 import json
+import math
 from pathlib import Path
 import random
 
@@ -82,7 +83,7 @@ def fit_target_scaler(metadata: pd.DataFrame) -> dict[str, list[float]]:
     return {"mean": mean.tolist(), "std": standard_deviation.tolist()}
 
 
-def participant_macro_metrics(predictions: pd.DataFrame) -> dict[str, float]:
+def participant_macro_metrics(predictions: pd.DataFrame) -> dict[str, object]:
     required = {"subject_uid", "target_sbp", "target_dbp", "pred_sbp", "pred_dbp"}
     missing = required - set(predictions.columns)
     if missing:
@@ -102,6 +103,17 @@ def participant_macro_metrics(predictions: pd.DataFrame) -> dict[str, float]:
         dbp_bias=("error_dbp", "mean"),
         n_events=("event_id", "size"),
     )
+    participant["mean_mae"] = (
+        participant["sbp_mae"] + participant["dbp_mae"]
+    ) / 2.0
+    ordered = participant.sort_values(
+        ["mean_mae", "subject_uid"],
+        ascending=[False, True],
+        kind="mergesort",
+    ).reset_index(drop=True)
+    tail_n = max(1, math.ceil(0.30 * len(ordered)))
+    worst_30 = ordered.iloc[:tail_n]
+    retained_70 = ordered.iloc[tail_n:]
     return {
         "n_participants": int(len(participant)),
         "n_events": int(len(frame)),
@@ -112,6 +124,20 @@ def participant_macro_metrics(predictions: pd.DataFrame) -> dict[str, float]:
         "dbp_rmse": float(np.sqrt(participant["dbp_mse"]).mean()),
         "sbp_bias": float(participant["sbp_bias"].mean()),
         "dbp_bias": float(participant["dbp_bias"].mean()),
+        "participant_mean_mae_p90": float(participant["mean_mae"].quantile(0.90)),
+        "participant_mean_mae_p95": float(participant["mean_mae"].quantile(0.95)),
+        "worst_30_n_participants": int(tail_n),
+        "worst_30_mean_mae": float(worst_30["mean_mae"].mean()),
+        "retained_70_n_participants": int(len(retained_70)),
+        "retained_70_mean_mae": (
+            float(retained_70["mean_mae"].mean())
+            if not retained_70.empty
+            else float("nan")
+        ),
+        "tail_definition": (
+            "oracle diagnostic: participant mean MAE descending, "
+            "subject_uid ascending tie-break, first ceil(0.30*N)"
+        ),
     }
 
 

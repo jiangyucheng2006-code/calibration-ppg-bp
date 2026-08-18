@@ -1,0 +1,73 @@
+Setting,Scope,K,N participants,Worst 30% participants,Worst 30% threshold,Worst 30% mean MAE,Remaining 70% mean MAE,P90 participant mean MAE,P95 participant mean MAE,P99 participant mean MAE,Selection
+Fixed-first M0,Overall,1,697,210,11.006858,15.028148,7.200302,15.462471,18.762747,23.630943,observed query error; oracle diagnostic only
+Fixed-first M0,Overall,2,697,210,10.316243,14.397813,6.942512,15.097883,17.369108,22.911706,observed query error; oracle diagnostic only
+Fixed-first M0,Overall,3,697,210,10.238133,14.153361,6.804121,14.844302,16.942655,22.165361,observed query error; oracle diagnostic only
+Fixed-first M0,Overall,5,697,210,9.968655,13.714241,6.655814,14.428887,16.248840,22.252115,observed query error; oracle diagnostic only
+Huber,Overall,1,697,210,10.891097,14.867335,7.100357,15.375243,17.862294,23.293222,observed query error; oracle diagnostic only
+Huber,Overall,2,697,210,10.461625,14.330877,6.897244,14.825412,16.892250,23.051895,observed query error; oracle diagnostic only
+Huber,Overall,3,697,210,10.380701,14.065888,6.787731,14.587961,16.442010,22.501141,observed query error; oracle diagnostic only
+Huber,Overall,5,697,210,9.996486,13.682778,6.631095,14.360281,16.118374,22.415458,observed query error; oracle diagnostic only
+BP-change sampling,Overall,1,697,210,11.061644,15.620399,7.304391,16.017502,19.376212,25.995133,observed query error; oracle diagnostic only
+BP-change sampling,Overall,2,697,210,10.763870,15.017970,7.017071,15.469036,18.114114,25.030798,observed query error; oracle diagnostic only
+BP-change sampling,Overall,3,697,210,10.615654,14.732901,6.839682,15.056208,17.673011,24.404236,observed query error; oracle diagnostic only
+BP-change sampling,Overall,5,697,210,10.286659,14.116207,6.718905,14.384151,16.793154,23.498444,observed query error; oracle diagnostic only
+Median anchor,Overall,1,697,210,10.889167,15.079263,7.200936,15.379575,19.116220,25.447114,observed query error; oracle diagnostic only
+Median anchor,Overall,2,697,210,10.385268,14.534572,6.957427,15.043619,17.829196,24.021839,observed query error; oracle diagnostic only
+Median anchor,Overall,3,697,210,10.380493,14.458653,6.890195,15.146253,17.912671,22.685636,observed query error; oracle diagnostic only
+Median anchor,Overall,5,697,210,10.206704,14.129590,6.746968,14.874923,17.198856,22.460514,observed query error; oracle diagnostic only
+PPG quality gate,Overall,1,697,210,10.686903,14.609371,7.133196,15.084970,17.461167,23.115227,observed query error; oracle diagnostic only
+PPG quality gate,Overall,2,697,210,10.446144,13.928651,6.924683,14.316960,16.668188,21.466391,observed query error; oracle diagnostic only
+PPG quality gate,Overall,3,697,210,10.177654,13.621582,6.778428,13.959647,16.444785,20.883346,observed query error; oracle diagnostic only
+PPG quality gate,Overall,5,697,210,9.826852,13.163120,6.613906,13.429526,15.706948,19.744017,observed query error; oracle diagnostic only
+Age and sex,Overall,1,697,210,10.983909,15.005390,7.179250,15.189128,17.975047,24.271119,observed query error; oracle diagnostic only
+Age and sex,Overall,2,697,210,10.503783,14.423822,6.906908,15.068282,17.314958,23.185792,observed query error; oracle diagnostic only
+Age and sex,Overall,3,697,210,10.307003,14.198293,6.773803,14.824546,17.313219,22.588102,observed query error; oracle diagnostic only
+Age and sex,Overall,5,697,210,9.939224,13.805777,6.642721,14.668447,16.579452,22.498740,observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,1,316,95,12.102603,16.165237,7.612236,16.098180,20.435234,24.354415,observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,2,316,95,12.106970,15.827256,7.398779,16.174773,19.482584,24.479460,observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,3,316,95,11.646966,15.693497,7.285408,16.057201,19.202441,23.925525,observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,5,316,95,11.347272,15.363870,7.169589,15.557916,18.709824,23.698426,observed query error; oracle diagnostic only
+Huber,MIMIC,1,316,95,11.826803,16.011066,7.500186,16.329666,19.375262,24.490932,observed query error; oracle diagnostic only
+Huber,MIMIC,2,316,95,11.661555,15.603894,7.345553,16.099568,18.031114,24.361466,observed query error; oracle diagnostic only
+Huber,MIMIC,3,316,95,11.427734,15.422563,7.252688,15.534729,18.402700,23.370663,observed query error; oracle diagnostic only
+Huber,MIMIC,5,316,95,11.067775,15.162499,7.119410,15.560419,18.211363,23.050218,observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,1,316,95,12.225765,17.004360,7.770912,16.966651,21.422249,29.550138,observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,2,316,95,12.098727,16.627091,7.568649,16.536328,20.885965,26.625536,observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,3,316,95,11.940773,16.450741,7.415392,16.490343,20.192723,28.537731,observed query error; oracle diagnostic only
+BP-change sampling,MIMIC,5,316,95,11.594861,16.038666,7.277468,15.807637,20.004146,27.025312,observed query error; oracle diagnostic only
+Median anchor,MIMIC,1,316,95,12.002473,16.204367,7.601518,16.290642,20.063629,26.466440,observed query error; oracle diagnostic only
+Median anchor,MIMIC,2,316,95,11.704591,15.903151,7.397435,16.077243,19.403739,24.490049,observed query error; oracle diagnostic only
+Median anchor,MIMIC,3,316,95,11.691255,15.844181,7.316657,16.216858,18.827990,23.498650,observed query error; oracle diagnostic only
+Median anchor,MIMIC,5,316,95,11.544748,15.627615,7.198074,16.379997,19.559829,22.836221,observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,1,316,95,11.594874,15.584067,7.502660,16.050349,18.229245,23.260029,observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,2,316,95,11.447733,14.940334,7.305618,15.494553,17.342102,21.415871,observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,3,316,95,11.202020,14.658866,7.192835,15.111845,16.708093,22.210407,observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,5,316,95,10.881694,14.241230,7.051578,14.637426,16.582238,21.620359,observed query error; oracle diagnostic only
+Age and sex,MIMIC,1,316,95,11.935519,16.277973,7.583223,16.059973,20.292236,25.312352,observed query error; oracle diagnostic only
+Age and sex,MIMIC,2,316,95,11.722377,15.955492,7.380585,16.151388,19.610625,25.075444,observed query error; oracle diagnostic only
+Age and sex,MIMIC,3,316,95,11.650552,15.845915,7.275642,16.425611,18.878617,24.047420,observed query error; oracle diagnostic only
+Age and sex,MIMIC,5,316,95,11.302069,15.543997,7.166852,16.210073,17.983059,23.938604,observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,1,381,115,10.114144,13.886228,6.945640,14.369608,17.208030,22.433883,observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,2,381,115,9.646005,12.976147,6.667548,13.296882,15.885000,20.848462,observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,3,381,115,9.503188,12.661637,6.499124,13.329029,15.374685,20.233260,observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,5,381,115,9.244460,12.109617,6.333530,12.596973,14.925685,18.165347,observed query error; oracle diagnostic only
+Huber,VitalDB,1,381,115,10.226528,13.785753,6.827294,13.895992,17.272767,22.140930,observed query error; oracle diagnostic only
+Huber,VitalDB,2,381,115,9.741580,13.053126,6.622539,13.638509,16.075842,20.197945,observed query error; oracle diagnostic only
+Huber,VitalDB,3,381,115,9.541054,12.728823,6.494960,13.177028,15.455605,20.733512,observed query error; oracle diagnostic only
+Huber,VitalDB,5,381,115,9.355889,12.224010,6.327587,12.592599,14.754904,18.979817,observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,1,381,115,10.237865,14.291207,6.997171,14.724618,17.727180,22.742028,observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,2,381,115,9.853679,13.424311,6.673107,13.851683,16.139975,20.031491,observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,3,381,115,9.598980,13.015362,6.490397,13.480758,15.232096,19.659675,observed query error; oracle diagnostic only
+BP-change sampling,VitalDB,5,381,115,9.437881,12.303110,6.352102,12.812601,14.778081,17.926741,observed query error; oracle diagnostic only
+Median anchor,VitalDB,1,381,115,10.097986,13.967163,6.947092,14.118723,17.031766,23.260787,observed query error; oracle diagnostic only
+Median anchor,VitalDB,2,381,115,9.675123,13.172832,6.691802,13.580866,16.341172,20.954916,observed query error; oracle diagnostic only
+Median anchor,VitalDB,3,381,115,9.517329,13.027856,6.659625,13.731202,15.920290,20.433501,observed query error; oracle diagnostic only
+Median anchor,VitalDB,5,381,115,9.483782,12.656495,6.474033,12.887579,15.806638,19.911883,observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,1,381,115,9.877454,13.613830,6.908533,13.837202,16.868096,21.707175,observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,2,381,115,9.707256,12.927324,6.679780,13.111351,15.826566,20.478794,observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,3,381,115,9.238190,12.570401,6.518127,12.704720,15.235884,19.985714,observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,5,381,115,9.214086,12.056873,6.343502,12.535227,14.113349,18.584448,observed query error; oracle diagnostic only
+Age and sex,VitalDB,1,381,115,10.092093,13.783608,6.917338,14.057361,16.511819,21.972276,observed query error; oracle diagnostic only
+Age and sex,VitalDB,2,381,115,9.642246,12.909503,6.621026,13.565384,15.909929,20.160368,observed query error; oracle diagnostic only
+Age and sex,VitalDB,3,381,115,9.317181,12.577436,6.469172,13.331813,15.470192,20.119015,observed query error; oracle diagnostic only
+Age and sex,VitalDB,5,381,115,9.207603,12.117248,6.316469,12.644140,14.907483,18.030667,observed query error; oracle diagnostic only

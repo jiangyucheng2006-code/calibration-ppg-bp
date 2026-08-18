@@ -1,6 +1,6 @@
 # Verified project status
 
-Last updated: 2026-08-17.
+Last updated: 2026-08-18.
 
 ## Completed gates
 
@@ -72,13 +72,24 @@ tail analysis, decide whether it motivates one prespecified training change,
 and then freeze M0 (or a justified alternative), the seed/checkpoint policy,
 statistics, exclusions, and reporting script.
 
-The development-only worst-20% participant audit is complete and is documented
-in [PHASE6_HIGH_ERROR_ANALYSIS.md](PHASE6_HIGH_ERROR_ANALYSIS.md). Phase-6 now
-screens robust loss, BP-change-aware meta-train sampling, a robust support
-anchor, a PPG-only quality gate, and cleaned age/sex conditioning as isolated
-single-factor changes. Query error or reference ABP is never an input to a
-deployable gate. Multi-seed confirmation remains deferred until one candidate
-passes the development screening gate.
+The fixed-first single-factor Phase-6 screen is complete and documented in
+[RESULTS_PHASE6_SCREENING.md](RESULTS_PHASE6_SCREENING.md). Jobs 826--830 all
+completed successfully on the same seed and query set. The PPG-only quality
+gate improved the four-K Overall participant-macro mean MAE from 9.137 to
+8.962 mmHg and improved all four K values, but most of the gain occurred in
+MIMIC; it is a provisional component, not yet a confirmed replacement for M0.
+
+The exact observed-error worst 30% contains 210 of 697 participants at K=5.
+Their M0 mean MAE is 13.714 mmHg versus 6.656 mmHg for the oracle retained 70%.
+They show more support-to-query BP change, greater within-participant BP
+variability, and later query horizons. These are oracle associations and cannot
+be used as a deployable filter.
+
+Round 4 remains development-only and completes the quality-gate x Huber x
+participant-tail-CVaR factorial. Its design and leakage boundaries are frozen
+in [PHASE6B_TAIL_AWARE_PLAN.md](PHASE6B_TAIL_AWARE_PLAN.md). Multi-seed
+confirmation remains deferred until a candidate improves the full cohort and
+the tail without a material loss in either source.
 
 ## Not yet established
 

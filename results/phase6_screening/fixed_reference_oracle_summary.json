@@ -1,0 +1,58 @@
+{
+  "analysis": "development-only fixed-reference worst-tail oracle diagnostic",
+  "split": "meta_validation",
+  "locked_meta_test_accessed": false,
+  "k": 5,
+  "participants": 697,
+  "source_participants": {
+    "MIMIC": 316,
+    "VitalDB": 381
+  },
+  "tail_fraction": 0.3,
+  "tail_percentage_label": "30",
+  "retained_percentage_label": "70",
+  "tail_participants": 210,
+  "retained_participants": 487,
+  "tail_group": "worst_30pct_subjects",
+  "retained_group": "oracle_retained_70pct_subjects",
+  "tail_selection_rule": "reference participant mean MAE descending, subject_uid ascending; first ceil(0.3 * N) participants",
+  "tail_membership_is_global": true,
+  "reference_run": {
+    "run_directory_name": "event120-v1_phase6_fixed_first_seed20260813_job818",
+    "job_id": "818",
+    "checkpoint_sha256": "a7268b94a06758b10637613d00bf1ddb83ea8f393997db94aa488a2fb185bb63"
+  },
+  "candidate_runs": {
+    "Age and sex": {
+      "run_directory_name": "event120-v1_phase6_fixedfirst_demographics_seed20260813_job830",
+      "job_id": "830",
+      "checkpoint_sha256": "d81ea9804da0f28b32d241c3c17fb494533c76ba121f8787b0dba5d5b961f825"
+    },
+    "BP-change sampling": {
+      "run_directory_name": "event120-v1_phase6_fixedfirst_bp_change_seed20260813_job827",
+      "job_id": "827",
+      "checkpoint_sha256": "a62a2a142b74cb121a483ce78936b5ad96ab5d4d25bd0cab0a32dcd362464245"
+    },
+    "Huber": {
+      "run_directory_name": "event120-v1_phase6_fixedfirst_huber_seed20260813_job826",
+      "job_id": "826",
+      "checkpoint_sha256": "53cedb562e349e9a5f005b54e7e7f9583982ccf2f60d847e694a80c7625836c2"
+    },
+    "Median anchor": {
+      "run_directory_name": "event120-v1_phase6_fixedfirst_median_anchor_seed20260813_job828",
+      "job_id": "828",
+      "checkpoint_sha256": "47856cdb35e6db4e5708514527658a8c77e23ff1689fe7351f4ee932ca22289c"
+    },
+    "PPG quality gate": {
+      "run_directory_name": "event120-v1_phase6_fixedfirst_ppg_quality_gate_seed20260813_job829",
+      "job_id": "829",
+      "checkpoint_sha256": "9682f2847e9a84c9d5460af7a3ef2901ebd0e48a58b974147cdf4a44e5f56bcd"
+    }
+  },
+  "outputs": {
+    "reference_membership": "reference_worst_30pct_membership_k5.csv",
+    "fixed_tail_metrics": "fixed_reference_tail_metrics_k5.csv",
+    "oracle_routing_mixture": "oracle_routing_mixture_k5.csv"
+  },
+  "oracle_warning": "Worst-tail membership, retained-cohort accuracy, and routing mixtures use observed meta-validation query error. They are diagnostic, non-deployable, and must not be reported as achievable screening performance."
+}
