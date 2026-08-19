@@ -1,0 +1,97 @@
+Setting,Scope,K,Reference tail setting,Reference-tail participants,Mean MAE on reference worst 30%,Selection
+Fixed-first M0,Overall,1,Fixed-first M0,210,15.028148,reference observed query error; oracle diagnostic only
+Fixed-first M0,Overall,2,Fixed-first M0,210,14.397813,reference observed query error; oracle diagnostic only
+Fixed-first M0,Overall,3,Fixed-first M0,210,14.153361,reference observed query error; oracle diagnostic only
+Fixed-first M0,Overall,5,Fixed-first M0,210,13.714241,reference observed query error; oracle diagnostic only
+Huber,Overall,1,Fixed-first M0,210,14.631775,reference observed query error; oracle diagnostic only
+Huber,Overall,2,Fixed-first M0,210,14.078257,reference observed query error; oracle diagnostic only
+Huber,Overall,3,Fixed-first M0,210,13.896322,reference observed query error; oracle diagnostic only
+Huber,Overall,5,Fixed-first M0,210,13.523750,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,1,Fixed-first M0,210,14.309776,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,2,Fixed-first M0,210,13.618513,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,3,Fixed-first M0,210,13.361885,reference observed query error; oracle diagnostic only
+PPG quality gate,Overall,5,Fixed-first M0,210,12.921177,reference observed query error; oracle diagnostic only
+Participant CVaR,Overall,1,Fixed-first M0,210,14.811007,reference observed query error; oracle diagnostic only
+Participant CVaR,Overall,2,Fixed-first M0,210,14.115395,reference observed query error; oracle diagnostic only
+Participant CVaR,Overall,3,Fixed-first M0,210,13.870944,reference observed query error; oracle diagnostic only
+Participant CVaR,Overall,5,Fixed-first M0,210,13.443629,reference observed query error; oracle diagnostic only
+Quality gate + Huber,Overall,1,Fixed-first M0,210,14.396969,reference observed query error; oracle diagnostic only
+Quality gate + Huber,Overall,2,Fixed-first M0,210,13.614679,reference observed query error; oracle diagnostic only
+Quality gate + Huber,Overall,3,Fixed-first M0,210,13.284052,reference observed query error; oracle diagnostic only
+Quality gate + Huber,Overall,5,Fixed-first M0,210,12.811660,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,Overall,1,Fixed-first M0,210,14.250865,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,Overall,2,Fixed-first M0,210,13.529574,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,Overall,3,Fixed-first M0,210,13.248230,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,Overall,5,Fixed-first M0,210,12.816380,reference observed query error; oracle diagnostic only
+Huber + CVaR,Overall,1,Fixed-first M0,210,14.854075,reference observed query error; oracle diagnostic only
+Huber + CVaR,Overall,2,Fixed-first M0,210,14.129916,reference observed query error; oracle diagnostic only
+Huber + CVaR,Overall,3,Fixed-first M0,210,13.876139,reference observed query error; oracle diagnostic only
+Huber + CVaR,Overall,5,Fixed-first M0,210,13.422999,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,Overall,1,Fixed-first M0,210,14.267592,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,Overall,2,Fixed-first M0,210,13.501023,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,Overall,3,Fixed-first M0,210,13.196773,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,Overall,5,Fixed-first M0,210,12.764785,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,1,Fixed-first M0,95,16.165237,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,2,Fixed-first M0,95,15.827256,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,3,Fixed-first M0,95,15.693497,reference observed query error; oracle diagnostic only
+Fixed-first M0,MIMIC,5,Fixed-first M0,95,15.363870,reference observed query error; oracle diagnostic only
+Huber,MIMIC,1,Fixed-first M0,95,15.645131,reference observed query error; oracle diagnostic only
+Huber,MIMIC,2,Fixed-first M0,95,15.350731,reference observed query error; oracle diagnostic only
+Huber,MIMIC,3,Fixed-first M0,95,15.105083,reference observed query error; oracle diagnostic only
+Huber,MIMIC,5,Fixed-first M0,95,14.909210,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,1,Fixed-first M0,95,15.271434,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,2,Fixed-first M0,95,14.590287,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,3,Fixed-first M0,95,14.305415,reference observed query error; oracle diagnostic only
+PPG quality gate,MIMIC,5,Fixed-first M0,95,13.865970,reference observed query error; oracle diagnostic only
+Participant CVaR,MIMIC,1,Fixed-first M0,95,15.661188,reference observed query error; oracle diagnostic only
+Participant CVaR,MIMIC,2,Fixed-first M0,95,15.333090,reference observed query error; oracle diagnostic only
+Participant CVaR,MIMIC,3,Fixed-first M0,95,15.196496,reference observed query error; oracle diagnostic only
+Participant CVaR,MIMIC,5,Fixed-first M0,95,14.877019,reference observed query error; oracle diagnostic only
+Quality gate + Huber,MIMIC,1,Fixed-first M0,95,15.173005,reference observed query error; oracle diagnostic only
+Quality gate + Huber,MIMIC,2,Fixed-first M0,95,14.475585,reference observed query error; oracle diagnostic only
+Quality gate + Huber,MIMIC,3,Fixed-first M0,95,14.162209,reference observed query error; oracle diagnostic only
+Quality gate + Huber,MIMIC,5,Fixed-first M0,95,13.688114,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,MIMIC,1,Fixed-first M0,95,14.975321,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,MIMIC,2,Fixed-first M0,95,14.192014,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,MIMIC,3,Fixed-first M0,95,13.910685,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,MIMIC,5,Fixed-first M0,95,13.463041,reference observed query error; oracle diagnostic only
+Huber + CVaR,MIMIC,1,Fixed-first M0,95,15.638058,reference observed query error; oracle diagnostic only
+Huber + CVaR,MIMIC,2,Fixed-first M0,95,15.370893,reference observed query error; oracle diagnostic only
+Huber + CVaR,MIMIC,3,Fixed-first M0,95,15.198782,reference observed query error; oracle diagnostic only
+Huber + CVaR,MIMIC,5,Fixed-first M0,95,14.865063,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,MIMIC,1,Fixed-first M0,95,14.947604,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,MIMIC,2,Fixed-first M0,95,14.153099,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,MIMIC,3,Fixed-first M0,95,13.839304,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,MIMIC,5,Fixed-first M0,95,13.394869,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,1,Fixed-first M0,115,13.886228,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,2,Fixed-first M0,115,12.976147,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,3,Fixed-first M0,115,12.661637,reference observed query error; oracle diagnostic only
+Fixed-first M0,VitalDB,5,Fixed-first M0,115,12.109617,reference observed query error; oracle diagnostic only
+Huber,VitalDB,1,Fixed-first M0,115,13.663418,reference observed query error; oracle diagnostic only
+Huber,VitalDB,2,Fixed-first M0,115,12.920446,reference observed query error; oracle diagnostic only
+Huber,VitalDB,3,Fixed-first M0,115,12.592809,reference observed query error; oracle diagnostic only
+Huber,VitalDB,5,Fixed-first M0,115,12.110952,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,1,Fixed-first M0,115,13.312653,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,2,Fixed-first M0,115,12.788997,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,3,Fixed-first M0,115,12.415669,reference observed query error; oracle diagnostic only
+PPG quality gate,VitalDB,5,Fixed-first M0,115,11.898590,reference observed query error; oracle diagnostic only
+Participant CVaR,VitalDB,1,Fixed-first M0,115,14.108871,reference observed query error; oracle diagnostic only
+Participant CVaR,VitalDB,2,Fixed-first M0,115,12.913934,reference observed query error; oracle diagnostic only
+Participant CVaR,VitalDB,3,Fixed-first M0,115,12.476646,reference observed query error; oracle diagnostic only
+Participant CVaR,VitalDB,5,Fixed-first M0,115,11.940037,reference observed query error; oracle diagnostic only
+Quality gate + Huber,VitalDB,1,Fixed-first M0,115,13.572460,reference observed query error; oracle diagnostic only
+Quality gate + Huber,VitalDB,2,Fixed-first M0,115,12.853014,reference observed query error; oracle diagnostic only
+Quality gate + Huber,VitalDB,3,Fixed-first M0,115,12.442552,reference observed query error; oracle diagnostic only
+Quality gate + Huber,VitalDB,5,Fixed-first M0,115,11.847071,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,VitalDB,1,Fixed-first M0,115,13.615011,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,VitalDB,2,Fixed-first M0,115,12.757920,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,VitalDB,3,Fixed-first M0,115,12.332169,reference observed query error; oracle diagnostic only
+Quality gate + CVaR,VitalDB,5,Fixed-first M0,115,11.952506,reference observed query error; oracle diagnostic only
+Huber + CVaR,VitalDB,1,Fixed-first M0,115,14.126829,reference observed query error; oracle diagnostic only
+Huber + CVaR,VitalDB,2,Fixed-first M0,115,12.921166,reference observed query error; oracle diagnostic only
+Huber + CVaR,VitalDB,3,Fixed-first M0,115,12.493886,reference observed query error; oracle diagnostic only
+Huber + CVaR,VitalDB,5,Fixed-first M0,115,11.950288,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,VitalDB,1,Fixed-first M0,115,13.671335,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,VitalDB,2,Fixed-first M0,115,12.803004,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,VitalDB,3,Fixed-first M0,115,12.363363,reference observed query error; oracle diagnostic only
+Quality gate + Huber + CVaR,VitalDB,5,Fixed-first M0,115,11.916201,reference observed query error; oracle diagnostic only

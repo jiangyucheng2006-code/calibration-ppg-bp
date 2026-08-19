@@ -77,6 +77,13 @@ Overall, MIMIC, and VitalDB result tables and exact worst-30% oracle diagnostics
 are under [results/phase6_screening](results/phase6_screening). MIMIC and
 VitalDB are internal PulseDB source strata, not external validation datasets.
 
+The completed fourth-round tail-aware factorial is reported in
+[RESULTS_PHASE6B_FACTORIAL.md](docs/RESULTS_PHASE6B_FACTORIAL.md), with public
+machine-readable Overall/MIMIC/VitalDB, participant-macro, bootstrap, and
+oracle-diagnostic tables under
+[results/phase6b_factorial](results/phase6b_factorial). The private
+participant-level tail-membership file is not published.
+
 ## Repository layout
 
 ```text
@@ -153,7 +160,11 @@ the four-K participant-macro mean MAE from 9.137 to 8.962 mmHg in the fixed
 seed, but the gain was concentrated in MIMIC; it is therefore a provisional
 component rather than a confirmed replacement for M0. Round 4 is a
 development-only tail-aware factorial screen of quality gating, Huber loss,
-and participant-tail CVaR. The full method boundary is documented in
+and participant-tail CVaR. It is complete: quality gate plus Huber has the best
+full-coverage four-K mean (8.888 mmHg versus 9.137 for M0), whereas CVaR does
+not add a full-cohort gain. The improvement is still single-seed and
+source-asymmetric, so quality gate plus Huber is a provisional candidate, not
+a frozen final model. The full method boundary is documented in
 [PHASE6B_TAIL_AWARE_PLAN.md](docs/PHASE6B_TAIL_AWARE_PLAN.md). No locked-test,
 robustness, external-validation, or final-paper result is reported at this
 stage.

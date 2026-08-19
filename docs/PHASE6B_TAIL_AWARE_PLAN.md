@@ -8,6 +8,14 @@ change the frozen `event120-v1` cohort, or replace the fixed-first primary
 protocol. The selected Phase-6 single-factor model remains the reference until
 one tail-aware intervention passes the development gate below.
 
+**Result update, 2026-08-19:** the full factorial is complete. Quality gate
+plus Huber is the best full-coverage setting (four-K Overall participant-macro
+mean MAE 8.888 mmHg versus 9.137 for fixed-first M0). Participant-CVaR does not
+improve the full cohort and is not promoted. Full results, source-separated
+tables, paired participant bootstrap intervals, and the fixed-reference oracle
+tail diagnostic are reported in
+[RESULTS_PHASE6B_FACTORIAL.md](RESULTS_PHASE6B_FACTORIAL.md).
+
 The immediate scientific problem is not simply to lower a pooled mean. The
 existing development analysis indicates that high-error participants have
 larger within-participant BP variability, larger support-to-query BP change,

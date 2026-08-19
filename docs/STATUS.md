@@ -1,6 +1,6 @@
 # Verified project status
 
-Last updated: 2026-08-18.
+Last updated: 2026-08-19.
 
 ## Completed gates
 
@@ -85,11 +85,23 @@ They show more support-to-query BP change, greater within-participant BP
 variability, and later query horizons. These are oracle associations and cannot
 be used as a deployable filter.
 
-Round 4 remains development-only and completes the quality-gate x Huber x
-participant-tail-CVaR factorial. Its design and leakage boundaries are frozen
-in [PHASE6B_TAIL_AWARE_PLAN.md](PHASE6B_TAIL_AWARE_PLAN.md). Multi-seed
-confirmation remains deferred until a candidate improves the full cohort and
-the tail without a material loss in either source.
+Round 4 is complete and documented in
+[RESULTS_PHASE6B_FACTORIAL.md](RESULTS_PHASE6B_FACTORIAL.md). All five new jobs
+completed successfully; together with the three existing factorial cells they
+provide the full quality-gate x Huber x participant-tail-CVaR comparison.
+Quality gate plus Huber has the lowest four-K Overall participant-macro mean
+MAE: 8.888 mmHg versus 9.137 for fixed-first M0 and 8.962 for quality gate
+alone. The participant-cluster bootstrap difference versus M0 is -0.249 mmHg
+(exploratory 95% interval -0.353 to -0.150). The gain is larger in MIMIC
+(-0.472) than VitalDB (-0.065; interval includes zero), so this is a
+provisional single-seed candidate rather than a frozen final model.
+
+Participant-CVaR does not improve the full cohort, either alone or when added
+to the quality gate and/or Huber. The three-factor setting is slightly best on
+the fixed observed-error tail at K=5, but worse than quality gate plus Huber on
+the full four-K cohort. Because true tail membership uses query error, that
+result remains an oracle diagnostic and does not justify a deployment-time
+router. The locked meta-test remains untouched.
 
 An additional Phase-6C two-stage experiment has been implemented and submitted
 to answer the separate deployment question: can difficult cases be recognised
