@@ -123,6 +123,27 @@ cuff measurements. Promotion requires useful held-out participant AUPRC and a
 full-coverage gain in Overall, MIMIC, and VitalDB; a single-seed gain would
 still require confirmation.
 
+Phase-6C subsequently completed without scheduler or artifact-integrity
+failures. Its input-only risk classifier showed moderate, not yet decisive,
+held-out meta-train discrimination (Overall participant AUPRC 0.469;
+precision 0.444 and recall 0.442 at the frozen threshold). The best original
+specialist route improved K=5 Overall participant-macro mean MAE only slightly,
+from 8.783 to 8.736 mmHg. This supports testing the two-stage idea further but
+does not yet establish reliable automatic identification or specialist value.
+
+Phase-6D is now submitted as the corrected end-to-end test. It first rebuilds
+the five-fold out-of-fold difficult labels with the current winning Quality
+Gate + Huber model instead of the older M0 reference. It then retrains the
+input-only risk classifier and compares three matched Quality Gate + Huber
+specialists: 2x difficult-group weighting, 4x weighting, and difficult-only
+training. The final dependent report evaluates identification, specialist
+performance on the fixed evaluation-only tail, deployable event-level hard and
+soft routing, and clearly separated retrospective/oracle upper bounds. The
+full [Phase-6D plan](PHASE6D_RISK_ROUTING_PLAN.md) records the leakage boundary
+and promotion gate. Jobs 880--890 were submitted on 2026-08-19; the first two
+cross-fitting jobs started on `hpc-2`. No result is reported before the final
+report job completes.
+
 ## Not yet established
 
 - no locked-test result or frozen final configuration;
