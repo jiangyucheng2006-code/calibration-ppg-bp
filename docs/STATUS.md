@@ -131,18 +131,25 @@ specialist route improved K=5 Overall participant-macro mean MAE only slightly,
 from 8.783 to 8.736 mmHg. This supports testing the two-stage idea further but
 does not yet establish reliable automatic identification or specialist value.
 
-Phase-6D is now submitted as the corrected end-to-end test. It first rebuilds
-the five-fold out-of-fold difficult labels with the current winning Quality
-Gate + Huber model instead of the older M0 reference. It then retrains the
-input-only risk classifier and compares three matched Quality Gate + Huber
-specialists: 2x difficult-group weighting, 4x weighting, and difficult-only
-training. The final dependent report evaluates identification, specialist
-performance on the fixed evaluation-only tail, deployable event-level hard and
-soft routing, and clearly separated retrospective/oracle upper bounds. The
-full [Phase-6D plan](PHASE6D_RISK_ROUTING_PLAN.md) records the leakage boundary
-and promotion gate. Jobs 880--890 were submitted on 2026-08-19; the first two
-cross-fitting jobs started on `hpc-2`. No result is reported before the final
-report job completes.
+Phase-6D is complete and reported in
+[RESULTS_PHASE6D_RISK_ROUTING.md](RESULTS_PHASE6D_RISK_ROUTING.md). Jobs
+880--890 all completed with exit code `0:0` and empty stderr. The corrected
+Quality Gate + Huber risk classifier achieves Overall participant AUPRC 0.457,
+AUROC 0.659, precision 0.470, and recall 0.486. Predicted-high-risk
+participants have mean MAE 10.140 versus 7.737 mmHg in the predicted-low group,
+showing useful but incomplete separation.
+
+Moderate 2x difficult-participant weighting is the only specialist that
+improves the fixed evaluation-only difficult tail in both sources. Fourfold
+weighting is too aggressive, and difficult-only training worsens the tail. The
+binary event hard route changes Overall mean MAE only from 8.485 to 8.481 mmHg
+and worsens VitalDB, so the requested 70%/30% hard-routing system is not
+promoted. Continuous event-risk soft fusion is the Phase-6D winner at 8.424
+mmHg Overall, 8.986 MIMIC, and 7.958 VitalDB, improving the general model by
+0.061/0.089/0.038 mmHg. Exploratory 20,000-repetition paired participant
+bootstrap intervals exclude zero in all three scopes, but the gain is small
+and comes from the same single-seed development screen. Soft fusion advances
+only to independent-seed confirmation; locked meta-test remains untouched.
 
 ## Not yet established
 

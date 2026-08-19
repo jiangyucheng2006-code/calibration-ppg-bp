@@ -1,5 +1,7 @@
 # Phase-6D: risk identification, difficult-case specialists, and complete routing
 
+Status: completed. See [the verified result report](RESULTS_PHASE6D_RISK_ROUTING.md).
+
 ## Objective
 
 Phase-6D tests whether the difficult participant tail can be recognized from
