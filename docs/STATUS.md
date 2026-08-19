@@ -2,6 +2,27 @@
 
 Last updated: 2026-08-19.
 
+## Phase-6E result
+
+The seven-route K=5 development screen is complete. All jobs 915--924 and the
+cluster-audit correction jobs 925--926 completed with exit code `0:0`, empty
+stderr, and byte-identical work/NAS report artifacts. The locked meta-test was
+not accessed.
+
+The causal GRU residual corrector is the numerical winner: Overall
+participant-macro SBP/DBP/mean MAE is 10.674/6.141/8.408 mmHg versus
+10.803/6.168/8.485 for Quality Gate + Huber. MIMIC mean MAE improves from
+9.075 to 8.969 and VitalDB from 7.996 to 7.942. The Overall gain is only
+0.078 mmHg, below the frozen 0.15-mmHg promotion threshold, so no route is
+promoted and Quality Gate + Huber remains the development base.
+
+The morphology-cluster MoE used an explicitly exploratory K=8 fallback because
+none of K=8/16/32 reached the 0.75 meta-train stability gate. Its Overall gain
+was only 0.005 mmHg and MIMIC worsened. It does not establish stable learned
+waveform phenotypes. Full aggregate results are in
+[RESULTS_PHASE6E_SEVEN_ROUTES.md](RESULTS_PHASE6E_SEVEN_ROUTES.md) and
+`results/phase6e/`.
+
 ## Phase-6E seven-route screen submitted
 
 Phase-6E now tests seven K=5 continuous-error corrections against the frozen

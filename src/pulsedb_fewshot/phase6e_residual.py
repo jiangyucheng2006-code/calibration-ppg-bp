@@ -346,6 +346,11 @@ def _source_mixing_entropy(labels: np.ndarray, sources: np.ndarray, k: int) -> f
     return float(np.average(values,weights=weights))
 
 
+def _select_cluster_count(audits: list[dict[str, float]]) -> tuple[int, bool]:
+    passing=[a for a in audits if a["stability"]>=0.75 and a["minimum_cluster_fraction"]>=0.005]
+    return max((int(a["k"]) for a in passing),default=8),bool(passing)
+
+
 def train_cluster_moe(train_path: Path, validation_path: Path, embedding_path: Path, output: Path, *, seed:int) -> dict[str,object]:
     train=pd.read_parquet(train_path); validation=pd.read_parquet(validation_path); _validate_frames(train,validation); embeddings=pd.read_parquet(embedding_path)
     ecols=[c for c in embeddings if c.startswith("embedding_")]
@@ -360,8 +365,7 @@ def train_cluster_moe(train_path: Path, validation_path: Path, embedding_path: P
         assignments=((projected[:,None,:]-centroids[None,:,:])**2).sum(2).argmin(1)
         audit["source_mixing_entropy"]=_source_mixing_entropy(assignments,sample.source.to_numpy(),k)
         audits.append(audit); candidates[k]=centroids
-    passing=[a for a in audits if a["stability"]>=0.75 and a["minimum_cluster_fraction"]>=0.005]
-    selected_k=max((int(a["k"]) for a in passing),default=8); centroids=candidates[selected_k]
+    selected_k,selected_by_gate=_select_cluster_count(audits); centroids=candidates[selected_k]
     def memberships(frame:pd.DataFrame)->np.ndarray:
         z=((frame[ecols].to_numpy(np.float32)-center)@projection-pmean)/pstd
         distance=((z[:,None,:]-centroids[None,:,:])**2).sum(2); temperature=max(float(np.median(distance.min(1))),1e-4)
@@ -372,7 +376,7 @@ def train_cluster_moe(train_path: Path, validation_path: Path, embedding_path: P
     correction=_predict_model(model,"cluster_moe",scale.x(validation),validation,device,validation_membership)*scale.residual_std
     output.mkdir(parents=True,exist_ok=False); torch.save({"model_state":model.state_dict(),"selected_k":selected_k,"cluster_audit":audits,"projection":projection,"embedding_center":center,"projected_mean":pmean,"projected_std":pstd,"centroids":centroids,"feature_mean":scale.mean,"feature_std":scale.std,"residual_std":scale.residual_std},output/"best.pt")
     predictions=validation[KEYS+["target_sbp","target_dbp","pred_sbp","pred_dbp","source"]].copy(); predictions.rename(columns={"pred_sbp":"base_pred_sbp","pred_dbp":"base_pred_dbp"},inplace=True); predictions["pred_sbp"]=predictions.base_pred_sbp+correction[:,0]; predictions["pred_dbp"]=predictions.base_pred_dbp+correction[:,1]; predictions["cluster_top1"]=validation_membership.argmax(1); predictions["cluster_confidence"]=validation_membership.max(1); predictions.to_parquet(output/"predictions.parquet",index=False)
-    metrics={scope:participant_macro_metrics(group) for scope,group in [("Overall",predictions)]+[(s,predictions[predictions.source.eq(s)]) for s in sorted(predictions.source.unique())]}; payload={"status":"complete","method":"morphology_cluster_moe","seed":seed,"split":"meta_validation","locked_test_accessed":False,"selected_k":selected_k,"cluster_selection":"highest K passing meta-train-only stability>=0.75 and min cluster fraction>=0.005","cluster_audit":audits,"best_epoch":best_epoch,"history":history,"metrics":metrics,"participants":int(predictions.subject_uid.nunique()),"queries":len(predictions)}; save_json(output/"run.json",payload); return payload
+    metrics={scope:participant_macro_metrics(group) for scope,group in [("Overall",predictions)]+[(s,predictions[predictions.source.eq(s)]) for s in sorted(predictions.source.unique())]}; payload={"status":"complete","method":"morphology_cluster_moe","seed":seed,"split":"meta_validation","locked_test_accessed":False,"selected_k":selected_k,"selected_by_stability_gate":selected_by_gate,"cluster_selection_status":"passed_meta_train_gate" if selected_by_gate else "exploratory_fallback_k8_no_candidate_passed","cluster_selection":"highest K passing meta-train-only stability>=0.75 and min cluster fraction>=0.005; if none pass, K=8 is retained only as an explicitly exploratory fallback and is ineligible for promotion","cluster_audit":audits,"best_epoch":best_epoch,"history":history,"metrics":metrics,"participants":int(predictions.subject_uid.nunique()),"queries":len(predictions)}; save_json(output/"run.json",payload); return payload
 
 
 def main() -> None:

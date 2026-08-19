@@ -9,6 +9,7 @@ from pulsedb_fewshot.phase6e_residual import (
     ResidualMLP,
     SupervisedMoE,
     _cluster_stability,
+    _select_cluster_count,
     _source_mixing_entropy,
 )
 
@@ -44,3 +45,13 @@ def test_cluster_stability_is_deterministic_and_has_nonempty_clusters() -> None:
     assert a1["minimum_cluster_fraction"]>0.4
     sources=np.asarray(["MIMIC","VitalDB"]*50)
     assert 0.0<=_source_mixing_entropy(np.asarray([0,1]*50),sources,2)<=1.0
+
+
+def test_cluster_selection_marks_failed_gate_as_exploratory_fallback() -> None:
+    failed=[
+        {"k":8,"stability":0.38,"minimum_cluster_fraction":0.01},
+        {"k":16,"stability":0.44,"minimum_cluster_fraction":0.01},
+    ]
+    assert _select_cluster_count(failed)==(8,False)
+    passed=failed+[{"k":32,"stability":0.80,"minimum_cluster_fraction":0.006}]
+    assert _select_cluster_count(passed)==(32,True)

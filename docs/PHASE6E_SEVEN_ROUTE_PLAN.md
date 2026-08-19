@@ -34,6 +34,11 @@ frozen. A new query obtains soft distances to these prototypes and combines
 cluster-specific residual experts. Source labels are excluded from clustering
 and used only for a post-hoc mixing audit.
 
+If no candidate reaches the stability and minimum-size gate, K=8 may be run as
+an explicitly exploratory fallback so that the end-to-end mechanism can still
+be diagnosed, but it is ineligible for promotion and must not be described as
+a stable learned phenotype partition.
+
 This is an unsupervised morphology partition followed by supervised residual
 experts. It is distinct from R6-6, whose gate is learned directly from BP
 residual loss. Participant IDs, query BP, true error, and future queries are
