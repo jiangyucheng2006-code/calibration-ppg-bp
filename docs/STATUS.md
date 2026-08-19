@@ -2,6 +2,22 @@
 
 Last updated: 2026-08-19.
 
+## Round-7 new training submitted
+
+Round 7 supersedes the earlier interpretation that the completed Phase-6E
+cluster head fully represented the requested waveform-category system. Nine
+new candidates are now submitted under seed `20260821`: six newly trained OOF
+residual methods, a separately trained waveform-phenotype router with hard and
+soft independent category experts, and a deeper waveform-embedding causal GRU.
+
+The full server suite passed 72 tests before submission. Slurm jobs 932--942
+form the new chain; no previous candidate job is substituted into its final
+report. The exact submitted-code snapshot is
+`event120-v1_round7_nine_routes_20260819-1437.tar.gz`, SHA-256
+`56888eb537b573d5d4295f53ee0ae99967a00c23f7f5e5732ad3bf2b3baa9a91`.
+The design and leakage boundary are documented in
+[ROUND7_NINE_ROUTE_PLAN.md](ROUND7_NINE_ROUTE_PLAN.md).
+
 ## Phase-6E result
 
 The seven-route K=5 development screen is complete. All jobs 915--924 and the
