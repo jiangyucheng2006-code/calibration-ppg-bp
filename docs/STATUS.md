@@ -2,6 +2,36 @@
 
 Last updated: 2026-08-19.
 
+## Phase-6E seven-route screen submitted
+
+Phase-6E now tests seven K=5 continuous-error corrections against the frozen
+Quality Gate + Huber development comparator: ridge residual correction,
+residual MLP, confidence-gated residual MLP, difficult-participant 2x weighted
+MLP, causal GRU residual correction, supervised mixture-of-experts, and an
+unsupervised morphology-cluster mixture-of-experts. The last route learns
+waveform phenotypes from frozen PPG embeddings rather than imposing a fixed
+70%/30% partition; a new query is softly assigned to cluster-specific residual
+experts and every query retains a prediction.
+
+The server regression suite passed 70 tests and all seven routes passed a
+real-data end-to-end preflight. The corrected submission chain is jobs
+915--924: preparation 915, routes 916--921, waveform embedding 922,
+morphology-cluster route 923, and unified report 924. Preparation job 915
+completed successfully with empty stderr. The exact submitted-code archive is
+`event120-v1_phase6e_seven_routes_postfix_20260819-1351.tar.gz` with SHA-256
+`acf357bfc2085656e8e078775f1d5d1fed935940a359b87a917a0fb30864e1d8`.
+An earlier dependency chain 900--907 was superseded after job 900 exposed an
+NAS permission-preservation incompatibility; jobs 901--907 were cancelled
+without running, and the corrected chain also reduces the cluster job's memory
+request to the verified node limit.
+
+All candidate targets are derived from participant-disjoint Quality Gate +
+Huber out-of-fold meta-train predictions. Folds 0--3 fit candidate parameters,
+fold 4 performs internal selection, and meta-validation is evaluated only
+after freezing. The locked meta-test remains inaccessible. A candidate advances
+only if Overall participant-macro mean MAE improves by at least 0.15 mmHg and
+both MIMIC and VitalDB improve; otherwise Phase-6E remains a negative screen.
+
 ## Completed gates
 
 - PulseDB v2 controlled extraction and integrity validation completed.
