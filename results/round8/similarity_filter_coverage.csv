@@ -1,0 +1,4 @@
+Scope,Threshold,Queries before,Queries retained,Query coverage (%),Participants before,Participants retained,Participant coverage (%)
+Overall,>=0.90 and finite,103564,82653,79.80862075624735,697,688,98.70875179340028
+MIMIC,>=0.90 and finite,80874,69108,85.45144298538467,316,315,99.68354430379746
+VitalDB,>=0.90 and finite,22690,13545,59.69590127809608,381,373,97.9002624671916

@@ -1,0 +1,4 @@
+Setting,Scope,N participants,N query events,SBP participant-macro MAE,DBP participant-macro MAE,Mean participant-macro MAE
+R8-6 similarity >=0.90 sensitivity,Overall,688,82653,11.006229919108883,6.297377770272932,8.651803844690908
+R8-6 similarity >=0.90 sensitivity,MIMIC,315,69108,11.55800896960638,6.5846865773222945,9.071347773464339
+R8-6 similarity >=0.90 sensitivity,VitalDB,373,13545,10.540250292013145,6.054744327322397,8.297497309667769

@@ -246,24 +246,29 @@ only to independent-seed confirmation; locked meta-test remains untouched.
 - no independent external validation;
 - no clinical validation or standards claim.
 
-## Round-8 submitted design
+## Round-8 calibration-relative screen completed
 
-Round 8 is a K=5, single-seed development screen built around the Quality Gate
-+ Huber job-841 reference. Five new models learn the query-to-calibration
-relationship explicitly: pairwise delta prediction; pairwise delta plus causal
-time; pairwise delta plus a below/within/above support-BP-range task; their
-combined model; and the combined model plus generic support-to-query PPG-shape
-change features. The temporal variants use only current and prior query PPG.
+All Round-8 jobs completed successfully with empty stderr, and the locked
+meta-test was not accessed. This was a K=5, single-seed development screen
+built around the Quality Gate + Huber job-841 reference. Every full-coverage
+candidate used the same 697 participants and 103,564 query events.
 
-Three collaborator-requested variants are isolated from that ladder. The
-finite beat-similarity >=0.90 threshold is a partial-coverage sensitivity
-analysis, not a full-coverage model comparison. A demographic candidate
-directly concatenates the five cleaned demographic values rather than
-expanding them to a 256-dimensional vector. A separate candidate retrains the
-population and personalised model with a 128-dimensional PPG representation
-and no demographic input.
+R8-4, which combines pairwise calibration-relative prediction, causal query
+history, and a support-BP-range auxiliary task, is the numerical winner. Its
+Overall participant-macro SBP/DBP/mean MAE is
+10.487/6.021/8.254 mmHg, compared with 10.803/6.168/8.485 mmHg for the
+reference. Mean MAE also improves in both internal PulseDB source strata:
+9.075 to 8.852 mmHg in MIMIC and 7.996 to 7.758 mmHg in VitalDB.
 
-The exact candidate definitions, leakage boundary, promotion gate, and report
-requirements are frozen in
+The `similarity >=0.90` sensitivity retains only 79.81% of Overall queries and
+has strongly source-dependent coverage, so it is not a full-coverage model and
+is not promoted. Direct demographic concatenation is nearly neutral, while a
+128-dimensional PPG representation is slightly worse than the 256-dimensional
+reference. R8-4 advances as a candidate base for a further development round;
+multi-seed confirmation is deferred until that method round is complete.
+
+The full result, scope limitations, candidate interpretation, and links to all
+public Overall/MIMIC/VitalDB tables are in
+[RESULTS_ROUND8_CALIBRATION_RELATIVE.md](RESULTS_ROUND8_CALIBRATION_RELATIVE.md).
+The prespecified design remains available in
 [ROUND8_CALIBRATION_RELATIVE_PLAN.md](ROUND8_CALIBRATION_RELATIVE_PLAN.md).
-The locked meta-test remains untouched.

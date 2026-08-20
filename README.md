@@ -84,13 +84,15 @@ oracle-diagnostic tables under
 [results/phase6b_factorial](results/phase6b_factorial). The private
 participant-level tail-membership file is not published.
 
-The current development experiment is the
-[Round-8 calibration-relative screen](docs/ROUND8_CALIBRATION_RELATIVE_PLAN.md).
-It contains five calibration-relative/causal candidates and three isolated
-collaborator-requested checks (beat-similarity coverage, direct demographic
-concatenation, and a 128-dimensional PPG encoder). All full-coverage candidates
-are evaluated on the same K=5 query set; the similarity threshold is reported
-separately as a partial-coverage sensitivity analysis.
+The completed
+[Round-8 calibration-relative screen](docs/RESULTS_ROUND8_CALIBRATION_RELATIVE.md)
+compares five calibration-relative/causal candidates and three isolated
+collaborator-requested checks on the same development protocol. R8-4 is the
+single-seed K=5 screening winner, improving Overall participant-macro mean MAE
+from 8.485 to 8.254 mmHg and improving both internal PulseDB source strata.
+Machine-readable Overall/MIMIC/VitalDB tables are under
+[results/round8](results/round8). The locked meta-test remains untouched, and
+independent-seed confirmation has not yet been performed.
 
 ## Repository layout
 
