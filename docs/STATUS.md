@@ -1,6 +1,19 @@
 # Verified project status
 
-Last updated: 2026-08-19.
+Last updated: 2026-08-20.
+
+## Ten-second PPG beat-to-beat similarity audit
+
+The within-window morphology audit is complete for all 103,564 K=5
+meta-validation query PPG windows from 697 participants; the locked meta-test
+was not accessed. The median within-window pairwise beat correlation is 0.9923
+Overall, 0.9932 for PulseDB MIMIC, and 0.9783 for PulseDB VitalDB. However, the
+window-level 10th percentiles are 0.5792, 0.7741, and 0.3088, respectively.
+Thus typical morphology is highly repeatable, but there is a marked low-
+similarity tail, especially in VitalDB. Full aggregate results and method
+limitations are documented in
+[PPG_BEAT_TO_BEAT_SIMILARITY.md](PPG_BEAT_TO_BEAT_SIMILARITY.md); private
+participant/event rows are not published.
 
 ## Round-7 new training submitted
 
