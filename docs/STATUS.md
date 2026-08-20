@@ -1,6 +1,31 @@
 # Verified project status
 
-Last updated: 2026-08-20.
+Last updated: 2026-08-21.
+
+## Round-9 calibration refinement submitted
+
+Round 9 is a K=5, single-seed exploratory screen derived from the completed
+Round-8 result. It compares one architecture-matched R8 reference with eight
+isolated changes: adaptive base/personal fusion, soft BP-range experts,
+DBP-specific physiology, bias regularization, short causal attention,
+participant-specific BP direction, temporal-delta consistency, and
+support-dropout consistency.
+
+To reduce repeated model-selection pressure on the previously viewed
+meta-validation set, folds 0--2 of participant-disjoint meta-train fit each
+candidate, fold 3 controls patience-8 early stopping, and fold 4 ranks the
+candidates. Meta-validation is not used for training, early stopping,
+prediction, scoring, or candidate ranking in this screen. The locked meta-test
+is not accessed. Slurm jobs 975--983 run the nine models and dependency job 984
+generates the deterministic Overall/MIMIC/VitalDB internal report. The server
+suite passed 97 tests before submission. See
+[ROUND9_CALIBRATION_REFINEMENT_PLAN.md](ROUND9_CALIBRATION_REFINEMENT_PLAN.md).
+
+The internal promotion gate requires at least a 0.15-mmHg improvement in
+Overall participant-macro mean MAE and improvement in both internal PulseDB
+source strata. If no lightweight candidate passes, the next distinct route is
+partial end-to-end PPG-encoder adaptation to query-to-calibration BP change,
+not another post-hoc difficult-case router.
 
 ## Ten-second PPG beat-to-beat similarity audit
 

@@ -94,6 +94,15 @@ Machine-readable Overall/MIMIC/VitalDB tables are under
 [results/round8](results/round8). The locked meta-test remains untouched, and
 independent-seed confirmation has not yet been performed.
 
+The exploratory [Round-9 calibration-refinement plan](docs/ROUND9_CALIBRATION_REFINEMENT_PLAN.md)
+screens eight isolated calibration-relative refinements plus an
+architecture-matched reference at K=5. Candidate selection is confined to
+participant-disjoint meta-train folds before any further meta-validation
+evaluation. The submitted screen tests adaptive population/personal fusion,
+soft BP-range experts, DBP-specific physiology, bias control, short causal
+attention, participant-specific BP direction, temporal-change consistency,
+and support-dropout consistency. The locked meta-test remains untouched.
+
 ## Repository layout
 
 ```text
