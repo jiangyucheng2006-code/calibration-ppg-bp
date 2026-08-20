@@ -15,6 +15,14 @@ limitations are documented in
 [PPG_BEAT_TO_BEAT_SIMILARITY.md](PPG_BEAT_TO_BEAT_SIMILARITY.md); private
 participant/event rows are not published.
 
+The follow-up similarity--error analysis is also complete. In both the Quality
+Gate + Huber reference and the R7-5 causal GRU, event-level correlations are
+near zero and within-participant comparisons do not show higher error below
+0.90 similarity. Participant-level correlations are weakly positive rather
+than negative. Therefore the current normalized morphology-similarity score is
+not promoted as a quality gate, rejection rule, or specialist-routing feature.
+See [PPG_BEAT_SIMILARITY_ERROR_RELATION.md](PPG_BEAT_SIMILARITY_ERROR_RELATION.md).
+
 ## Round-7 new training submitted
 
 Round 7 supersedes the earlier interpretation that the completed Phase-6E
