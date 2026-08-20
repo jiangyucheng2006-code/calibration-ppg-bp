@@ -245,3 +245,25 @@ only to independent-seed confirmation; locked meta-test remains untouched.
 - no real pressure-, motion-, or device-shift robustness result;
 - no independent external validation;
 - no clinical validation or standards claim.
+
+## Round-8 submitted design
+
+Round 8 is a K=5, single-seed development screen built around the Quality Gate
++ Huber job-841 reference. Five new models learn the query-to-calibration
+relationship explicitly: pairwise delta prediction; pairwise delta plus causal
+time; pairwise delta plus a below/within/above support-BP-range task; their
+combined model; and the combined model plus generic support-to-query PPG-shape
+change features. The temporal variants use only current and prior query PPG.
+
+Three collaborator-requested variants are isolated from that ladder. The
+finite beat-similarity >=0.90 threshold is a partial-coverage sensitivity
+analysis, not a full-coverage model comparison. A demographic candidate
+directly concatenates the five cleaned demographic values rather than
+expanding them to a 256-dimensional vector. A separate candidate retrains the
+population and personalised model with a 128-dimensional PPG representation
+and no demographic input.
+
+The exact candidate definitions, leakage boundary, promotion gate, and report
+requirements are frozen in
+[ROUND8_CALIBRATION_RELATIVE_PLAN.md](ROUND8_CALIBRATION_RELATIVE_PLAN.md).
+The locked meta-test remains untouched.

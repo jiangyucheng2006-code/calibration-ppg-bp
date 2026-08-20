@@ -17,7 +17,12 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, RandomSampler, Sampler, WeightedRandomSampler
 
-from .models import PopulationRegressor, SiameseDeltaRegressor, VariableKPersonalizer
+from .models import (
+    MultiScaleResNetEncoder,
+    PopulationRegressor,
+    SiameseDeltaRegressor,
+    VariableKPersonalizer,
+)
 from .training import (
     EpisodicDataset,
     PopulationDataset,
@@ -165,9 +170,27 @@ def _load_population_checkpoint(
     path: Path, device: torch.device
 ) -> tuple[PopulationRegressor, dict[str, list[float]]]:
     checkpoint = torch.load(path, map_location=device, weights_only=False)
-    model = PopulationRegressor()
+    feature_dim = checkpoint.get("feature_dim")
+    if feature_dim is None:
+        projection = checkpoint["model_state"].get("encoder.projection.1.weight")
+        if projection is None:
+            raise ValueError("population checkpoint does not identify encoder dimension")
+        feature_dim = int(projection.shape[0])
+    model = PopulationRegressor(
+        MultiScaleResNetEncoder(feature_dim=int(feature_dim))
+    )
     model.load_state_dict(checkpoint["model_state"])
     return model, checkpoint["target_scaler"]
+
+
+def _model_feature_dim(model: nn.Module) -> int | None:
+    if isinstance(model, PopulationRegressor):
+        return int(model.encoder.feature_dim)
+    if isinstance(model, VariableKPersonalizer):
+        return int(model.population.encoder.feature_dim)
+    if isinstance(model, SiameseDeltaRegressor):
+        return int(model.encoder.feature_dim)
+    return None
 
 
 def _epoch_numbers(max_epochs: int) -> Iterable[int]:
@@ -454,7 +477,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
 
     siamese = args.method == "siamese"
     if args.method == "population":
-        model: nn.Module = PopulationRegressor()
+        model: nn.Module = PopulationRegressor(
+            MultiScaleResNetEncoder(feature_dim=args.feature_dim)
+        )
         train_dataset = PopulationDataset(train_metadata, args.store_root, scaler)
         validation_dataset = PopulationDataset(
             validation_metadata.loc[validation_metadata["common_query"]].copy(),
@@ -489,6 +514,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                 anchor_mode=args.anchor_mode,
                 use_quality_gate=args.use_quality_gate,
                 use_demographics=args.use_demographics,
+                demographic_mode=args.demographic_mode,
             )
             for parameter in model.population.parameters():
                 parameter.requires_grad = False
@@ -701,6 +727,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                     "epoch": epoch,
                     "validation": metrics,
                     "seed": args.seed,
+                    "feature_dim": _model_feature_dim(model),
                 },
                 checkpoint_path,
             )
@@ -744,6 +771,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             else None
         ),
         "target_scaler": scaler,
+        "feature_dim": _model_feature_dim(model),
         "best_validation_mean_mae": float(best_metrics["mean_mae"]),
         "best_validation_worst_30_mean_mae": (
             float(best_metrics["worst_30_mean_mae"])
@@ -858,6 +886,22 @@ def main() -> None:
     parser.add_argument("--use-quality-gate", action="store_true")
     parser.add_argument("--use-demographics", action="store_true")
     parser.add_argument("--demographics-path", type=Path)
+    parser.add_argument(
+        "--demographic-mode",
+        choices=["encoded", "direct"],
+        default="encoded",
+        help=(
+            "encoded expands the five cleaned demographic values to the PPG "
+            "feature width; direct concatenates the five values unchanged"
+        ),
+    )
+    parser.add_argument(
+        "--feature-dim",
+        type=int,
+        choices=[128, 256],
+        default=256,
+        help="population PPG encoder output width",
+    )
     parser.add_argument(
         "--ks",
         type=int,

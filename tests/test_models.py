@@ -4,6 +4,7 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from pulsedb_fewshot.models import (  # noqa: E402
+    MultiScaleResNetEncoder,
     PopulationRegressor,
     SiameseDeltaRegressor,
     VariableKPersonalizer,
@@ -92,3 +93,24 @@ def test_quality_gate_and_demographic_conditioning_accept_expected_inputs() -> N
     assert demographic(query, support, support_bp, mask, demographics).shape == (2, 2)
     with pytest.raises(ValueError, match="demographic"):
         demographic(query, support, support_bp, mask)
+
+
+def test_direct_demographics_are_concatenated_without_expansion() -> None:
+    query = torch.randn(2, 1, 1250)
+    support = torch.randn(2, 5, 1, 1250)
+    support_bp = torch.randn(2, 5, 2)
+    mask = torch.ones(2, 5, dtype=torch.bool)
+    demographics = torch.zeros(2, 5)
+    model = VariableKPersonalizer(
+        use_film=False,
+        use_demographics=True,
+        demographic_mode="direct",
+    )
+    assert model(query, support, support_bp, mask, demographics).shape == (2, 2)
+    assert not hasattr(model, "demographic_encoder")
+
+
+def test_population_supports_128_dimensional_encoder() -> None:
+    model = PopulationRegressor(MultiScaleResNetEncoder(feature_dim=128))
+    assert model(torch.randn(2, 1, 1250)).shape == (2, 2)
+    assert model.encoder.feature_dim == 128

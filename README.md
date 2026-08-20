@@ -84,6 +84,14 @@ oracle-diagnostic tables under
 [results/phase6b_factorial](results/phase6b_factorial). The private
 participant-level tail-membership file is not published.
 
+The current development experiment is the
+[Round-8 calibration-relative screen](docs/ROUND8_CALIBRATION_RELATIVE_PLAN.md).
+It contains five calibration-relative/causal candidates and three isolated
+collaborator-requested checks (beat-similarity coverage, direct demographic
+concatenation, and a 128-dimensional PPG encoder). All full-coverage candidates
+are evaluated on the same K=5 query set; the similarity threshold is reported
+separately as a partial-coverage sensitivity analysis.
+
 ## Repository layout
 
 ```text

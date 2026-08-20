@@ -167,6 +167,7 @@ class VariableKPersonalizer(nn.Module):
         use_quality_gate: bool = False,
         use_demographics: bool = False,
         demographic_dim: int = 5,
+        demographic_mode: str = "encoded",
     ) -> None:
         super().__init__()
         self.population = population or PopulationRegressor()
@@ -182,6 +183,9 @@ class VariableKPersonalizer(nn.Module):
         self.anchor_mode = anchor_mode
         self.use_quality_gate = use_quality_gate
         self.use_demographics = use_demographics
+        if demographic_mode not in {"encoded", "direct"}:
+            raise ValueError("demographic_mode must be 'encoded' or 'direct'")
+        self.demographic_mode = demographic_mode
         if query_conditioned_weights:
             self.reliability = nn.Sequential(
                 nn.Linear(dimension * 2 + 2, dimension),
@@ -192,7 +196,7 @@ class VariableKPersonalizer(nn.Module):
             self.film = nn.Linear(dimension, dimension * 2)
             nn.init.zeros_(self.film.weight)
             nn.init.zeros_(self.film.bias)
-        if use_demographics:
+        if use_demographics and demographic_mode == "encoded":
             self.demographic_encoder = nn.Sequential(
                 nn.Linear(demographic_dim, 32),
                 nn.SiLU(),
@@ -209,7 +213,11 @@ class VariableKPersonalizer(nn.Module):
             assert isinstance(quality_final, nn.Linear)
             nn.init.zeros_(quality_final.weight)
             nn.init.constant_(quality_final.bias, 4.0)
-        correction_inputs = dimension * (3 if use_demographics else 2)
+        correction_inputs = dimension * 2
+        if use_demographics:
+            correction_inputs += (
+                dimension if demographic_mode == "encoded" else demographic_dim
+            )
         self.correction = nn.Sequential(
             nn.Linear(correction_inputs, dimension),
             nn.SiLU(),
@@ -297,7 +305,10 @@ class VariableKPersonalizer(nn.Module):
         if self.use_demographics:
             if demographics is None:
                 raise ValueError("demographic conditioning requires demographic features")
-            correction_inputs.append(self.demographic_encoder(demographics))
+            if self.demographic_mode == "encoded":
+                correction_inputs.append(self.demographic_encoder(demographics))
+            else:
+                correction_inputs.append(demographics)
         correction = self.correction(torch.cat(correction_inputs, dim=-1))
         personalization = anchor_residual + correction
         if self.use_quality_gate:
