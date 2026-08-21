@@ -112,7 +112,13 @@ def test_internal_report_uses_fold4_and_all_three_scopes(tmp_path: Path) -> None
         expected_seed=20260823,
     )
     table = pd.read_csv(output / "participant_macro_internal.csv")
+    diagnostics = pd.read_csv(output / "pooled_diagnostics_internal.csv")
+    comparison = pd.read_csv(output / "comparison_vs_reference_internal.csv")
     assert set(table["Scope"]) == {"Overall", "MIMIC", "VitalDB"}
+    assert len(diagnostics) == 2 * 3 * 2
+    assert set(diagnostics["BP"]) == {"SBP", "DBP"}
+    assert len(comparison) == 2 * 3
+    assert set(comparison["Scope"]) == {"Overall", "MIMIC", "VitalDB"}
     assert result["winner"] == "R9-1 Adaptive fusion"
     assert result["passes_internal_gate"] is True
 

@@ -94,14 +94,15 @@ Machine-readable Overall/MIMIC/VitalDB tables are under
 [results/round8](results/round8). The locked meta-test remains untouched, and
 independent-seed confirmation has not yet been performed.
 
-The exploratory [Round-9 calibration-refinement plan](docs/ROUND9_CALIBRATION_REFINEMENT_PLAN.md)
-screens eight isolated calibration-relative refinements plus an
-architecture-matched reference at K=5. Candidate selection is confined to
-participant-disjoint meta-train folds before any further meta-validation
-evaluation. The submitted screen tests adaptive population/personal fusion,
-soft BP-range experts, DBP-specific physiology, bias control, short causal
-attention, participant-specific BP direction, temporal-change consistency,
-and support-dropout consistency. The locked meta-test remains untouched.
+The exploratory [Round-9 calibration-refinement result](docs/RESULTS_ROUND9_CALIBRATION_REFINEMENT.md)
+compares eight isolated calibration-relative refinements with an
+architecture-matched reference at K=5 using participant-disjoint internal
+meta-train folds. No candidate passes the prespecified promotion gate. Adaptive
+population/personal fusion has the lowest Overall mean MAE but improves only
+0.036 mmHg and slightly worsens VitalDB; it is not promoted. Aggregate tables
+are under [results/round9](results/round9), and the locked meta-test remains
+untouched. The original [Round-9 plan](docs/ROUND9_CALIBRATION_REFINEMENT_PLAN.md)
+is retained for prospective context.
 
 ## Repository layout
 

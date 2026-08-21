@@ -23,6 +23,7 @@ import torch
 from torch import nn
 
 from .phase6e_residual import KEYS
+from .report_round8 import _diagnostic_rows
 from .round8_calibration_relative import (
     PHYSIOLOGY_NAMES,
     SUPPORT_K,
@@ -678,6 +679,7 @@ def build_internal_report(
     *, runs: dict[str, Path], reference: str, output: Path, expected_seed: int
 ) -> dict[str, object]:
     records: list[dict[str, object]] = []
+    prediction_frames: list[pd.DataFrame] = []
     canonical: pd.DataFrame | None = None
     for setting, root in runs.items():
         payload = json.loads((root / "run.json").read_text())
@@ -698,6 +700,7 @@ def build_internal_report(
         if payload.get("locked_test_accessed") is not False:
             raise AssertionError(f"{setting} accessed locked test")
         predictions = pd.read_parquet(root / "selection_predictions.parquet")
+        prediction_frames.append(predictions.assign(Setting=setting))
         check = predictions[KEYS + ["target_sbp", "target_dbp"]].sort_values(KEYS)
         check.reset_index(drop=True, inplace=True)
         if canonical is None:
@@ -719,6 +722,10 @@ def build_internal_report(
                 "Mean participant-macro MAE": metric["mean_mae"],
             })
     table = pd.DataFrame(records)
+    settings = list(runs)
+    diagnostics = _diagnostic_rows(
+        pd.concat(prediction_frames, ignore_index=True, sort=False), settings
+    )
     overall = table.loc[table["Scope"].eq("Overall")].sort_values(
         ["Mean participant-macro MAE", "Setting"], kind="mergesort"
     )
@@ -735,8 +742,31 @@ def build_internal_report(
         for scope in ("Overall", "MIMIC", "VitalDB")
     }
     passes = gains["Overall"] >= 0.15 and gains["MIMIC"] > 0 and gains["VitalDB"] > 0
+    comparison_rows: list[dict[str, object]] = []
+    for setting in settings:
+        candidate = table.loc[table["Setting"].eq(setting)].set_index("Scope")
+        for scope in ("Overall", "MIMIC", "VitalDB"):
+            comparison_rows.append(
+                {
+                    "Setting": setting,
+                    "Scope": scope,
+                    "Reference mean participant-macro MAE": float(
+                        ref.loc[scope, "Mean participant-macro MAE"]
+                    ),
+                    "Candidate mean participant-macro MAE": float(
+                        candidate.loc[scope, "Mean participant-macro MAE"]
+                    ),
+                    "Candidate minus reference": float(
+                        candidate.loc[scope, "Mean participant-macro MAE"]
+                        - ref.loc[scope, "Mean participant-macro MAE"]
+                    ),
+                }
+            )
+    comparison = pd.DataFrame(comparison_rows)
     output.mkdir(parents=True, exist_ok=False)
     table.to_csv(output / "participant_macro_internal.csv", index=False)
+    diagnostics.to_csv(output / "pooled_diagnostics_internal.csv", index=False)
+    comparison.to_csv(output / "comparison_vs_reference_internal.csv", index=False)
     summary = {
         "status": "complete",
         "round": 9,
@@ -762,6 +792,18 @@ def build_internal_report(
         _markdown_table(
             table.sort_values(["Scope", "Mean participant-macro MAE"])
         ),
+        "",
+        "## Change versus the internal reference",
+        "",
+        "Negative candidate-minus-reference values are better.",
+        "",
+        _markdown_table(comparison),
+        "",
+        "## Event-pooled diagnostic metrics",
+        "",
+        "Participant-macro MAE above is primary. AAMI/BHS entries below are retrospective numerical screens only and do not establish device compliance.",
+        "",
+        _markdown_table(diagnostics),
         "",
         f"Internal winner: **{winner}**.",
         f"Internal promotion gate passed: **{passes}**.",

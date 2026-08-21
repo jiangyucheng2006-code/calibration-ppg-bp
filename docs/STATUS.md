@@ -2,30 +2,28 @@
 
 Last updated: 2026-08-21.
 
-## Round-9 calibration refinement submitted
+## Round-9 calibration refinement completed
 
-Round 9 is a K=5, single-seed exploratory screen derived from the completed
-Round-8 result. It compares one architecture-matched R8 reference with eight
-isolated changes: adaptive base/personal fusion, soft BP-range experts,
-DBP-specific physiology, bias regularization, short causal attention,
-participant-specific BP direction, temporal-delta consistency, and
-support-dropout consistency.
+Round 9 is complete. Jobs 975--985 all completed with exit code `0:0`, empty
+stderr, and byte-identical work/NAS reports. The screen compares one
+architecture-matched R8 reference with eight isolated changes at K=5.
 
 To reduce repeated model-selection pressure on the previously viewed
 meta-validation set, folds 0--2 of participant-disjoint meta-train fit each
 candidate, fold 3 controls patience-8 early stopping, and fold 4 ranks the
 candidates. Meta-validation is not used for training, early stopping,
 prediction, scoring, or candidate ranking in this screen. The locked meta-test
-is not accessed. Slurm jobs 975--983 run the nine models and dependency job 984
-generates the deterministic Overall/MIMIC/VitalDB internal report. The server
-suite passed 97 tests before submission. See
-[ROUND9_CALIBRATION_REFINEMENT_PLAN.md](ROUND9_CALIBRATION_REFINEMENT_PLAN.md).
+is not accessed. The server suite passes 97 tests. The fold-4 comparison covers
+628 participants and 96,332 common queries.
 
-The internal promotion gate requires at least a 0.15-mmHg improvement in
-Overall participant-macro mean MAE and improvement in both internal PulseDB
-source strata. If no lightweight candidate passes, the next distinct route is
-partial end-to-end PPG-encoder adaptation to query-to-calibration BP change,
-not another post-hoc difficult-case router.
+No candidate passes the internal promotion gate. R9-1 adaptive fusion is the
+numerical winner but improves Overall participant-macro mean MAE by only 0.036
+mmHg and worsens VitalDB by 0.003 mmHg. R9-7 is the only method to improve both
+source strata, but its Overall gain is only 0.010 mmHg. No Round-9 candidate is
+promoted or evaluated on meta-validation. See the complete
+[Round-9 result](RESULTS_ROUND9_CALIBRATION_REFINEMENT.md) and aggregate files
+under `results/round9/`. The next justified route is partial end-to-end
+PPG-encoder adaptation to query-to-calibration BP change.
 
 ## Ten-second PPG beat-to-beat similarity audit
 
