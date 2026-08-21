@@ -1,6 +1,6 @@
 # Verified project status
 
-Last updated: 2026-08-21.
+Last updated: 2026-08-22.
 
 ## Round-10 partial end-to-end screen prepared
 
@@ -20,17 +20,27 @@ prespecified promotion gate remains an Overall participant-macro mean-MAE gain
 of at least 0.15 mmHg plus improvement in both internal source strata. See the
 [Round-10 plan](ROUND10_PARTIAL_END_TO_END_PLAN.md).
 
-The corrected Slurm chain is jobs 1004--1016: population 1004, QGH 1005,
-preparation 1006, nine candidates 1007--1015, and deterministic report 1016.
-Population job 1004 completed on `hpc-2` in 3:56 with exit code `0:0` and
-empty stderr. It fitted 1,887 fold-0--2 participants, used 628 fold-3
-participants for early stopping, excluded fold 4, and selected epoch 1 of 9
-with fold-3 participant-macro mean MAE 11.699 mmHg. QGH job 1005 is running;
-through epoch 3 its best fold-3 mean MAE is 8.516 mmHg and stderr remains
-empty. These are internal early-stopping metrics, not Round-10 candidate
-results. The server suite passed 117 tests before this submission. The exact submitted snapshot is
-`event120-v1_round10_partial_e2e_corrected_20260821-200114.tar.gz`, SHA-256
-`0d6e33bf0a310070524c8687bf169111b41e2f7c7052ff5704f073a21fdc4d8f`.
+Population job 1004, QGH job 1005, and preparation job 1006 completed with
+exit code `0:0` and empty stderr. The prepared internal screen contains 3,143
+meta-train participants and 483,246 K=5 queries: 1,887 participants in fit
+folds 0--2, 628 in early-stopping fold 3, and 628 in untouched candidate-
+selection fold 4. Meta-validation and the locked meta-test were not accessed.
+
+The first candidate chain did not produce scientific results. Jobs 1007--1015
+all stopped during their first backward pass because mixed-precision model
+outputs and float32 targets reached the loss with incompatible gradient
+dtypes. Report job 1016 was cancelled after its dependencies failed. The loss
+path now explicitly computes all objective terms in float32 while retaining
+the mixed-precision forward pass, and two regression cases reproduce the
+former bfloat16/float32 boundary. The complete server suite passes 119 tests.
+
+The unchanged nine-candidate screen was resubmitted as jobs 1017--1025, with
+deterministic report job 1026. This is a recovery of the same prespecified
+experiment, not a new candidate or protocol revision. The exact recovery
+snapshot is `event120-v1_round10_dtype_fix_20260821-160940.tar.gz`, SHA-256
+`2c239ba85501baca2a561b0c3076778c6661d225e975ccc120178f4df30b6e7d`.
+No Round-10 candidate metric is reported until all nine runs and the common
+report complete successfully.
 
 An initial job 991 exposed a command-line validation defect before any data
 loading or optimization. Its dependency chain 992--1003 was cancelled without

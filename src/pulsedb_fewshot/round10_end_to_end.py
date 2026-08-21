@@ -679,23 +679,34 @@ def _training_sequence_batches(
 
 
 def _loss(output: dict[str, torch.Tensor], candidate: Round10Candidate) -> torch.Tensor:
+    # Encoder/head forward passes may use CUDA bfloat16 autocast, while the
+    # prepared BP targets and support values are float32.  Compute all loss
+    # terms in float32 so autograd does not receive a float gradient for a
+    # bfloat16 loss output.  The casts remain differentiable and preserve the
+    # intended mixed-precision forward pass.
+    loss_output = dict(output)
+    for name in ("prediction", "pair_delta", "range_logits"):
+        loss_output[name] = output[name].float()
+    if output["direction_logits"] is not None:
+        loss_output["direction_logits"] = output["direction_logits"].float()
+
     head_candidate = HeadCandidate(
         prediction_mode=candidate.prediction_mode,
         temporal_mode="gru",
         temporal_delta_penalty=candidate.temporal_delta_penalty,
     )
-    total = _round9_loss(output, head_candidate)
+    total = _round9_loss(loss_output, head_candidate)
     if candidate.pair_direction_weight:
-        logits = output["direction_logits"]
+        logits = loss_output["direction_logits"]
         if logits is None:
             raise AssertionError("direction candidate has no direction logits")
         labels = (
-            output["target"][..., None, :] - output["support_bp"] > 0
+            loss_output["target"][..., None, :] - loss_output["support_bp"] > 0
         ).to(logits.dtype)
         raw = torch.nn.functional.binary_cross_entropy_with_logits(
             logits, labels, reduction="none"
         ).mean((-1, -2))
-        total = total + candidate.pair_direction_weight * raw[output["mask"]].mean()
+        total = total + candidate.pair_direction_weight * raw[loss_output["mask"]].mean()
     return total
 
 

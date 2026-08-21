@@ -16,6 +16,7 @@ from pulsedb_fewshot.models import (  # noqa: E402
 from pulsedb_fewshot.round10_end_to_end import (  # noqa: E402
     METHODS,
     Round10Model,
+    _loss,
     _time_decay_gru_forward,
     build_internal_report,
     configure_encoder_trainability,
@@ -115,6 +116,40 @@ def test_chunked_temporal_inference_matches_full_sequence() -> None:
     )
     assert torch.equal(full, torch.cat([first, second, third], dim=1))
     assert torch.equal(full_final, chunked_final)
+
+
+@pytest.mark.parametrize("method", ["last_block", "last_block_direction"])
+def test_round10_loss_backpropagates_from_bfloat16_outputs(method: str) -> None:
+    """Mirror the CUDA-autocast output dtype with float32 prepared targets."""
+
+    prediction = torch.randn(2, 3, 2, dtype=torch.bfloat16, requires_grad=True)
+    pair_delta = torch.randn(
+        2, 3, 5, 2, dtype=torch.bfloat16, requires_grad=True
+    )
+    range_logits = torch.randn(
+        2, 3, 6, dtype=torch.bfloat16, requires_grad=True
+    )
+    direction_logits = torch.randn(
+        2, 3, 5, 2, dtype=torch.bfloat16, requires_grad=True
+    )
+    output = {
+        "prediction": prediction,
+        "pair_delta": pair_delta,
+        "range_logits": range_logits,
+        "direction_logits": direction_logits,
+        "target": torch.randn(2, 3, 2, dtype=torch.float32),
+        "support_bp": torch.randn(2, 3, 5, 2, dtype=torch.float32),
+        "range": torch.randint(0, 3, (2, 3, 2)),
+        "mask": torch.ones(2, 3, dtype=torch.bool),
+    }
+    loss = _loss(output, METHODS[method])
+    assert loss.dtype == torch.float32
+    loss.backward()
+    assert prediction.grad is not None
+    assert pair_delta.grad is not None
+    assert range_logits.grad is not None
+    if method == "last_block_direction":
+        assert direction_logits.grad is not None
 
 
 def test_explicit_internal_split_does_not_require_legacy_heldout_fold(
