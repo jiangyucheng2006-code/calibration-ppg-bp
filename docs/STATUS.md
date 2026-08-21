@@ -22,9 +22,13 @@ of at least 0.15 mmHg plus improvement in both internal source strata. See the
 
 The corrected Slurm chain is jobs 1004--1016: population 1004, QGH 1005,
 preparation 1006, nine candidates 1007--1015, and deterministic report 1016.
-At the post-submission check, job 1004 was running on `hpc-2` with empty
-stderr; all later jobs were dependency-pending. The server suite passed 117
-tests before this submission. The exact submitted snapshot is
+Population job 1004 completed on `hpc-2` in 3:56 with exit code `0:0` and
+empty stderr. It fitted 1,887 fold-0--2 participants, used 628 fold-3
+participants for early stopping, excluded fold 4, and selected epoch 1 of 9
+with fold-3 participant-macro mean MAE 11.699 mmHg. QGH job 1005 is running;
+through epoch 3 its best fold-3 mean MAE is 8.516 mmHg and stderr remains
+empty. These are internal early-stopping metrics, not Round-10 candidate
+results. The server suite passed 117 tests before this submission. The exact submitted snapshot is
 `event120-v1_round10_partial_e2e_corrected_20260821-200114.tar.gz`, SHA-256
 `0d6e33bf0a310070524c8687bf169111b41e2f7c7052ff5704f073a21fdc4d8f`.
 
