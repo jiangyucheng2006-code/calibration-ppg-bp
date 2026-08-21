@@ -104,6 +104,12 @@ are under [results/round9](results/round9), and the locked meta-test remains
 untouched. The original [Round-9 plan](docs/ROUND9_CALIBRATION_REFINEMENT_PLAN.md)
 is retained for prospective context.
 
+The prospective [Round-10 partial end-to-end plan](docs/ROUND10_PARTIAL_END_TO_END_PLAN.md)
+rebuilds its population and Quality Gate + Huber bases under a stricter
+fold-0--2 fit, fold-3 early-stop, fold-4 selection boundary. It then compares
+nine K=5 encoder-adaptation candidates without reading meta-validation or the
+locked meta-test.
+
 ## Repository layout
 
 ```text

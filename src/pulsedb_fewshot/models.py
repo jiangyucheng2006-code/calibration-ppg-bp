@@ -269,6 +269,42 @@ class VariableKPersonalizer(nn.Module):
         support_features = self.population.encoder(
             support_ppg.reshape(batch * maximum_k, channels, length)
         ).reshape(batch, maximum_k, -1)
+        return self.forward_from_features(
+            query_features,
+            support_features,
+            support_bp,
+            support_mask,
+            demographics,
+        )
+
+    def forward_from_features(
+        self,
+        query_features: torch.Tensor,
+        support_features: torch.Tensor,
+        support_bp: torch.Tensor,
+        support_mask: torch.Tensor,
+        demographics: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        """Predict from already encoded PPG features.
+
+        This is mathematically identical to :meth:`forward` after the shared
+        encoder.  It supports leakage-safe feature caching without changing
+        the population, support-anchor, quality-gate, or correction mapping.
+        """
+
+        if query_features.ndim != 2:
+            raise ValueError("query features must have shape [batch, feature]")
+        if support_features.ndim != 3:
+            raise ValueError(
+                "support features must have shape [batch, Kmax, feature]"
+            )
+        batch, maximum_k, dimension = support_features.shape
+        if query_features.shape != (batch, dimension):
+            raise ValueError("query/support feature shapes are inconsistent")
+        if support_bp.shape != (batch, maximum_k, 2):
+            raise ValueError("support BP must have shape [batch, Kmax, 2]")
+        if support_mask.shape != (batch, maximum_k):
+            raise ValueError("support mask must have shape [batch, Kmax]")
         population_query = self.population.predict_from_features(query_features)
         population_support = self.population.predict_from_features(
             support_features.reshape(batch * maximum_k, -1)

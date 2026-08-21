@@ -288,6 +288,48 @@ def _participant_tail_objective(
     return objective, diagnostics
 
 
+def _validate_crossfit_arguments(
+    *,
+    crossfit_folds: Path | None,
+    heldout_fold: int | None,
+    fit_folds: list[int] | None,
+    validation_fold: int | None,
+) -> bool:
+    """Validate mutually exclusive legacy and explicit internal fold modes."""
+
+    explicit = fit_folds is not None or validation_fold is not None
+    if not explicit and (crossfit_folds is None) != (heldout_fold is None):
+        raise ValueError(
+            "--crossfit-folds and --crossfit-heldout-fold must be provided together"
+        )
+    if explicit:
+        if crossfit_folds is None:
+            raise ValueError(
+                "--crossfit-fit-folds/--crossfit-validation-fold require "
+                "--crossfit-folds"
+            )
+        if fit_folds is None or validation_fold is None:
+            raise ValueError(
+                "--crossfit-fit-folds and --crossfit-validation-fold must be "
+                "provided together"
+            )
+        if heldout_fold is not None:
+            raise ValueError(
+                "explicit internal fit/validation folds cannot be combined with "
+                "--crossfit-heldout-fold"
+            )
+        normalized = tuple(int(value) for value in fit_folds)
+        if not normalized or len(set(normalized)) != len(normalized):
+            raise ValueError("--crossfit-fit-folds must be nonempty and unique")
+        if int(validation_fold) in set(normalized):
+            raise ValueError("internal fit and validation folds must be disjoint")
+    if heldout_fold is not None and heldout_fold < 0:
+        raise ValueError("--crossfit-heldout-fold must be nonnegative")
+    if validation_fold is not None and validation_fold < 0:
+        raise ValueError("--crossfit-validation-fold must be nonnegative")
+    return explicit
+
+
 def train(args: argparse.Namespace) -> dict[str, object]:
     if args.patience < 1:
         raise ValueError("patience must be positive")
@@ -299,12 +341,12 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         raise ValueError("--tail-weight must be in [0, 1]")
     if args.tail_objective != "mean" and args.method != "m0":
         raise ValueError("participant-tail training is currently defined for method m0 only")
-    if (args.crossfit_folds is None) != (args.crossfit_heldout_fold is None):
-        raise ValueError(
-            "--crossfit-folds and --crossfit-heldout-fold must be provided together"
-        )
-    if args.crossfit_heldout_fold is not None and args.crossfit_heldout_fold < 0:
-        raise ValueError("--crossfit-heldout-fold must be nonnegative")
+    explicit_internal_split = _validate_crossfit_arguments(
+        crossfit_folds=args.crossfit_folds,
+        heldout_fold=args.crossfit_heldout_fold,
+        fit_folds=args.crossfit_fit_folds,
+        validation_fold=args.crossfit_validation_fold,
+    )
     if args.participant_risk_labels is not None and args.method != "m0":
         raise ValueError("cross-fitted participant weighting is defined for method m0 only")
     if args.participant_risk_labels is not None and args.tail_objective != "mean":
@@ -331,6 +373,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         raise RuntimeError("CUDA was required but is unavailable")
     metadata = load_store_metadata(args.store_root, "development")
     original_train = metadata.loc[metadata["split"].eq("meta_train")].copy()
+    internal_fit_folds: list[int] | None = None
+    internal_validation_fold: int | None = None
+    internal_excluded_folds: list[int] | None = None
     if args.crossfit_folds is None:
         train_metadata = original_train
         validation_metadata = metadata.loc[metadata["split"].eq("meta_validation")].copy()
@@ -364,9 +409,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             checked["source_metadata"].astype(str)
         ):
             raise AssertionError("cross-fit fold sources differ from metadata")
-        heldout = int(args.crossfit_heldout_fold)
-        if heldout not in set(pd.to_numeric(folds["fold"]).astype(int)):
-            raise ValueError(f"held-out cross-fit fold {heldout} is absent")
+        observed_folds = set(pd.to_numeric(folds["fold"]).astype(int))
         fold_lookup = folds.assign(
             subject_uid=folds["subject_uid"].astype(str),
             fold=pd.to_numeric(folds["fold"], errors="raise").astype(int),
@@ -374,11 +417,36 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         event_folds = original_train["subject_uid"].astype(str).map(fold_lookup)
         if event_folds.isna().any():
             raise AssertionError("at least one meta-train event has no cross-fit fold")
-        train_metadata = original_train.loc[event_folds.ne(heldout)].copy()
-        validation_metadata = original_train.loc[event_folds.eq(heldout)].copy()
+        if explicit_internal_split:
+            internal_fit_folds = sorted(int(value) for value in args.crossfit_fit_folds)
+            internal_validation_fold = int(args.crossfit_validation_fold)
+            requested = set(internal_fit_folds) | {internal_validation_fold}
+            if not requested.issubset(observed_folds):
+                raise ValueError(
+                    "requested internal folds are absent: "
+                    f"{sorted(requested - observed_folds)}"
+                )
+            internal_excluded_folds = sorted(observed_folds - requested)
+            train_metadata = original_train.loc[
+                event_folds.isin(internal_fit_folds)
+            ].copy()
+            validation_metadata = original_train.loc[
+                event_folds.eq(internal_validation_fold)
+            ].copy()
+            run_split = (
+                "meta_train_internal_fit_"
+                + "_".join(map(str, internal_fit_folds))
+                + f"_early_{internal_validation_fold}"
+            )
+        else:
+            heldout = int(args.crossfit_heldout_fold)
+            if heldout not in observed_folds:
+                raise ValueError(f"held-out cross-fit fold {heldout} is absent")
+            train_metadata = original_train.loc[event_folds.ne(heldout)].copy()
+            validation_metadata = original_train.loc[event_folds.eq(heldout)].copy()
+            run_split = f"meta_train_crossfit_fold_{heldout}"
         if train_metadata.empty or validation_metadata.empty:
             raise ValueError("cross-fit train or held-out fold is empty")
-        run_split = f"meta_train_crossfit_fold_{heldout}"
         scaler_metadata = train_metadata
     if set(train_metadata["subject_uid"]) & set(validation_metadata["subject_uid"]):
         raise AssertionError("participant leakage between training and validation")
@@ -760,6 +828,9 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         "train_events": int(len(train_metadata)),
         "validation_events": int(len(validation_metadata)),
         "crossfit_heldout_fold": args.crossfit_heldout_fold,
+        "crossfit_fit_folds": internal_fit_folds,
+        "crossfit_validation_fold": internal_validation_fold,
+        "crossfit_excluded_folds": internal_excluded_folds,
         "participant_risk_weighting": args.participant_risk_labels is not None,
         "hard_participant_only": args.hard_participant_only,
         "crossfit_folds_sha256": (
@@ -912,6 +983,23 @@ def main() -> None:
     )
     parser.add_argument("--crossfit-folds", type=Path)
     parser.add_argument("--crossfit-heldout-fold", type=int)
+    parser.add_argument(
+        "--crossfit-fit-folds",
+        type=int,
+        nargs="+",
+        help=(
+            "Explicit participant folds used for fitting. Must be paired with "
+            "--crossfit-validation-fold; every other fold is excluded."
+        ),
+    )
+    parser.add_argument(
+        "--crossfit-validation-fold",
+        type=int,
+        help=(
+            "Participant fold used only for early stopping when explicit "
+            "internal fit folds are supplied."
+        ),
+    )
     parser.add_argument("--participant-risk-labels", type=Path)
     parser.add_argument("--hard-participant-only", action="store_true")
     parser.add_argument(

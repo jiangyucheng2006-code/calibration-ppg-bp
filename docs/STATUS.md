@@ -2,6 +2,37 @@
 
 Last updated: 2026-08-21.
 
+## Round-10 partial end-to-end screen prepared
+
+Round 9 did not justify another frozen-feature correction head. Round 10
+therefore tests whether calibration-aware learning must update part of the PPG
+encoder. It also rebuilds the population and Quality Gate + Huber bases under
+a stricter internal split: folds 0--2 fit all supervised parameters, fold 3
+controls patience-8 early stopping, and fold 4 ranks the frozen candidates.
+Meta-validation and the locked meta-test are excluded from the complete screen.
+
+Nine K=5 candidates range from a frozen-encoder reference through projection,
+last-block, last-two-block, and full-encoder adaptation, with isolated
+BP-direction, temporal-consistency, and adaptive-fusion variants. Long
+participant records are trained with randomized chronological truncated
+segments and evaluated completely with state-preserving causal chunks. The
+prespecified promotion gate remains an Overall participant-macro mean-MAE gain
+of at least 0.15 mmHg plus improvement in both internal source strata. See the
+[Round-10 plan](ROUND10_PARTIAL_END_TO_END_PLAN.md).
+
+The corrected Slurm chain is jobs 1004--1016: population 1004, QGH 1005,
+preparation 1006, nine candidates 1007--1015, and deterministic report 1016.
+At the post-submission check, job 1004 was running on `hpc-2` with empty
+stderr; all later jobs were dependency-pending. The server suite passed 117
+tests before this submission. The exact submitted snapshot is
+`event120-v1_round10_partial_e2e_corrected_20260821-200114.tar.gz`, SHA-256
+`0d6e33bf0a310070524c8687bf169111b41e2f7c7052ff5704f073a21fdc4d8f`.
+
+An initial job 991 exposed a command-line validation defect before any data
+loading or optimization. Its dependency chain 992--1003 was cancelled without
+running, the explicit internal-fold mode received two regression tests, and
+the complete suite was rerun before jobs 1004--1016 were submitted.
+
 ## Round-9 calibration refinement completed
 
 Round 9 is complete. Jobs 975--985 all completed with exit code `0:0`, empty

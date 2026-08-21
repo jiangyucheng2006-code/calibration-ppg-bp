@@ -301,6 +301,7 @@ class Round9Model(nn.Module):
         return {
             "prediction": prediction,
             "pair_delta": pair_delta,
+            "pair_hidden": pair_hidden,
             "hidden": hidden,
             "range_logits": range_logits,
         }
