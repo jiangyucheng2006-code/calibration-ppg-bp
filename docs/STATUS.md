@@ -291,30 +291,30 @@ bootstrap intervals exclude zero in all three scopes, but the gain is small
 and comes from the same single-seed development screen. Soft fusion advances
 only to independent-seed confirmation; locked meta-test remains untouched.
 
-## Round-11 systematic revision submitted
+## Round-11A backbone screen completed
 
-Round 11 is prespecified as three sequential questions rather than another
-unconstrained module stack. Stage 11A changes only the PPG backbone under the
-same K=5 Quality Gate + Huber calibration head. The five candidates are the
-current compact ResNet, a deeper ResNet capacity control, InceptionTime, a
-patch Transformer, and a Conformer. All use folds 0--2 for fitting, fold 3 for
-patience-8 early stopping, and fold 4 for internal ranking; meta-validation
-and the locked meta-test remain quarantined.
+All formal jobs 1033--1048 completed with exit code `0:0`, and all 16 work/NAS
+result pairs are byte-identical. The patch-Transformer stderr contains only a
+PyTorch nested-tensor optimization warning; the other formal stderr files are
+empty. Every setting uses the same 628 fold-4 participants and 96,332 K=5
+queries after folds 0--2 fitting and fold-3 patience-8 early stopping.
 
-The implementation passed the complete 127-test server suite. A separate CUDA
-smoke job (1032) completed on `hpc-2` with exit code `0:0`, exercising forward,
-backward and one optimizer step for all five encoders. Their encoder parameter
-counts are 0.665M, 3.826M, 0.512M, 0.710M and 1.587M, respectively. This makes
-model complexity an explicit reported outcome rather than an assumed benefit.
+The compact ResNet remains the numerical winner. QGH participant-macro
+SBP/DBP/mean MAE is 11.0136/6.2771/8.6453 mmHg Overall, with mean MAE 9.3631
+in MIMIC and 8.0489 in VitalDB. InceptionTime is the closest alternative but
+worsens the three means by 0.0774/0.0741/0.0801 mmHg. Deeper ResNet, patch
+Transformer and Conformer worsen Overall by 0.2583, 0.2679 and 0.3336 mmHg,
+respectively. No alternative improves either internal source stratum.
 
-Formal jobs 1033--1047 and dependent report job 1048 were submitted with seed
-20260825. The two available GPUs are used by alternating backbone chains. The
-common report will recompute Overall, PulseDB MIMIC and PulseDB VitalDB from
-the same fold-4 predictions. A backbone advances only if Overall mean
-participant-macro MAE improves by at least 0.15 mmHg and neither source
-stratum deteriorates.
+`winner_backbone=resnet_small` and `passes_internal_gate=false`; no new
+backbone is promoted. The result supports retaining the smaller encoder and
+rejects complexity-for-complexity's-sake under the current protocol. It does
+not establish a universal negative conclusion about all attention models.
+Meta-validation and the locked meta-test were not accessed. The accepted
+report is [RESULTS_ROUND11_BACKBONE_SCREEN.md](RESULTS_ROUND11_BACKBONE_SCREEN.md),
+with public aggregate files under `results/round11a/`.
 
-Stage 11B will use only the 11A winner to perform a structural subtraction
+Stage 11B may now use the retained compact ResNet to perform a structural subtraction
 ablation of the personal correction MLP, PPG-only quality gate and
 query-conditioned support attention, followed by a paired MSE-versus-Huber
 loss comparison on the selected minimal structure.

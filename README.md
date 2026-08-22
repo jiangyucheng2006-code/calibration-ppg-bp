@@ -114,14 +114,15 @@ remains untouched. Aggregate tables are under [results/round10](results/round10)
 and the original [Round-10 plan](docs/ROUND10_PARTIAL_END_TO_END_PLAN.md) is
 retained for prospective context.
 
-[Round 11](docs/ROUND11_SYSTEMATIC_MODEL_REVISION_PLAN.md) is a staged response
-to the observed weak return from added complexity. Stage 11A holds the K=5
-calibration head and all data boundaries fixed while comparing the current
-compact ResNet, a higher-capacity ResNet control, InceptionTime, a patch
-Transformer, and a Conformer. Only a successful backbone advances to a
-subtractive component ablation and then to an explicit universal relation +
-stable personal bias + dynamic change decomposition. This is an active
-development screen; no Round-11 result or locked-test claim is reported yet.
+The completed [Round-11A backbone result](docs/RESULTS_ROUND11_BACKBONE_SCREEN.md)
+holds the K=5 Quality Gate + Huber calibration head and all data boundaries
+fixed while comparing the current compact ResNet, a higher-capacity ResNet,
+InceptionTime, a patch Transformer, and a Conformer. The compact ResNet remains
+best at 8.6453 mmHg Overall mean participant-macro MAE. Every alternative
+worsens Overall, MIMIC, and VitalDB, so no new backbone is promoted. Aggregate
+tables are under [results/round11a](results/round11a). Round 11 may proceed to
+the prespecified subtractive component ablation on the retained compact
+ResNet; meta-validation and the locked meta-test remain untouched.
 
 ## Repository layout
 

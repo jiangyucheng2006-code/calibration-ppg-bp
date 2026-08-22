@@ -1,0 +1,6 @@
+Backbone,Population parameters,QGH total parameters,QGH trainable parameters
+resnet_small,665490,1127318,461828
+resnet_deep,3827002,4288830,461828
+inception_time,512162,973990,461828
+patch_transformer,710530,1172358,461828
+conformer,1587330,2049158,461828
