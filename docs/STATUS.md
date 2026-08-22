@@ -314,8 +314,10 @@ the same fold-4 predictions. A backbone advances only if Overall mean
 participant-macro MAE improves by at least 0.15 mmHg and neither source
 stratum deteriorates.
 
-Stage 11B will use only the 11A winner to perform subtractive ablation of the
-robust loss, support-quality weighting and personal calibration correction.
+Stage 11B will use only the 11A winner to perform a structural subtraction
+ablation of the personal correction MLP, PPG-only quality gate and
+query-conditioned support attention, followed by a paired MSE-versus-Huber
+loss comparison on the selected minimal structure.
 Stage 11C will then compare universal-only, universal + stable personal bias,
 universal + dynamic change and the full three-part decomposition. These later
 stages are intentionally not submitted before the upstream winner is known.

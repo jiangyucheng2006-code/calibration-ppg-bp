@@ -37,13 +37,21 @@ The screen also records parameter counts. A candidate advances only if its Overa
 
 ## Round 11B: subtractive ablation
 
-This stage uses only the winning backbone from 11A. It tests the current personalization components as a small factorial design:
+This stage uses only the winning backbone from 11A. Its first part is a
+`2 x 2 x 2` structural factorial under the currently preferred Huber loss:
 
-- robust loss: MSE versus Huber;
-- support quality weighting: off versus on;
-- personal calibration correction: off versus on.
+- learned personal correction MLP: off versus on;
+- PPG-only quality gate: off versus on;
+- query-conditioned support attention: off versus on.
 
-The minimum necessary model is selected using fold 4. An added component is retained only when it improves the primary mean MAE and does not create a clinically important source-specific regression. Pairwise attention and other historical modules are not automatically restored; prior weak candidates remain excluded unless tested again as a single controlled factor.
+The structural winner is then compared with MSE versus Huber as one paired
+loss ablation. This hierarchical design tests attention explicitly without
+turning every loss/module combination into an unconstrained search. The
+minimum necessary model is selected using fold 4. An added component is
+retained only when it improves the primary mean MAE and does not create a
+clinically important source-specific regression. Other historical modules are
+not automatically restored; prior weak candidates remain excluded unless
+tested again as a single controlled factor.
 
 ## Round 11C: three-part BP decomposition
 
