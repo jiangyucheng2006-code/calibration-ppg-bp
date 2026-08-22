@@ -351,6 +351,14 @@ single seed. Meta-validation and the locked meta-test remain quarantined. The
 prospective specification is in
 [ROUND12_LITERATURE_BACKBONE_PLAN.md](ROUND12_LITERATURE_BACKBONE_PLAN.md).
 
+Server verification passed all 131 regression tests. CUDA smoke job 1049
+completed with exit code `0:0` after forward propagation, backpropagation and
+an optimizer update for all existing and new backbones. Formal jobs 1050--1064
+now form five population -> QGH -> fold-4 evaluation chains, and report job
+1065 depends on all evaluations. The compact ResNet reference is currently
+running; remaining population jobs are pending scheduler resources. No result
+or winner is reported before the dependent report completes.
+
 ## Round-8 calibration-relative screen completed
 
 All Round-8 jobs completed successfully with empty stderr, and the locked
