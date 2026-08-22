@@ -2,50 +2,34 @@
 
 Last updated: 2026-08-22.
 
-## Round-10 partial end-to-end screen prepared
+## Round-10 partial end-to-end screen completed
 
-Round 9 did not justify another frozen-feature correction head. Round 10
-therefore tests whether calibration-aware learning must update part of the PPG
-encoder. It also rebuilds the population and Quality Gate + Huber bases under
-a stricter internal split: folds 0--2 fit all supervised parameters, fold 3
-controls patience-8 early stopping, and fold 4 ranks the frozen candidates.
-Meta-validation and the locked meta-test are excluded from the complete screen.
+Round 10 is complete. Recovery jobs 1017--1025 and deterministic report job
+1026 all completed with exit code `0:0`, every stderr file is empty, and every
+work output matches its NAS archive. The full server suite passes 119 tests.
+All nine candidates use the identical K=5 fold-4 comparison of 628 participants
+and 96,332 queries after folds 0--2 fitting and fold-3 patience-8 early
+stopping. Meta-validation and the locked meta-test were not accessed.
 
-Nine K=5 candidates range from a frozen-encoder reference through projection,
-last-block, last-two-block, and full-encoder adaptation, with isolated
-BP-direction, temporal-consistency, and adaptive-fusion variants. Long
-participant records are trained with randomized chronological truncated
-segments and evaluated completely with state-preserving causal chunks. The
-prespecified promotion gate remains an Overall participant-macro mean-MAE gain
-of at least 0.15 mmHg plus improvement in both internal source strata. See the
-[Round-10 plan](ROUND10_PARTIAL_END_TO_END_PLAN.md).
+T10-8, last-block adaptation with pair-direction and temporal-consistency
+objectives, is the numerical winner. Its Overall participant-macro SBP/DBP/
+mean MAE is 10.7820/6.1093/8.4457 mmHg, versus 10.8946/6.1697/8.5322 for the
+frozen-encoder reference. Mean MAE improves by 0.0865 mmHg Overall, 0.0725 in
+MIMIC, and 0.0981 in VitalDB.
 
-Population job 1004, QGH job 1005, and preparation job 1006 completed with
-exit code `0:0` and empty stderr. The prepared internal screen contains 3,143
-meta-train participants and 483,246 K=5 queries: 1,887 participants in fit
-folds 0--2, 628 in early-stopping fold 3, and 628 in untouched candidate-
-selection fold 4. Meta-validation and the locked meta-test were not accessed.
+Although both internal source strata improve, the Overall gain is below the
+prespecified 0.15-mmHg promotion threshold. No Round-10 candidate is promoted
+or evaluated on meta-validation. See the complete
+[Round-10 result](RESULTS_ROUND10_PARTIAL_END_TO_END.md), the prospective
+[plan](ROUND10_PARTIAL_END_TO_END_PLAN.md), and aggregate tables under
+`results/round10/`.
 
-The first candidate chain did not produce scientific results. Jobs 1007--1015
-all stopped during their first backward pass because mixed-precision model
-outputs and float32 targets reached the loss with incompatible gradient
-dtypes. Report job 1016 was cancelled after its dependencies failed. The loss
-path now explicitly computes all objective terms in float32 while retaining
-the mixed-precision forward pass, and two regression cases reproduce the
-former bfloat16/float32 boundary. The complete server suite passes 119 tests.
-
-The unchanged nine-candidate screen was resubmitted as jobs 1017--1025, with
-deterministic report job 1026. This is a recovery of the same prespecified
-experiment, not a new candidate or protocol revision. The exact recovery
-snapshot is `event120-v1_round10_dtype_fix_20260821-160940.tar.gz`, SHA-256
+The earlier failed chains produced no scientific result. Jobs 991--1003
+exposed an argument-validation defect, while jobs 1007--1016 exposed a
+mixed-precision loss-boundary defect. Both were corrected and regression-
+tested before the accepted recovery run. The exact accepted snapshot is
+`event120-v1_round10_dtype_fix_20260821-160940.tar.gz`, SHA-256
 `2c239ba85501baca2a561b0c3076778c6661d225e975ccc120178f4df30b6e7d`.
-No Round-10 candidate metric is reported until all nine runs and the common
-report complete successfully.
-
-An initial job 991 exposed a command-line validation defect before any data
-loading or optimization. Its dependency chain 992--1003 was cancelled without
-running, the explicit internal-fold mode received two regression tests, and
-the complete suite was rerun before jobs 1004--1016 were submitted.
 
 ## Round-9 calibration refinement completed
 

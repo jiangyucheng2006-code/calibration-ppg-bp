@@ -104,11 +104,15 @@ are under [results/round9](results/round9), and the locked meta-test remains
 untouched. The original [Round-9 plan](docs/ROUND9_CALIBRATION_REFINEMENT_PLAN.md)
 is retained for prospective context.
 
-The prospective [Round-10 partial end-to-end plan](docs/ROUND10_PARTIAL_END_TO_END_PLAN.md)
-rebuilds its population and Quality Gate + Huber bases under a stricter
-fold-0--2 fit, fold-3 early-stop, fold-4 selection boundary. It then compares
-nine K=5 encoder-adaptation candidates without reading meta-validation or the
-locked meta-test.
+The completed [Round-10 partial end-to-end result](docs/RESULTS_ROUND10_PARTIAL_END_TO_END.md)
+compares nine K=5 encoder-adaptation candidates under a stricter fold-0--2 fit,
+fold-3 early-stop, fold-4 selection boundary. T10-8 improves Overall mean MAE
+from 8.5322 to 8.4457 mmHg and improves both internal source strata, but its
+0.0865-mmHg gain is below the prespecified 0.15-mmHg promotion threshold. No
+candidate is promoted or evaluated on meta-validation; the locked meta-test
+remains untouched. Aggregate tables are under [results/round10](results/round10),
+and the original [Round-10 plan](docs/ROUND10_PARTIAL_END_TO_END_PLAN.md) is
+retained for prospective context.
 
 ## Repository layout
 
