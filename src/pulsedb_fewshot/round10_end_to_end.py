@@ -200,6 +200,9 @@ def prepare_round10(
     qgh_checkpoint: Path,
     output: Path,
     batch_size: int = 1024,
+    round_number: int = 10,
+    stage: str = "round10_prepared",
+    backbone: str | None = None,
 ) -> dict[str, object]:
     if output.exists():
         raise FileExistsError(output)
@@ -278,12 +281,16 @@ def prepare_round10(
             predictions[rows] = pred.float().cpu().numpy() * target_std + target_mean
     queries["pred_sbp"] = predictions[:, 0]
     queries["pred_dbp"] = predictions[:, 1]
+    query_population = event_population[query_feature_rows]
+    queries["population_pred_sbp"] = query_population[:, 0]
+    queries["population_pred_dbp"] = query_population[:, 1]
     queries["k"] = SUPPORT_K
     queries.rename(columns={"sbp": "target_sbp", "dbp": "target_dbp"}, inplace=True)
     keep = [
         "subject_uid", "event_id", "k", "source", "split", "fold", "event_index",
         "record_order", "time_bin", "waveform_file", "waveform_row", "support_row",
         "target_sbp", "target_dbp", "pred_sbp", "pred_dbp",
+        "population_pred_sbp", "population_pred_dbp",
     ]
     missing = set(keep) - set(queries)
     if missing:
@@ -313,7 +320,9 @@ def prepare_round10(
     }
     payload = {
         "status": "complete",
-        "round": 10,
+        "round": round_number,
+        "stage": stage,
+        "backbone": backbone,
         "split": "meta_train_internal_only",
         "fit_folds": list(FIT_FOLDS),
         "early_stopping_fold": EARLY_FOLD,

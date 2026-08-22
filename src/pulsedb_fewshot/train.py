@@ -18,10 +18,12 @@ from torch import nn
 from torch.utils.data import DataLoader, RandomSampler, Sampler, WeightedRandomSampler
 
 from .models import (
-    MultiScaleResNetEncoder,
+    BACKBONE_NAMES,
     PopulationRegressor,
     SiameseDeltaRegressor,
     VariableKPersonalizer,
+    build_ppg_encoder,
+    model_parameter_counts,
 )
 from .training import (
     EpisodicDataset,
@@ -176,8 +178,9 @@ def _load_population_checkpoint(
         if projection is None:
             raise ValueError("population checkpoint does not identify encoder dimension")
         feature_dim = int(projection.shape[0])
+    backbone = str(checkpoint.get("backbone", "resnet_small"))
     model = PopulationRegressor(
-        MultiScaleResNetEncoder(feature_dim=int(feature_dim))
+        build_ppg_encoder(backbone, feature_dim=int(feature_dim))
     )
     model.load_state_dict(checkpoint["model_state"])
     return model, checkpoint["target_scaler"]
@@ -191,6 +194,16 @@ def _model_feature_dim(model: nn.Module) -> int | None:
     if isinstance(model, SiameseDeltaRegressor):
         return int(model.encoder.feature_dim)
     return None
+
+
+def _model_backbone_name(model: nn.Module) -> str | None:
+    if isinstance(model, (PopulationRegressor, SiameseDeltaRegressor)):
+        encoder = model.encoder
+    elif isinstance(model, VariableKPersonalizer):
+        encoder = model.population.encoder
+    else:
+        return None
+    return str(getattr(encoder, "backbone_name", "resnet_small"))
 
 
 def _epoch_numbers(max_epochs: int) -> Iterable[int]:
@@ -546,7 +559,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     siamese = args.method == "siamese"
     if args.method == "population":
         model: nn.Module = PopulationRegressor(
-            MultiScaleResNetEncoder(feature_dim=args.feature_dim)
+            build_ppg_encoder(args.backbone, feature_dim=args.feature_dim)
         )
         train_dataset = PopulationDataset(train_metadata, args.store_root, scaler)
         validation_dataset = PopulationDataset(
@@ -563,6 +576,14 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         population, checkpoint_scaler = _load_population_checkpoint(
             args.population_checkpoint, device
         )
+        loaded_backbone = str(
+            getattr(population.encoder, "backbone_name", "resnet_small")
+        )
+        if args.backbone != loaded_backbone:
+            raise AssertionError(
+                f"requested backbone {args.backbone} differs from population "
+                f"checkpoint backbone {loaded_backbone}"
+            )
         if checkpoint_scaler != scaler:
             raise AssertionError("target scaler differs from population checkpoint")
         if siamese:
@@ -796,6 +817,8 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                     "validation": metrics,
                     "seed": args.seed,
                     "feature_dim": _model_feature_dim(model),
+                    "backbone": _model_backbone_name(model),
+                    "parameter_counts": model_parameter_counts(model),
                 },
                 checkpoint_path,
             )
@@ -843,6 +866,8 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         ),
         "target_scaler": scaler,
         "feature_dim": _model_feature_dim(model),
+        "backbone": _model_backbone_name(model),
+        "parameter_counts": model_parameter_counts(model),
         "best_validation_mean_mae": float(best_metrics["mean_mae"]),
         "best_validation_worst_30_mean_mae": (
             float(best_metrics["worst_30_mean_mae"])
@@ -972,6 +997,15 @@ def main() -> None:
         choices=[128, 256],
         default=256,
         help="population PPG encoder output width",
+    )
+    parser.add_argument(
+        "--backbone",
+        choices=list(BACKBONE_NAMES),
+        default="resnet_small",
+        help=(
+            "PPG encoder family. Personalized runs must match the backbone "
+            "recorded in their population checkpoint."
+        ),
     )
     parser.add_argument(
         "--ks",

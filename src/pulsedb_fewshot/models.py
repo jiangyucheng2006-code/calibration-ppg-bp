@@ -9,6 +9,15 @@ import torch
 from torch import nn
 
 
+BACKBONE_NAMES = (
+    "resnet_small",
+    "resnet_deep",
+    "inception_time",
+    "patch_transformer",
+    "conformer",
+)
+
+
 class ConvNormAct(nn.Sequential):
     def __init__(
         self,
@@ -81,6 +90,7 @@ class MultiScaleResNetEncoder(nn.Module):
 
     def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
         super().__init__()
+        self.backbone_name = "resnet_small"
         self.stem = MultiScaleStem(input_channels=input_channels)
         self.blocks = nn.Sequential(
             ResidualBlock1D(48, 64),
@@ -100,10 +110,274 @@ class MultiScaleResNetEncoder(nn.Module):
         return self.projection(self.pool(self.blocks(self.stem(inputs))))
 
 
+class DeepMultiScaleResNetEncoder(nn.Module):
+    """Higher-capacity ResNet control with the same input/output contract.
+
+    This is deliberately a same-family capacity control rather than a claim of
+    reproducing a particular published XResNet implementation.  It separates
+    the effect of a larger network from the effect of changing architecture.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "resnet_deep"
+        self.stem = MultiScaleStem(
+            input_channels=input_channels,
+            branch_channels=24,
+            output_channels=72,
+            kernels=(3, 9, 21),
+        )
+        self.blocks = nn.Sequential(
+            ResidualBlock1D(72, 96),
+            ResidualBlock1D(96, 128, stride=2),
+            ResidualBlock1D(128, 128),
+            ResidualBlock1D(128, 192, stride=2),
+            ResidualBlock1D(192, 192),
+            ResidualBlock1D(192, 256, stride=2),
+            ResidualBlock1D(256, 256),
+            ResidualBlock1D(256, 384, stride=2),
+        )
+        self.pool = nn.AdaptiveAvgPool1d(1)
+        self.projection = nn.Sequential(
+            nn.Flatten(), nn.Linear(384, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        return self.projection(self.pool(self.blocks(self.stem(inputs))))
+
+
+class InceptionModule1D(nn.Module):
+    """Single InceptionTime-style multiscale temporal module."""
+
+    def __init__(self, in_channels: int, branch_channels: int = 32) -> None:
+        super().__init__()
+        bottleneck_channels = 32
+        self.bottleneck = (
+            ConvNormAct(in_channels, bottleneck_channels, 1)
+            if in_channels > 1
+            else nn.Identity()
+        )
+        effective_channels = bottleneck_channels if in_channels > 1 else in_channels
+        self.convolutions = nn.ModuleList(
+            [
+                ConvNormAct(effective_channels, branch_channels, kernel)
+                for kernel in (39, 19, 9)
+            ]
+        )
+        self.pool_branch = nn.Sequential(
+            nn.MaxPool1d(3, stride=1, padding=1),
+            ConvNormAct(in_channels, branch_channels, 1),
+        )
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        reduced = self.bottleneck(inputs)
+        branches = [layer(reduced) for layer in self.convolutions]
+        branches.append(self.pool_branch(inputs))
+        return torch.cat(branches, dim=1)
+
+
+class InceptionTimeEncoder(nn.Module):
+    """Single-network InceptionTime-style encoder for 10-second PPG."""
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "inception_time"
+        self.stem = ConvNormAct(input_channels, 32, 15, stride=2)
+        modules: list[nn.Module] = []
+        residuals: list[nn.Module] = []
+        channels = 32
+        for index in range(6):
+            modules.append(InceptionModule1D(channels, branch_channels=32))
+            residual_input_channels = 32 if index == 2 else 128
+            residuals.append(
+                ConvNormAct(residual_input_channels, 128, 1, activation=False)
+                if index in {2, 5}
+                else nn.Identity()
+            )
+            channels = 128
+        self.modules_ = nn.ModuleList(modules)
+        self.residuals = nn.ModuleList(residuals)
+        self.activation = nn.SiLU()
+        self.pool = nn.AdaptiveAvgPool1d(1)
+        self.projection = nn.Sequential(
+            nn.Flatten(), nn.Linear(128, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        value = self.stem(inputs)
+        block_input = value
+        for index, module in enumerate(self.modules_):
+            value = module(value)
+            if index in {2, 5}:
+                value = self.activation(value + self.residuals[index](block_input))
+                block_input = value
+        return self.projection(self.pool(value))
+
+
+class PatchTransformerEncoder(nn.Module):
+    """PatchTST-inspired encoder adapted to fixed-length univariate PPG.
+
+    PatchTST was proposed for forecasting and self-supervised representation
+    learning.  This implementation borrows only its patch-token principle; it
+    is trained from scratch for BP regression under this project's protocol.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "patch_transformer"
+        model_dim = 128
+        self.patch = nn.Conv1d(input_channels, model_dim, kernel_size=50, stride=25)
+        self.position = nn.Parameter(torch.zeros(1, 64, model_dim))
+        nn.init.trunc_normal_(self.position, std=0.02)
+        layer = nn.TransformerEncoderLayer(
+            d_model=model_dim,
+            nhead=4,
+            dim_feedforward=384,
+            dropout=0.1,
+            activation="gelu",
+            batch_first=True,
+            norm_first=True,
+        )
+        self.blocks = nn.TransformerEncoder(layer, num_layers=4)
+        self.norm = nn.LayerNorm(model_dim)
+        self.projection = nn.Sequential(
+            nn.Linear(model_dim, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        tokens = self.patch(inputs).transpose(1, 2)
+        if tokens.shape[1] > self.position.shape[1]:
+            raise ValueError("PPG creates more patch tokens than positional capacity")
+        tokens = tokens + self.position[:, : tokens.shape[1]]
+        tokens = self.norm(self.blocks(tokens)).mean(dim=1)
+        return self.projection(tokens)
+
+
+class ConformerBlock1D(nn.Module):
+    """Compact Conformer block combining attention and local convolution."""
+
+    def __init__(self, dimension: int, *, heads: int = 4, kernel_size: int = 31) -> None:
+        super().__init__()
+        self.ffn1_norm = nn.LayerNorm(dimension)
+        self.ffn1 = nn.Sequential(
+            nn.Linear(dimension, dimension * 4),
+            nn.SiLU(),
+            nn.Dropout(0.1),
+            nn.Linear(dimension * 4, dimension),
+            nn.Dropout(0.1),
+        )
+        self.attention_norm = nn.LayerNorm(dimension)
+        self.attention = nn.MultiheadAttention(
+            dimension, heads, dropout=0.1, batch_first=True
+        )
+        self.conv_norm = nn.LayerNorm(dimension)
+        self.conv_pointwise_in = nn.Conv1d(dimension, dimension * 2, 1)
+        self.conv_depthwise = nn.Conv1d(
+            dimension,
+            dimension,
+            kernel_size,
+            padding=(kernel_size - 1) // 2,
+            groups=dimension,
+        )
+        self.conv_batch_norm = nn.BatchNorm1d(dimension)
+        self.conv_pointwise_out = nn.Conv1d(dimension, dimension, 1)
+        self.ffn2_norm = nn.LayerNorm(dimension)
+        self.ffn2 = nn.Sequential(
+            nn.Linear(dimension, dimension * 4),
+            nn.SiLU(),
+            nn.Dropout(0.1),
+            nn.Linear(dimension * 4, dimension),
+            nn.Dropout(0.1),
+        )
+        self.final_norm = nn.LayerNorm(dimension)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        value = inputs + 0.5 * self.ffn1(self.ffn1_norm(inputs))
+        normalized = self.attention_norm(value)
+        attended, _ = self.attention(
+            normalized, normalized, normalized, need_weights=False
+        )
+        value = value + attended
+        convolution = self.conv_norm(value).transpose(1, 2)
+        convolution = nn.functional.glu(self.conv_pointwise_in(convolution), dim=1)
+        convolution = nn.functional.silu(
+            self.conv_batch_norm(self.conv_depthwise(convolution))
+        )
+        convolution = self.conv_pointwise_out(convolution).transpose(1, 2)
+        value = value + convolution
+        value = value + 0.5 * self.ffn2(self.ffn2_norm(value))
+        return self.final_norm(value)
+
+
+class ConformerEncoder1D(nn.Module):
+    """Compact Conformer backbone for local pulse shape and global context."""
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "conformer"
+        model_dim = 128
+        self.patch = nn.Conv1d(input_channels, model_dim, kernel_size=50, stride=25)
+        self.position = nn.Parameter(torch.zeros(1, 64, model_dim))
+        nn.init.trunc_normal_(self.position, std=0.02)
+        self.blocks = nn.ModuleList([ConformerBlock1D(model_dim) for _ in range(4)])
+        self.projection = nn.Sequential(
+            nn.Linear(model_dim, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        tokens = self.patch(inputs).transpose(1, 2)
+        if tokens.shape[1] > self.position.shape[1]:
+            raise ValueError("PPG creates more patch tokens than positional capacity")
+        tokens = tokens + self.position[:, : tokens.shape[1]]
+        for block in self.blocks:
+            tokens = block(tokens)
+        return self.projection(tokens.mean(dim=1))
+
+
+def build_ppg_encoder(
+    backbone: str = "resnet_small", *, input_channels: int = 1, feature_dim: int = 256
+) -> nn.Module:
+    """Create a PPG encoder with a shared ``[B, 1, T] -> [B, D]`` contract."""
+
+    constructors = {
+        "resnet_small": MultiScaleResNetEncoder,
+        "resnet_deep": DeepMultiScaleResNetEncoder,
+        "inception_time": InceptionTimeEncoder,
+        "patch_transformer": PatchTransformerEncoder,
+        "conformer": ConformerEncoder1D,
+    }
+    if backbone not in constructors:
+        raise ValueError(f"unknown backbone {backbone!r}; choose from {BACKBONE_NAMES}")
+    return constructors[backbone](
+        input_channels=input_channels, feature_dim=feature_dim
+    )
+
+
+def model_parameter_counts(model: nn.Module) -> dict[str, int]:
+    return {
+        "total": int(sum(parameter.numel() for parameter in model.parameters())),
+        "trainable": int(
+            sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
+        ),
+    }
+
+
 class PopulationRegressor(nn.Module):
     def __init__(
         self,
-        encoder: MultiScaleResNetEncoder | None = None,
+        encoder: nn.Module | None = None,
         *,
         dropout: float = 0.2,
     ) -> None:
@@ -128,7 +402,7 @@ class PopulationRegressor(nn.Module):
 class SiameseDeltaRegressor(nn.Module):
     """Predict signed SBP/DBP change from a support anchor to a query."""
 
-    def __init__(self, encoder: MultiScaleResNetEncoder | None = None) -> None:
+    def __init__(self, encoder: nn.Module | None = None) -> None:
         super().__init__()
         self.encoder = encoder or MultiScaleResNetEncoder()
         dimension = self.encoder.feature_dim

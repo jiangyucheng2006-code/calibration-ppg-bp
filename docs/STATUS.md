@@ -291,6 +291,37 @@ bootstrap intervals exclude zero in all three scopes, but the gain is small
 and comes from the same single-seed development screen. Soft fusion advances
 only to independent-seed confirmation; locked meta-test remains untouched.
 
+## Round-11 systematic revision submitted
+
+Round 11 is prespecified as three sequential questions rather than another
+unconstrained module stack. Stage 11A changes only the PPG backbone under the
+same K=5 Quality Gate + Huber calibration head. The five candidates are the
+current compact ResNet, a deeper ResNet capacity control, InceptionTime, a
+patch Transformer, and a Conformer. All use folds 0--2 for fitting, fold 3 for
+patience-8 early stopping, and fold 4 for internal ranking; meta-validation
+and the locked meta-test remain quarantined.
+
+The implementation passed the complete 125-test server suite. A separate CUDA
+smoke job (1032) completed on `hpc-2` with exit code `0:0`, exercising forward,
+backward and one optimizer step for all five encoders. Their encoder parameter
+counts are 0.665M, 3.826M, 0.512M, 0.710M and 1.587M, respectively. This makes
+model complexity an explicit reported outcome rather than an assumed benefit.
+
+Formal jobs 1033--1047 and dependent report job 1048 were submitted with seed
+20260825. The two available GPUs are used by alternating backbone chains. The
+common report will recompute Overall, PulseDB MIMIC and PulseDB VitalDB from
+the same fold-4 predictions. A backbone advances only if Overall mean
+participant-macro MAE improves by at least 0.15 mmHg and neither source
+stratum deteriorates.
+
+Stage 11B will use only the 11A winner to perform subtractive ablation of the
+robust loss, support-quality weighting and personal calibration correction.
+Stage 11C will then compare universal-only, universal + stable personal bias,
+universal + dynamic change and the full three-part decomposition. These later
+stages are intentionally not submitted before the upstream winner is known.
+The complete prospective design is in
+[ROUND11_SYSTEMATIC_MODEL_REVISION_PLAN.md](ROUND11_SYSTEMATIC_MODEL_REVISION_PLAN.md).
+
 ## Not yet established
 
 - no locked-test result or frozen final configuration;

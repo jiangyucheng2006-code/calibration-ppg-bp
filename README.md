@@ -114,6 +114,15 @@ remains untouched. Aggregate tables are under [results/round10](results/round10)
 and the original [Round-10 plan](docs/ROUND10_PARTIAL_END_TO_END_PLAN.md) is
 retained for prospective context.
 
+[Round 11](docs/ROUND11_SYSTEMATIC_MODEL_REVISION_PLAN.md) is a staged response
+to the observed weak return from added complexity. Stage 11A holds the K=5
+calibration head and all data boundaries fixed while comparing the current
+compact ResNet, a higher-capacity ResNet control, InceptionTime, a patch
+Transformer, and a Conformer. Only a successful backbone advances to a
+subtractive component ablation and then to an explicit universal relation +
+stable personal bias + dynamic change decomposition. This is an active
+development screen; no Round-11 result or locked-test claim is reported yet.
+
 ## Repository layout
 
 ```text

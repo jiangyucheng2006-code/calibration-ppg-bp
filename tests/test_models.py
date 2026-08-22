@@ -4,11 +4,14 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from pulsedb_fewshot.models import (  # noqa: E402
+    BACKBONE_NAMES,
     MultiScaleResNetEncoder,
     PopulationRegressor,
     SiameseDeltaRegressor,
     VariableKPersonalizer,
+    build_ppg_encoder,
     configure_personal_adaptation,
+    model_parameter_counts,
 )
 
 
@@ -114,3 +117,21 @@ def test_population_supports_128_dimensional_encoder() -> None:
     model = PopulationRegressor(MultiScaleResNetEncoder(feature_dim=128))
     assert model(torch.randn(2, 1, 1250)).shape == (2, 2)
     assert model.encoder.feature_dim == 128
+
+
+@pytest.mark.parametrize("backbone", BACKBONE_NAMES)
+def test_all_round11_backbones_share_the_same_contract(backbone: str) -> None:
+    encoder = build_ppg_encoder(backbone, feature_dim=256)
+    output = encoder(torch.randn(2, 1, 1250))
+    assert output.shape == (2, 256)
+    assert torch.isfinite(output).all()
+    output.square().mean().backward()
+    counts = model_parameter_counts(encoder)
+    assert counts["total"] > 0
+    assert counts["trainable"] == counts["total"]
+    assert encoder.backbone_name == backbone
+
+
+def test_round11_backbone_factory_rejects_unknown_name() -> None:
+    with pytest.raises(ValueError, match="unknown backbone"):
+        build_ppg_encoder("not_a_backbone")
