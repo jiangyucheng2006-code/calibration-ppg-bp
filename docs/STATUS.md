@@ -301,7 +301,7 @@ patch Transformer, and a Conformer. All use folds 0--2 for fitting, fold 3 for
 patience-8 early stopping, and fold 4 for internal ranking; meta-validation
 and the locked meta-test remain quarantined.
 
-The implementation passed the complete 125-test server suite. A separate CUDA
+The implementation passed the complete 127-test server suite. A separate CUDA
 smoke job (1032) completed on `hpc-2` with exit code `0:0`, exercising forward,
 backward and one optimizer step for all five encoders. Their encoder parameter
 counts are 0.665M, 3.826M, 0.512M, 0.710M and 1.587M, respectively. This makes
