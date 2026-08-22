@@ -7,6 +7,7 @@ import copy
 
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 
 BACKBONE_NAMES = (
@@ -15,6 +16,10 @@ BACKBONE_NAMES = (
     "inception_time",
     "patch_transformer",
     "conformer",
+    "tcn_bp",
+    "fewshot_resnet_attention",
+    "bp_crnn",
+    "resunet_encoder",
 )
 
 
@@ -346,6 +351,249 @@ class ConformerEncoder1D(nn.Module):
         return self.projection(tokens.mean(dim=1))
 
 
+class CausalConv1D(nn.Conv1d):
+    """Left-padded convolution that never reads later samples."""
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        super().__init__(*args, padding=0, **kwargs)
+        self.left_padding = self.dilation[0] * (self.kernel_size[0] - 1)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        return super().forward(F.pad(inputs, (self.left_padding, 0)))
+
+
+class TCNResidualBlock1D(nn.Module):
+    """Single-convolution causal residual block used by the PulseDB TCN_BP."""
+
+    def __init__(self, in_channels: int, out_channels: int, dilation: int) -> None:
+        super().__init__()
+        self.main = nn.Sequential(
+            CausalConv1D(
+                in_channels,
+                out_channels,
+                kernel_size=3,
+                dilation=dilation,
+                bias=False,
+            ),
+            nn.BatchNorm1d(out_channels),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+        )
+        self.shortcut = (
+            nn.Conv1d(in_channels, out_channels, 1, bias=False)
+            if in_channels != out_channels
+            else nn.Identity()
+        )
+        self.activation = nn.ReLU()
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        return self.activation(self.main(inputs) + self.shortcut(inputs))
+
+
+class TCNBPEncoder(nn.Module):
+    """Waveform branch of the subject-disjoint PulseDB ``TCN_BP`` model.
+
+    The published calibration branch is intentionally not copied here: all
+    backbones feed the same leakage-safe QGH calibration head so that this
+    screen isolates architecture rather than changing two factors at once.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "tcn_bp"
+        self.stem = nn.Sequential(
+            nn.Conv1d(input_channels, 32, 15, padding=7, bias=False),
+            nn.BatchNorm1d(32),
+            nn.ReLU(),
+        )
+        channels = (16, 32, 32, 32)
+        blocks: list[nn.Module] = []
+        previous = 32
+        for output, dilation in zip(channels, (1, 2, 4, 8), strict=True):
+            blocks.append(TCNResidualBlock1D(previous, output, dilation))
+            previous = output
+        self.blocks = nn.Sequential(*blocks)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+        self.projection = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(previous, feature_dim),
+            nn.LayerNorm(feature_dim),
+            nn.SiLU(),
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        return self.projection(self.pool(self.blocks(self.stem(inputs))))
+
+
+class FewShotResidualBlock1D(nn.Module):
+    """Group-normalized residual/downsampling block from the 5-shot encoder."""
+
+    def __init__(self, in_channels: int, out_channels: int) -> None:
+        super().__init__()
+        groups = min(8, out_channels)
+        self.main = nn.Sequential(
+            nn.Conv1d(in_channels, out_channels, 11, padding=5, bias=False),
+            nn.GroupNorm(groups, out_channels),
+            nn.ReLU(),
+            nn.Conv1d(out_channels, out_channels, 11, padding=5, bias=False),
+            nn.GroupNorm(groups, out_channels),
+        )
+        self.shortcut = (
+            nn.Conv1d(in_channels, out_channels, 1, bias=False)
+            if in_channels != out_channels
+            else nn.Identity()
+        )
+        self.activation = nn.ReLU()
+        self.pool = nn.MaxPool1d(2)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        return self.pool(self.activation(self.main(inputs) + self.shortcut(inputs)))
+
+
+class FewShotResNetAttentionEncoder(nn.Module):
+    """PulseDB five-shot paper's residual encoder and attention pooling family."""
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "fewshot_resnet_attention"
+        channels = (64, 128, 256, 512)
+        blocks: list[nn.Module] = []
+        previous = input_channels
+        for output in channels:
+            blocks.append(FewShotResidualBlock1D(previous, output))
+            previous = output
+        self.blocks = nn.Sequential(*blocks)
+        self.bottleneck = nn.Sequential(
+            nn.Conv1d(previous, 1024, 11, padding=5, bias=False),
+            nn.GroupNorm(8, 1024),
+            nn.ReLU(),
+        )
+        self.pool_query = nn.Parameter(torch.zeros(1, 1, 1024))
+        nn.init.trunc_normal_(self.pool_query, std=0.02)
+        self.attention_pool = nn.MultiheadAttention(
+            1024, num_heads=8, dropout=0.1, batch_first=True
+        )
+        self.projection = nn.Sequential(
+            nn.Linear(1024, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        tokens = self.bottleneck(self.blocks(inputs)).transpose(1, 2)
+        query = self.pool_query.expand(tokens.shape[0], -1, -1)
+        pooled, _ = self.attention_pool(query, tokens, tokens, need_weights=False)
+        return self.projection(pooled[:, 0])
+
+
+class BPCRNNEncoder(nn.Module):
+    """Compact three-CNN plus GRU architecture from personalized BP transfer.
+
+    The source network operates on 125 samples. Adaptive pooling makes that
+    temporal contract explicit while keeping this project's 10-second input
+    and the common QGH output contract unchanged.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "bp_crnn"
+        self.to_source_length = nn.AdaptiveAvgPool1d(125)
+        self.conv1 = ConvNormAct(input_channels, 50, 7)
+        self.conv2 = ConvNormAct(50, 50, 7)
+        self.conv3 = ConvNormAct(50, 50, 7)
+        self.gru = nn.GRU(input_size=100, hidden_size=15, batch_first=True)
+        self.projection = nn.Sequential(
+            nn.Linear(15, 32),
+            nn.SiLU(),
+            nn.Linear(32, feature_dim),
+            nn.LayerNorm(feature_dim),
+            nn.SiLU(),
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        value1 = self.conv1(self.to_source_length(inputs))
+        value2 = self.conv2(value1)
+        value3 = self.conv3(value2)
+        sequence = torch.cat([value1, value3], dim=1).transpose(1, 2)
+        _, hidden = self.gru(sequence)
+        return self.projection(hidden[-1])
+
+
+class ResidualUNetBlock1D(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int) -> None:
+        super().__init__()
+        self.main = nn.Sequential(
+            ConvNormAct(in_channels, out_channels, 5),
+            ConvNormAct(out_channels, out_channels, 5, activation=False),
+        )
+        self.shortcut = (
+            ConvNormAct(in_channels, out_channels, 1, activation=False)
+            if in_channels != out_channels
+            else nn.Identity()
+        )
+        self.activation = nn.SiLU()
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        return self.activation(self.main(inputs) + self.shortcut(inputs))
+
+
+class ResUNetEncoder1D(nn.Module):
+    """One-dimensional residual U-Net family reported on PulseDB.
+
+    It retains the U-shaped skip pathway before global pooling. The published
+    multimodal/demographic fusion and ABP-waveform loss are excluded so this is
+    an architecture-only comparison under the project's PPG-only protocol.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "resunet_encoder"
+        self.enc1 = ResidualUNetBlock1D(input_channels, 32)
+        self.enc2 = ResidualUNetBlock1D(32, 64)
+        self.enc3 = ResidualUNetBlock1D(64, 128)
+        self.pool = nn.MaxPool1d(2)
+        self.bottleneck = ResidualUNetBlock1D(128, 256)
+        self.up3 = nn.ConvTranspose1d(256, 128, 2, stride=2)
+        self.dec3 = ResidualUNetBlock1D(256, 128)
+        self.up2 = nn.ConvTranspose1d(128, 64, 2, stride=2)
+        self.dec2 = ResidualUNetBlock1D(128, 64)
+        self.up1 = nn.ConvTranspose1d(64, 32, 2, stride=2)
+        self.dec1 = ResidualUNetBlock1D(64, 32)
+        self.global_pool = nn.AdaptiveAvgPool1d(1)
+        self.projection = nn.Sequential(
+            nn.Flatten(), nn.Linear(32, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    @staticmethod
+    def _match_length(value: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
+        difference = reference.shape[-1] - value.shape[-1]
+        if difference > 0:
+            value = F.pad(value, (0, difference))
+        elif difference < 0:
+            value = value[..., : reference.shape[-1]]
+        return value
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        level1 = self.enc1(inputs)
+        level2 = self.enc2(self.pool(level1))
+        level3 = self.enc3(self.pool(level2))
+        value = self.bottleneck(self.pool(level3))
+        value = self.dec3(torch.cat([self._match_length(self.up3(value), level3), level3], dim=1))
+        value = self.dec2(torch.cat([self._match_length(self.up2(value), level2), level2], dim=1))
+        value = self.dec1(torch.cat([self._match_length(self.up1(value), level1), level1], dim=1))
+        return self.projection(self.global_pool(value))
+
+
 def build_ppg_encoder(
     backbone: str = "resnet_small", *, input_channels: int = 1, feature_dim: int = 256
 ) -> nn.Module:
@@ -357,6 +605,10 @@ def build_ppg_encoder(
         "inception_time": InceptionTimeEncoder,
         "patch_transformer": PatchTransformerEncoder,
         "conformer": ConformerEncoder1D,
+        "tcn_bp": TCNBPEncoder,
+        "fewshot_resnet_attention": FewShotResNetAttentionEncoder,
+        "bp_crnn": BPCRNNEncoder,
+        "resunet_encoder": ResUNetEncoder1D,
     }
     if backbone not in constructors:
         raise ValueError(f"unknown backbone {backbone!r}; choose from {BACKBONE_NAMES}")

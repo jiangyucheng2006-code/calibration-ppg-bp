@@ -331,6 +331,26 @@ The complete prospective design is in
 - no independent external validation;
 - no clinical validation or standards claim.
 
+## Round-12 literature-derived backbone screen prepared
+
+A broad calibrated/personalized PPG-BP literature audit was completed before
+new jobs were defined. The central finding is that no audited paper currently
+demonstrates PulseDB + PPG-only + participant-disjoint development + strictly
+chronological first K<=5 labeled events + no later label access + SBP/DBP
+AAMI/BHS acceptance at the same time. Several very low PulseDB errors instead
+use same-participant high-volume window splits, multimodal inputs, or ongoing
+reference-BP updates. The evidence table and source links are preserved in
+[LITERATURE_AUDIT_CALIBRATED_PPG_BP_20260822.md](LITERATURE_AUDIT_CALIBRATED_PPG_BP_20260822.md).
+
+Round 12 therefore performs a controlled architecture-family screen rather
+than copying incomparable headline scores. It compares the unchanged compact
+ResNet with a causal TCN, a five-shot residual-attention encoder, a compact
+CNN-GRU and a 1D residual U-Net. All five use the same PPG-only QGH calibration
+head, fixed-first K=5 support, folds 0--2/3/4, Huber loss, quality gate and
+single seed. Meta-validation and the locked meta-test remain quarantined. The
+prospective specification is in
+[ROUND12_LITERATURE_BACKBONE_PLAN.md](ROUND12_LITERATURE_BACKBONE_PLAN.md).
+
 ## Round-8 calibration-relative screen completed
 
 All Round-8 jobs completed successfully with empty stderr, and the locked

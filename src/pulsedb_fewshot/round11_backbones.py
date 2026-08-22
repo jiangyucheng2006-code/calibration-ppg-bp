@@ -1,4 +1,4 @@
-"""Leakage-safe Round-11A PPG-backbone screening and reporting.
+"""Leakage-safe PPG-backbone screening and reporting.
 
 All candidates fit on meta-train folds 0--2, use fold 3 only for patience-8
 early stopping, and are ranked on fold 4.  Meta-validation and the locked
@@ -71,6 +71,7 @@ def evaluate_backbone(
     qgh_run: Path,
     output: Path,
     batch_size: int = 512,
+    round_number: int = 11,
 ) -> dict[str, object]:
     population = _validate_training_run(
         population_run, method="population", backbone=backbone
@@ -85,7 +86,7 @@ def evaluate_backbone(
         qgh_checkpoint=qgh_run / "best.pt",
         output=output,
         batch_size=batch_size,
-        round_number=11,
+        round_number=round_number,
         stage="backbone_evaluation",
         backbone=backbone,
     )
@@ -122,6 +123,7 @@ def build_report(
     reference_backbone: str,
     output: Path,
     expected_seed: int,
+    round_number: int = 11,
 ) -> dict[str, object]:
     if reference_backbone not in runs:
         raise KeyError(reference_backbone)
@@ -131,8 +133,10 @@ def build_report(
     complexity: list[dict[str, object]] = []
     for backbone, root in runs.items():
         payload = _read_json(root / "run.json")
-        if payload.get("status") != "complete" or payload.get("round") != 11:
-            raise AssertionError(f"{backbone} is not a complete Round-11 run")
+        if payload.get("status") != "complete" or payload.get("round") != round_number:
+            raise AssertionError(
+                f"{backbone} is not a complete Round-{round_number} run"
+            )
         if payload.get("stage") != "backbone_evaluation":
             raise AssertionError(f"{backbone} has the wrong stage")
         if payload.get("backbone") != backbone or payload.get("seed") != expected_seed:
@@ -249,7 +253,7 @@ def build_report(
     complexity_table.to_csv(output / "model_complexity.csv", index=False)
     summary = {
         "status": "complete",
-        "round": 11,
+        "round": round_number,
         "stage": "backbone_screen",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "seed": expected_seed,
@@ -267,7 +271,7 @@ def build_report(
     }
     save_json(output / "selection.json", summary)
     lines = [
-        "# Round-11A PPG-backbone internal screen",
+        f"# Round-{round_number} PPG-backbone internal screen",
         "",
         "All models use folds 0--2 for fitting, fold 3 for patience-8 early stopping, and fold 4 for candidate ranking. Meta-validation and the locked meta-test are not accessed.",
         "",
@@ -321,11 +325,13 @@ def main() -> None:
     evaluate.add_argument("--qgh-run", type=Path, required=True)
     evaluate.add_argument("--output", type=Path, required=True)
     evaluate.add_argument("--batch-size", type=int, default=512)
+    evaluate.add_argument("--round-number", type=int, default=11)
     report = commands.add_parser("report")
     report.add_argument("--run", action="append", required=True)
     report.add_argument("--reference-backbone", default="resnet_small")
     report.add_argument("--output", type=Path, required=True)
     report.add_argument("--expected-seed", type=int, required=True)
+    report.add_argument("--round-number", type=int, default=11)
     args = parser.parse_args()
     if args.command == "evaluate":
         result = evaluate_backbone(
@@ -336,6 +342,7 @@ def main() -> None:
             qgh_run=args.qgh_run,
             output=args.output,
             batch_size=args.batch_size,
+            round_number=args.round_number,
         )
     else:
         result = build_report(
@@ -343,6 +350,7 @@ def main() -> None:
             reference_backbone=args.reference_backbone,
             output=args.output,
             expected_seed=args.expected_seed,
+            round_number=args.round_number,
         )
     print(json.dumps(result, indent=2, default=str))
 
