@@ -23,7 +23,12 @@ from .round10_end_to_end import (
     _markdown_table,
     prepare_round10,
 )
-from .training import file_sha256, participant_macro_metrics, save_json
+from .training import (
+    file_sha256,
+    participant_macro_metrics,
+    save_json,
+    source_tree_sha256,
+)
 
 
 def _read_json(path: Path) -> dict[str, object]:
@@ -60,6 +65,79 @@ def _validate_training_run(
             if arguments.get(key) != value:
                 raise AssertionError(f"{root} has unsafe/mismatched {key}")
     return payload
+
+
+def _validate_round13_training_pair(
+    population: dict[str, object], qgh: dict[str, object]
+) -> dict[str, object]:
+    """Enforce the fixed optimization and provenance boundary for Round 13."""
+
+    population_arguments = population.get("arguments")
+    qgh_arguments = qgh.get("arguments")
+    if not isinstance(population_arguments, dict) or not isinstance(qgh_arguments, dict):
+        raise AssertionError("Round-13 training runs lack argument records")
+    common = {
+        "epochs": 0,
+        "patience": 8,
+        "workers": 4,
+        "episodes_per_epoch": 99968,
+        "feature_dim": 256,
+        "gradient_accumulation_steps": 4,
+        "learning_rate": 0.0003,
+        "weight_decay": 0.0001,
+        "tail_objective": "mean",
+        "episode_sampling": "participant_balanced",
+        "require_cuda": True,
+    }
+    for label, arguments in (
+        ("population", population_arguments),
+        ("qgh", qgh_arguments),
+    ):
+        for key, expected in common.items():
+            if arguments.get(key) != expected:
+                raise AssertionError(
+                    f"Round-13 {label} has mismatched {key}: "
+                    f"{arguments.get(key)!r} != {expected!r}"
+                )
+    if population_arguments.get("batch_size") != 32:
+        raise AssertionError("Round-13 population physical microbatch must be 32")
+    if qgh_arguments.get("batch_size") != 16:
+        raise AssertionError("Round-13 QGH physical microbatch must be 16")
+    qgh_required = {
+        "train_support_policy": "fixed_first",
+        "loss": "huber",
+        "huber_delta": 0.5,
+        "use_quality_gate": True,
+        "ks": [5],
+    }
+    for key, expected in qgh_required.items():
+        if qgh_arguments.get(key) != expected:
+            raise AssertionError(f"Round-13 QGH has mismatched {key}")
+    provenance_keys = (
+        "source_tree_sha256",
+        "store_manifest_sha256",
+        "crossfit_folds_sha256",
+    )
+    provenance: dict[str, object] = {}
+    for key in provenance_keys:
+        population_value = population.get(key)
+        qgh_value = qgh.get(key)
+        if not population_value or population_value != qgh_value:
+            raise AssertionError(f"Round-13 population/QGH mismatch for {key}")
+        provenance[key] = population_value
+    if population.get("seed") != qgh.get("seed"):
+        raise AssertionError("Round-13 population/QGH seed mismatch")
+    return {
+        "status": "pass",
+        "population_microbatch": 32,
+        "population_accumulation": 4,
+        "population_effective_batch": 128,
+        "qgh_microbatch": 16,
+        "qgh_accumulation": 4,
+        "qgh_effective_batch": 64,
+        "episodes_per_epoch": 99968,
+        **provenance,
+    }
 
 
 def evaluate_backbone(
@@ -101,8 +179,19 @@ def evaluate_backbone(
             "meta_validation_used_for_early_stopping": False,
             "meta_validation_used_for_candidate_ranking": False,
             "meta_validation_predictions_generated": False,
+            "evaluation_source_tree_sha256": source_tree_sha256(
+                Path(__file__).resolve().parents[2]
+            ),
         }
     )
+    if round_number >= 13:
+        result["training_audit"] = _validate_round13_training_pair(population, qgh)
+        audit = result["training_audit"]
+        assert isinstance(audit, dict)
+        if result["evaluation_source_tree_sha256"] != audit["source_tree_sha256"]:
+            raise AssertionError(
+                "Round-13 evaluation source differs from training source"
+            )
     save_json(output / "run.json", result)
     return result
 
@@ -131,6 +220,7 @@ def build_report(
     records: list[dict[str, object]] = []
     prediction_frames: list[pd.DataFrame] = []
     complexity: list[dict[str, object]] = []
+    round13_audits: list[dict[str, object]] = []
     for backbone, root in runs.items():
         payload = _read_json(root / "run.json")
         if payload.get("status") != "complete" or payload.get("round") != round_number:
@@ -141,6 +231,15 @@ def build_report(
             raise AssertionError(f"{backbone} has the wrong stage")
         if payload.get("backbone") != backbone or payload.get("seed") != expected_seed:
             raise AssertionError(f"{backbone} metadata mismatch")
+        if round_number >= 13:
+            audit = payload.get("training_audit")
+            if not isinstance(audit, dict) or audit.get("status") != "pass":
+                raise AssertionError(f"{backbone} lacks a passing Round-13 audit")
+            if payload.get("evaluation_source_tree_sha256") != audit.get(
+                "source_tree_sha256"
+            ):
+                raise AssertionError(f"{backbone} changed source before evaluation")
+            round13_audits.append(audit)
         for key in (
             "meta_validation_accessed",
             "meta_validation_used_for_training",
@@ -196,6 +295,23 @@ def build_report(
                 "QGH trainable parameters": qgh_counts.get("trainable"),
             }
         )
+
+    if round_number >= 13:
+        for key in (
+            "source_tree_sha256",
+            "store_manifest_sha256",
+            "crossfit_folds_sha256",
+            "population_microbatch",
+            "population_accumulation",
+            "population_effective_batch",
+            "qgh_microbatch",
+            "qgh_accumulation",
+            "qgh_effective_batch",
+            "episodes_per_epoch",
+        ):
+            values = {audit.get(key) for audit in round13_audits}
+            if len(values) != 1:
+                raise AssertionError(f"Round-13 candidates differ on {key}")
 
     table = pd.DataFrame(records)
     complexity_table = pd.DataFrame(complexity)
@@ -269,6 +385,8 @@ def build_report(
         "passes_internal_gate": passes,
         "candidate_count": len(runs),
     }
+    if round_number >= 13:
+        summary["training_audit"] = round13_audits[0]
     save_json(output / "selection.json", summary)
     lines = [
         f"# Round-{round_number} PPG-backbone internal screen",

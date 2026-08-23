@@ -48,6 +48,25 @@ def _autocast(device: torch.device):
     )
 
 
+def _finish_optimizer_step(
+    parameters: list[nn.Parameter],
+    optimizer: torch.optim.Optimizer,
+    *,
+    accumulated_examples: int | None = None,
+) -> None:
+    """Normalize accumulated sum-gradients, clip, step, and clear gradients."""
+
+    if accumulated_examples is not None:
+        if accumulated_examples < 1:
+            raise ValueError("accumulated_examples must be positive")
+        for parameter in parameters:
+            if parameter.grad is not None:
+                parameter.grad.div_(accumulated_examples)
+    torch.nn.utils.clip_grad_norm_(parameters, max_norm=5.0)
+    optimizer.step()
+    optimizer.zero_grad(set_to_none=True)
+
+
 def _participant_balanced_sampler(
     metadata: pd.DataFrame, seed: int, num_samples: int
 ) -> WeightedRandomSampler:
@@ -346,6 +365,13 @@ def _validate_crossfit_arguments(
 def train(args: argparse.Namespace) -> dict[str, object]:
     if args.patience < 1:
         raise ValueError("patience must be positive")
+    if args.gradient_accumulation_steps < 1:
+        raise ValueError("--gradient-accumulation-steps must be positive")
+    if args.gradient_accumulation_steps > 1 and args.tail_objective != "mean":
+        raise ValueError(
+            "gradient accumulation is currently defined for the ordinary mean "
+            "objective only"
+        )
     if args.loss == "huber" and args.huber_delta <= 0:
         raise ValueError("--huber-delta must be positive")
     if not 0.0 < args.tail_fraction <= 1.0:
@@ -708,9 +734,11 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         total_mean_batch_risk = 0.0
         total_tail_batch_risk = 0.0
         tail_batches = 0
-        for batch in train_loader:
+        accumulated_batches = 0
+        accumulated_examples = 0
+        optimizer.zero_grad(set_to_none=True)
+        for batch_index, batch in enumerate(train_loader):
             target = batch["target"].to(device, non_blocking=True)
-            optimizer.zero_grad(set_to_none=True)
             with _autocast(device):
                 if args.method == "population":
                     prediction = model(batch["ppg"].to(device, non_blocking=True))
@@ -750,9 +778,32 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                     tail_batches += 1
                 else:
                     loss = loss_function(prediction.float(), target.float())
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(parameters, max_norm=5.0)
-            optimizer.step()
+            if args.gradient_accumulation_steps == 1:
+                loss.backward()
+            else:
+                # Accumulate the sum of per-example losses, then normalize by
+                # the exact number of examples in the optimizer step. This
+                # keeps the effective batch comparable even for a final short
+                # microbatch.
+                (loss * len(target)).backward()
+                accumulated_examples += len(target)
+            accumulated_batches += 1
+            should_step = (
+                accumulated_batches >= args.gradient_accumulation_steps
+                or batch_index + 1 == len(train_loader)
+            )
+            if should_step:
+                _finish_optimizer_step(
+                    parameters,
+                    optimizer,
+                    accumulated_examples=(
+                        accumulated_examples
+                        if args.gradient_accumulation_steps > 1
+                        else None
+                    ),
+                )
+                accumulated_batches = 0
+                accumulated_examples = 0
             total_loss += float(loss.detach()) * len(target)
             total_examples += len(target)
 
@@ -922,6 +973,16 @@ def main() -> None:
     )
     parser.add_argument("--patience", type=int, default=4)
     parser.add_argument("--batch-size", type=int, default=256)
+    parser.add_argument(
+        "--gradient-accumulation-steps",
+        type=int,
+        default=1,
+        help=(
+            "number of microbatches per optimizer step; use this to keep the "
+            "effective training batch fixed when a larger backbone needs a "
+            "smaller CUDA microbatch"
+        ),
+    )
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
     parser.add_argument("--weight-decay", type=float, default=1e-4)

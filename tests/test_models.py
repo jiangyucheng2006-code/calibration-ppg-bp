@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 
@@ -13,6 +15,24 @@ from pulsedb_fewshot.models import (  # noqa: E402
     configure_personal_adaptation,
     model_parameter_counts,
 )
+from pulsedb_fewshot.train import _load_population_checkpoint  # noqa: E402
+
+
+ROUND13_PARAMETER_COUNTS = {
+    "resnet_small": 665_490,
+    "resnet_depth2": 1_333_010,
+    "resnet_wide1p5": 1_456_282,
+    "inception_time": 512_162,
+    "inception_time_wide": 1_123_954,
+    "patch_transformer": 710_530,
+    "patch_transformer_deep": 1_372_034,
+    "patch_transformer_wide": 2_730_498,
+    "patch_transformer_highres": 715_522,
+    "patch_transformer_longpatch": 716_034,
+    "conformer": 1_587_330,
+    "conformer_large": 5_230_018,
+    "convnext_1d": 5_477_826,
+}
 
 
 def test_all_models_have_expected_shapes_and_gradients() -> None:
@@ -135,3 +155,86 @@ def test_all_round11_backbones_share_the_same_contract(backbone: str) -> None:
 def test_round11_backbone_factory_rejects_unknown_name() -> None:
     with pytest.raises(ValueError, match="unknown backbone"):
         build_ppg_encoder("not_a_backbone")
+
+
+def test_round13_capacity_variants_have_ordered_parameter_counts() -> None:
+    families = (
+        ("inception_time", "inception_time_wide"),
+        ("conformer", "conformer_large"),
+    )
+    for family in families:
+        counts = [
+            model_parameter_counts(build_ppg_encoder(name))["total"]
+            for name in family
+        ]
+        assert counts == sorted(counts)
+        assert len(set(counts)) == len(counts)
+
+    reference_resnet = model_parameter_counts(build_ppg_encoder("resnet_small"))["total"]
+    assert model_parameter_counts(build_ppg_encoder("resnet_depth2"))["total"] > reference_resnet
+    assert model_parameter_counts(build_ppg_encoder("resnet_wide1p5"))["total"] > reference_resnet
+
+    reference_transformer = model_parameter_counts(
+        build_ppg_encoder("patch_transformer")
+    )["total"]
+    assert (
+        model_parameter_counts(build_ppg_encoder("patch_transformer_deep"))["total"]
+        > reference_transformer
+    )
+    assert (
+        model_parameter_counts(build_ppg_encoder("patch_transformer_wide"))["total"]
+        > reference_transformer
+    )
+
+
+def test_high_resolution_transformer_uses_more_tokens_at_equal_capacity() -> None:
+    inputs = torch.randn(1, 1, 1250)
+    medium = build_ppg_encoder("patch_transformer")
+    high_resolution = build_ppg_encoder("patch_transformer_highres")
+    assert model_parameter_counts(medium)["total"] != model_parameter_counts(
+        high_resolution
+    )["total"]
+    assert high_resolution.patch(inputs).shape[-1] > medium.patch(inputs).shape[-1]
+
+
+def test_long_patch_transformer_uses_fewer_tokens_than_reference() -> None:
+    inputs = torch.randn(1, 1, 1250)
+    reference = build_ppg_encoder("patch_transformer")
+    long_patch = build_ppg_encoder("patch_transformer_longpatch")
+    assert long_patch.patch(inputs).shape[-1] < reference.patch(inputs).shape[-1]
+
+
+@pytest.mark.parametrize(
+    ("backbone", "expected"), ROUND13_PARAMETER_COUNTS.items()
+)
+def test_round13_population_parameter_count(backbone: str, expected: int) -> None:
+    population = PopulationRegressor(build_ppg_encoder(backbone))
+    assert model_parameter_counts(population)["total"] == expected
+
+
+@pytest.mark.parametrize("backbone", ROUND13_PARAMETER_COUNTS)
+def test_round13_population_checkpoint_round_trip(
+    backbone: str, tmp_path: Path
+) -> None:
+    torch.manual_seed(13)
+    model = PopulationRegressor(build_ppg_encoder(backbone)).eval()
+    checkpoint = tmp_path / f"{backbone}.pt"
+    scaler = {"mean": [120.0, 70.0], "std": [20.0, 10.0]}
+    torch.save(
+        {
+            "model_state": model.state_dict(),
+            "feature_dim": 256,
+            "backbone": backbone,
+            "target_scaler": scaler,
+        },
+        checkpoint,
+    )
+    loaded, loaded_scaler = _load_population_checkpoint(
+        checkpoint, torch.device("cpu")
+    )
+    loaded.eval()
+    assert loaded_scaler == scaler
+    assert loaded.encoder.backbone_name == backbone
+    inputs = torch.randn(1, 1, 1250)
+    with torch.no_grad():
+        assert torch.equal(model(inputs), loaded(inputs))
