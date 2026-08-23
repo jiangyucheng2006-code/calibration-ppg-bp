@@ -124,15 +124,16 @@ tables are under [results/round11a](results/round11a). Round 11 may proceed to
 the prespecified subtractive component ablation on the retained compact
 ResNet; meta-validation and the locked meta-test remain untouched.
 
-The prospective [Round-12 literature-derived backbone plan](docs/ROUND12_LITERATURE_BACKBONE_PLAN.md)
+The completed [Round-12 literature-derived backbone result](docs/RESULTS_ROUND12_LITERATURE_BACKBONES.md)
 tests four additional architecture families under the same strict K=5 boundary:
 a causal TCN, the residual-attention encoder from a direct PulseDB five-shot
-study, a compact CNN-GRU, and a one-dimensional residual U-Net. The supporting
-[calibrated PPG-BP literature audit](docs/LITERATURE_AUDIT_CALIBRATED_PPG_BP_20260822.md)
+study, a compact CNN-GRU, and a one-dimensional residual U-Net. None improves
+the unchanged compact ResNet in Overall, MIMIC, or VitalDB; the closest
+alternative, the residual U-Net, worsens Overall mean participant-macro MAE by
+0.1120 mmHg. The supporting [literature audit](docs/LITERATURE_AUDIT_CALIBRATED_PPG_BP_20260822.md)
 separates true few-shot calibration from same-participant high-volume window
-splits and records which AAMI/BHS reports are and are not comparable. Round 12
-changes only the encoder and leaves meta-validation and the locked meta-test
-quarantined.
+splits. Aggregate tables are under [results/round12](results/round12).
+Meta-validation and the locked meta-test remain untouched.
 
 ## Repository layout
 

@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "round": 12,
+  "stage": "backbone_screen",
+  "generated_at_utc": "2026-08-22T19:40:04.406221+00:00",
+  "seed": 20260826,
+  "split": "meta_train_internal_fold4",
+  "fit_folds": [
+    0,
+    1,
+    2
+  ],
+  "early_stopping_fold": 3,
+  "selection_fold": 4,
+  "meta_validation_used_for_candidate_ranking": false,
+  "locked_test_accessed": false,
+  "reference_backbone": "resnet_small",
+  "winner_backbone": "resnet_small",
+  "gain_vs_reference": {
+    "Overall": 0.0,
+    "MIMIC": 0.0,
+    "VitalDB": 0.0
+  },
+  "passes_internal_gate": false,
+  "candidate_count": 5
+}

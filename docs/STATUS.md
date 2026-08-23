@@ -331,7 +331,7 @@ The complete prospective design is in
 - no independent external validation;
 - no clinical validation or standards claim.
 
-## Round-12 literature-derived backbone screen prepared
+## Round-12 literature-derived backbone screen completed
 
 A broad calibrated/personalized PPG-BP literature audit was completed before
 new jobs were defined. The central finding is that no audited paper currently
@@ -353,11 +353,19 @@ prospective specification is in
 
 Server verification passed all 131 regression tests. CUDA smoke job 1049
 completed with exit code `0:0` after forward propagation, backpropagation and
-an optimizer update for all existing and new backbones. Formal jobs 1050--1064
-now form five population -> QGH -> fold-4 evaluation chains, and report job
-1065 depends on all evaluations. The compact ResNet reference is currently
-running; remaining population jobs are pending scheduler resources. No result
-or winner is reported before the dependent report completes.
+an optimizer update for all existing and new backbones. Formal jobs 1050--1065
+then all completed with exit code `0:0`, all stderr files are empty, and all 16
+work/NAS output pairs are byte-identical.
+
+The compact ResNet remains the numerical winner at Overall participant-macro
+SBP/DBP/mean MAE 11.0294/6.2592/8.6443 mmHg. The residual U-Net, TCN,
+five-shot residual-attention encoder and CNN-GRU worsen Overall mean MAE by
+0.1120, 0.1778, 0.4141 and 0.4245 mmHg, respectively, and every candidate also
+worsens mean MAE in both internal PulseDB source strata.
+`passes_internal_gate=false`; no new architecture advances to meta-validation,
+multi-seed confirmation, or the locked meta-test. The accepted aggregate report is
+[RESULTS_ROUND12_LITERATURE_BACKBONES.md](RESULTS_ROUND12_LITERATURE_BACKBONES.md),
+with machine-readable tables under `results/round12/`.
 
 ## Round-8 calibration-relative screen completed
 
