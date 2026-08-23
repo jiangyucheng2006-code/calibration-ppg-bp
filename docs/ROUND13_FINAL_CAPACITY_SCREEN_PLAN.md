@@ -92,3 +92,20 @@ improvement of at least 0.15 mmHg over the same-round `resnet_small`, with
 improvement in both MIMIC and VitalDB. If no candidate passes, architecture
 scaling is closed after this round; no multi-seed confirmation and no locked
 test access are justified.
+
+## Submission record
+
+- source commit: `7628be5`;
+- immutable server snapshot: `round13_7628be5`;
+- source archive SHA-256:
+  `b495915484416032d766a4aa89c2f62db9a56743627e28b219b9edf1fc97e21f`;
+- source-tree SHA-256:
+  `54a5251254e2a92007f6d9e465c7ca627675ad8ea289f59e26d7328062bbce6c`;
+- server regression tests: 173 passed;
+- RTX 5080 smoke: job 1072, completed `0:0`;
+- RTX 5070 Ti smoke: job 1073, completed `0:0`;
+- formal jobs: 1074--1114;
+- unified report job: 1113;
+- NAS/log integrity job: 1114;
+- submission manifest:
+  `round13_capacity_backbones_20260823-162244.tsv`.

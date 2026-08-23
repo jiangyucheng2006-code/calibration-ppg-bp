@@ -135,6 +135,15 @@ separates true few-shot calibration from same-participant high-volume window
 splits. Aggregate tables are under [results/round12](results/round12).
 Meta-validation and the locked meta-test remain untouched.
 
+The [Round-13 final architecture/capacity screen](docs/ROUND13_FINAL_CAPACITY_SCREEN_PLAN.md)
+is now running. It repeats the compact ResNet reference and tests controlled
+ResNet depth/width, InceptionTime width, Transformer depth/width/tokenization,
+Conformer scale, and ConvNeXt-1D while keeping the K=5 QGH calibration model,
+effective batch, folds, seed, and query set fixed. All 173 server tests and
+both RTX 5080/5070 Ti formal-batch CUDA smoke tests passed before submission.
+This remains a single-seed internal screen; meta-validation and the locked
+meta-test are not accessed.
+
 ## Repository layout
 
 ```text
