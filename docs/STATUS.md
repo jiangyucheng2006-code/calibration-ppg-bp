@@ -394,46 +394,41 @@ public Overall/MIMIC/VitalDB tables are in
 The prespecified design remains available in
 [ROUND8_CALIBRATION_RELATIVE_PLAN.md](ROUND8_CALIBRATION_RELATIVE_PLAN.md).
 
-## Round-13 final architecture/capacity screen submitted
+## Round-13 final architecture/capacity screen completed
 
-Round 13 is the final broad development-only test of whether the calibrated
-model is limited by its population PPG encoder. Earlier work already tested a
-710,530-parameter patch Transformer, a 1,587,330-parameter Conformer, a
-3,827,002-parameter deeper ResNet, and a 16.13-million-parameter
-residual-attention network; none improved the same-round compact ResNet. The
-new round therefore uses controlled changes instead of assuming that more
-parameters must help.
+Round 13 completed the controlled single-seed comparison of 13 population PPG
+encoders. Every candidate retains the same K=5 fixed-first Quality Gate + Huber
+calibration model, folds 0--2/3/4, query set, effective batches, sampled
+examples per epoch, seed, and 256-dimensional encoder output. Meta-validation
+and the locked meta-test remain quarantined.
 
-Thirteen same-seed candidates now compare the compact ResNet reference with a
-depth-only ResNet, a width-only ResNet, base/wide InceptionTime, base/deep/wide
-Patch Transformers, two tokenization-only Transformer variants, base/large
-Conformer, and ConvNeXt-1D. Every encoder outputs 256 features and feeds the
-same K=5 fixed-first Quality Gate + Huber calibration model. Population and
-QGH training use common physical microbatches of 32 and 16 with four-step
-gradient accumulation, giving effective batches of 128 and 64 for all
-candidates. Each epoch samples 99,968 examples, exactly divisible by both
-effective batch sizes.
+The wider InceptionTime encoder is the numerical winner. Its Overall
+participant-macro SBP/DBP/mean MAE is 10.8759/6.1636/8.5197 mmHg, compared with
+11.0255/6.3922/8.7089 mmHg for the same-round compact ResNet. Mean MAE improves
+by 0.1891 mmHg Overall, 0.3497 mmHg in the internal MIMIC stratum, and 0.0557
+mmHg in the internal VitalDB stratum. This satisfies the prespecified internal
+gate, so `winner_backbone=inception_time_wide` and
+`passes_internal_gate=true`.
 
-The implementation is commit `7628be5`. Server verification passed all 173
-regression tests. CUDA smoke jobs 1072 (RTX 5080) and 1073 (RTX 5070 Ti) both
-completed with exit code `0:0`, reproduced every pre-registered parameter
-count, and completed forward, backward, and optimizer steps using the formal
-32/16 microbatches. The only stderr text is the known PyTorch nested-tensor
-optimization warning for norm-first Transformer layers.
+The result does not support network scaling in general. A wider InceptionTime
+helps, but deeper/wider ResNets, deeper/wider or differently tokenized Patch
+Transformers, a larger Conformer, and ConvNeXt-1D do not improve the reference.
+The VitalDB mean gain is also small and is driven by DBP while SBP is slightly
+worse, so source- and endpoint-level confirmation remains necessary.
 
-Formal jobs 1074--1114 are submitted as 13 independent
-population -> QGH -> fold-4 evaluation chains. Jobs 1074 and 1077 began
-concurrently on the RTX 5080 and RTX 5070 Ti. Job 1113 generates the common
-Overall/MIMIC/VitalDB report only after all 13 evaluations succeed, and job
-1114 verifies work/NAS artifacts and archives the Slurm logs. The immutable
-source snapshot is `round13_7628be5`, archive SHA-256 is
-`b495915484416032d766a4aa89c2f62db9a56743627e28b219b9edf1fc97e21f`, and
-source-tree SHA-256 is
-`54a5251254e2a92007f6d9e465c7ca627675ad8ea289f59e26d7328062bbce6c`.
+All 173 pre-submission regression tests and both formal-batch GPU smoke tests
+passed. All 13 population, QGH, and fold-4 evaluation chains completed. A
+post-run SHA-256 inventory found identical relative file sets, sizes, and
+contents for all 41 work/archive output pairs. One final housekeeping step
+returned a nonzero status because the archive target does not support
+preserving POSIX permission metadata; this occurred after the scientific
+outputs completed and did not produce a content mismatch.
 
-The prespecified internal gate is at least 0.15 mmHg improvement in Overall
-participant-macro mean MAE versus the same-round compact ResNet, with
-improvement in both MIMIC and VitalDB. Meta-validation and the locked meta-test
-remain untouched. If no candidate passes, architecture scaling is closed
-after this round. The full prospective specification is in
+The accepted result and full Overall/MIMIC/VitalDB tables are in
+[RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md](RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md),
+with machine-readable aggregate files under `results/round13/`. The prospective
+specification remains in
 [ROUND13_FINAL_CAPACITY_SCREEN_PLAN.md](ROUND13_FINAL_CAPACITY_SCREEN_PLAN.md).
+The wider InceptionTime candidate advances only to independent-seed
+confirmation and does not yet replace the compact ResNet reference. Neither
+meta-validation nor the locked meta-test has been accessed.
