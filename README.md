@@ -147,6 +147,19 @@ confirmation; it does not yet replace the reference. Aggregate tables are
 under [results/round13](results/round13). Meta-validation and the locked
 meta-test remain untouched.
 
+The prespecified [Round-14 confirmation and standards-oriented development
+plan](docs/ROUND14_CONFIRMATION_AND_STANDARDS_PLAN.md) is now in execution.
+Line A retrains the compact ResNet and wider InceptionTime QGH pipelines on
+four genuinely new paired seeds; only those four new seeds determine the
+confirmation gate, while the Round-13 discovery seed is descriptive context.
+Line B compares two complete methods against a matched same-seed
+`inception_time_wide + QGH` anchor: calibration-relative causal prediction and
+a standards-oriented version with fixed physical-mmHg Huber and bounded
+5/10/15-mmHg losses. These are complete-route candidates, not a component
+ablation. A six-group smooth worst-group candidate is held until a fit-fold
+sample-size audit establishes feasibility. All Round-14 results remain
+development-only; meta-validation and the locked meta-test remain untouched.
+
 ## Repository layout
 
 ```text

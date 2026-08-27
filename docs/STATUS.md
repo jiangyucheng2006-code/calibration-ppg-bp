@@ -1,6 +1,54 @@
 # Verified project status
 
-Last updated: 2026-08-22.
+Last updated: 2026-08-27.
+
+## Round-14 paired confirmation and complete-method screen submitted
+
+Round 14 is running from immutable source commit `9d8c710`. The exact source
+snapshot passed the complete regression suite, script syntax checks, and
+separate CUDA forward/backward/update smoke tests on both available GPU types
+before submission.
+
+Line A is a paired random-seed stability check of `resnet_small + QGH` versus
+`inception_time_wide + QGH`. It reuses the accepted Round-13 discovery seed
+only for descriptive five-seed tables and trains both settings from scratch on
+four prespecified new seeds. The confirmation decision is deliberately based
+only on those four new seeds: mean Overall gain must be at least 0.15 mmHg,
+mean MIMIC and VitalDB gains must both be positive, and at least three of four
+Overall gains must be positive. Separate equal-weight five-seed ensembles are
+reported as variance diagnostics only and cannot rescue a failed confirmation.
+
+Line B uses the same-seed wide-Inception QGH run as an exact architecture-
+matched anchor and evaluates two prespecified complete routes. C1 predicts
+calibration-relative change with causal query history and a fit-fold auxiliary
+target for whether query BP lies outside the first-five support range. C2 adds
+fixed physical-mmHg Huber and bounded 5/10/15-mmHg objectives. Each candidate
+is independently checked against primary and tail-focused gates; a numerical
+winner cannot hide another candidate that passes a gate. The optional six-
+group smooth worst-group SBP penalty is not in the initial dependency chain
+and will run only if its folds-0--2 group-size audit passes.
+
+This is a prospective complete-route screen, not a module ablation. Because
+the same internal fold has been used repeatedly during development, Line B is
+explicitly exploratory even if its retrospective AAMI-style or historical BHS
+numbers improve. No result can establish formal device or standards
+compliance. Meta-validation and the locked meta-test remain inaccessible.
+
+## Round-13 final architecture/capacity screen completed
+
+The wider InceptionTime QGH setting is the Round-13 numerical winner. Overall
+participant-macro SBP/DBP/mean MAE is 10.8759/6.1636/8.5197 mmHg, compared
+with 11.0255/6.3922/8.7089 for the same-round compact ResNet QGH reference.
+The mean-MAE gain is 0.1891 mmHg Overall, 0.3497 in PulseDB MIMIC, and 0.0557
+in PulseDB VitalDB. It passes the prespecified single-seed internal gate and
+therefore advances to seed-stability confirmation; it is not yet the final
+model.
+
+Event-pooled Overall SBP/DBP MAE is 12.3256/6.8079 mmHg. Both endpoints fail
+the retrospective AAMI-style numerical screen, with historical BHS Grade D
+for SBP and Grade C for DBP. These are internal numerical diagnostics only.
+See [RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md](RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md)
+and the aggregate tables under `results/round13/`.
 
 ## Round-10 partial end-to-end screen completed
 
