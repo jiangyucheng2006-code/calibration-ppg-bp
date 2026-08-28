@@ -162,6 +162,32 @@ def test_chronological_blocked_uses_early_320_then_40_then_40() -> None:
     ]["adjacent_segment_row_pairs"] == 1
 
 
+def test_random_disjoint_repairs_cross_role_raw_interval_overlap() -> None:
+    segments = _subject_rows("MIMIC:p000001", "MIMIC")
+    probe = build_calbased_analogue(segments, _splits(), seed=17)
+    roles = probe.role_manifest.set_index("segment_uid")["role"]
+    train_uid = roles.loc[roles.eq("train")].index[0]
+    validation_uid = roles.loc[roles.eq("internal_validation")].index[0]
+    train_start = float(
+        segments.loc[segments["segment_uid"].eq(train_uid), "start_time_s"].iloc[0]
+    )
+    segments.loc[
+        segments["segment_uid"].eq(validation_uid), "start_time_s"
+    ] = train_start + 5.0
+
+    repaired = build_calbased_analogue(segments, _splits(), seed=17)
+
+    assert repaired.audit["status"] == "pass"
+    assert repaired.audit["random_interval_role_swap_repairs"] >= 1
+    assert not any(repaired.audit["raw_interval_overlap_counts"].values())
+    counts = repaired.role_manifest.groupby("role").size()
+    assert counts.to_dict() == {
+        "heldout_test": 40,
+        "internal_validation": 40,
+        "train": 320,
+    }
+
+
 def test_protected_participant_rows_are_rejected() -> None:
     protected = _subject_rows(
         "MIMIC:p999998", "MIMIC", split="meta_validation"

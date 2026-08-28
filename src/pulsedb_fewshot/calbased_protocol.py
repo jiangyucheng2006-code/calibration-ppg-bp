@@ -220,6 +220,92 @@ def _prepare_candidates(
     return candidates, exclusion_counts
 
 
+def _cross_role_interval_pairs(frame: pd.DataFrame) -> list[tuple[int, int]]:
+    """Return index pairs whose raw intervals overlap across assigned roles."""
+
+    conflicts: list[tuple[int, int]] = []
+    tolerance = 1e-9
+    for _, record in frame.groupby("record_id", sort=False, dropna=False):
+        work = record.copy()
+        work["interval_end_exclusive"] = (
+            work["start_time_s"].astype(float) + work["duration_s"].astype(float)
+        )
+        work = work.sort_values(
+            ["start_time_s", "interval_end_exclusive", "segment_uid"],
+            kind="mergesort",
+        )
+        active: list[tuple[int, float, str]] = []
+        for index, row in work.iterrows():
+            start = float(row["start_time_s"])
+            active = [
+                item for item in active if item[1] > start + tolerance
+            ]
+            role = str(row["role"])
+            for other_index, _, other_role in active:
+                if other_role != role:
+                    conflicts.append((int(other_index), int(index)))
+            active.append(
+                (int(index), float(row["interval_end_exclusive"]), role)
+            )
+    return conflicts
+
+
+def _repair_random_role_interval_overlaps(
+    subject: pd.DataFrame,
+) -> tuple[pd.DataFrame, int]:
+    """Deterministically swap random roles until raw intervals are disjoint.
+
+    The selected 400 windows and every role count stay fixed. Only role labels
+    are exchanged. This preserves the random hash-selected cohort while
+    preventing two windows that share raw-time samples from crossing a
+    train/validation/test boundary.
+    """
+
+    work = subject.copy()
+    work["role_assignment_repaired"] = False
+    repairs = 0
+    for _ in range(len(work)):
+        conflicts = _cross_role_interval_pairs(work)
+        if not conflicts:
+            return work, repairs
+        conflict_count = len(conflicts)
+        left_index, right_index = conflicts[0]
+        repaired = False
+        # Try both directions. Moving one conflicting window into the other's
+        # role requires a deterministic donor swap to keep counts exact.
+        for moving_index, target_index in (
+            (right_index, left_index),
+            (left_index, right_index),
+        ):
+            from_role = str(work.at[moving_index, "role"])
+            to_role = str(work.at[target_index, "role"])
+            donors = work.loc[
+                work["role"].eq(to_role)
+                & ~work.index.isin([left_index, right_index])
+            ].sort_values(["selection_rank", "segment_uid"], kind="mergesort")
+            for donor_index in donors.index:
+                proposal = work.copy()
+                proposal.at[moving_index, "role"] = to_role
+                proposal.at[donor_index, "role"] = from_role
+                if len(_cross_role_interval_pairs(proposal)) >= conflict_count:
+                    continue
+                proposal.loc[
+                    [moving_index, donor_index], "role_assignment_repaired"
+                ] = True
+                work = proposal
+                repairs += 1
+                repaired = True
+                break
+            if repaired:
+                break
+        if not repaired:
+            raise AssertionError(
+                "cannot repair random cross-role interval overlap while "
+                "preserving exact per-role counts"
+            )
+    raise AssertionError("random interval-overlap repair did not converge")
+
+
 def _select_subject_windows(
     candidates: pd.DataFrame,
     *,
@@ -228,7 +314,7 @@ def _select_subject_windows(
     n_train: int,
     n_validation: int,
     n_test: int,
-) -> tuple[pd.DataFrame, int]:
+) -> tuple[pd.DataFrame, int, int]:
     if split_mode not in SPLIT_MODES:
         raise ValueError(f"split_mode must be one of {SPLIT_MODES}")
     total = n_train + n_validation + n_test
@@ -238,6 +324,7 @@ def _select_subject_windows(
     counts = candidates.groupby("subject_uid", sort=True).size()
     eligible_subjects = set(counts[counts >= total].index)
     selected_parts: list[pd.DataFrame] = []
+    interval_role_repairs = 0
     for subject_uid, subject in candidates.loc[
         candidates["subject_uid"].isin(eligible_subjects)
     ].groupby("subject_uid", sort=True):
@@ -276,6 +363,11 @@ def _select_subject_windows(
             ["train", "internal_validation"],
             default="heldout_test",
         )
+        if split_mode == "random_disjoint":
+            subject, repairs = _repair_random_role_interval_overlaps(subject)
+            interval_role_repairs += repairs
+        else:
+            subject["role_assignment_repaired"] = False
         selected_parts.append(subject)
 
     if not selected_parts:
@@ -285,7 +377,7 @@ def _select_subject_windows(
     selected["split_mode"] = split_mode
     selected["protocol_seed"] = seed
     selected["original_split"] = "meta_train"
-    return selected, int((counts < total).sum())
+    return selected, int((counts < total).sum()), int(interval_role_repairs)
 
 
 def _role_sets(selected: pd.DataFrame, column: str) -> dict[str, set[str]]:
@@ -524,7 +616,7 @@ def build_calbased_analogue(
         require_include_flag=require_include_flag,
         duration_seconds=10.0,
     )
-    selected, insufficient_subjects = _select_subject_windows(
+    selected, insufficient_subjects, interval_role_repairs = _select_subject_windows(
         candidates,
         split_mode=split_mode,
         seed=seed,
@@ -557,6 +649,7 @@ def build_calbased_analogue(
             ),
             "candidate_windows": int(len(candidates)),
             "subjects_with_fewer_than_400_eligible_windows": insufficient_subjects,
+            "random_interval_role_swap_repairs": interval_role_repairs,
             "candidate_exclusion_counts": exclusion_counts,
         }
     )
