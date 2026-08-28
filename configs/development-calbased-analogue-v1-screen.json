@@ -1,0 +1,65 @@
+{
+  "protocol_id": "development-calbased-analogue-v1",
+  "track": "development_only_same_subject_analogue",
+  "official_pulsedb_calbased_reproduction": false,
+  "source_parent_split": "meta_train",
+  "forbidden_parent_splits": [
+    "meta_validation",
+    "meta_test"
+  ],
+  "eligibility": {
+    "minimum_windows_per_subject": 400,
+    "expected_subject_count": 2058
+  },
+  "windows_per_subject": {
+    "train": 320,
+    "internal_validation": 40,
+    "heldout_test": 40
+  },
+  "split_modes": {
+    "primary": "random_disjoint",
+    "control": "chronological_blocked"
+  },
+  "selection": {
+    "read_roles": [
+      "train",
+      "internal_validation"
+    ],
+    "selection_role": "internal_validation",
+    "selection_metric": "participant_macro_mean_mae",
+    "heldout_test_accessed": false,
+    "single_seed": true,
+    "max_epochs": null,
+    "early_stopping_patience": 8
+  },
+  "winner_policy": "After internal-validation selection, refit one winner on train plus internal_validation and evaluate heldout_test once.",
+  "candidate_names": [
+    "subject_train_mean",
+    "subject_mean_residual_ppg",
+    "compact_resnet",
+    "inception_time_wide",
+    "patch_transformer",
+    "compact_resnet_qgh",
+    "compact_resnet_calibration_relative",
+    "self_attention_resunet_adaptation",
+    "runet_resunet_encoder_adaptation",
+    "cnn_bilstm_adaptation",
+    "cnn_transformer_aff_adaptation"
+  ],
+  "executable_first_round": [
+    "subject_train_mean",
+    "subject_mean_residual_ppg",
+    "compact_resnet",
+    "inception_time_wide",
+    "patch_transformer",
+    "self_attention_resunet_adaptation",
+    "runet_resunet_encoder_adaptation",
+    "cnn_bilstm_adaptation",
+    "cnn_transformer_aff_adaptation"
+  ],
+  "deferred_until_safe_same_subject_adapter_exists": [
+    "compact_resnet_qgh",
+    "compact_resnet_calibration_relative"
+  ],
+  "scope_note": "All reported results are seen-subject development-analogue results and must remain separate from participant-disjoint event120-v1 and the official PulseDB CalBased benchmark."
+}

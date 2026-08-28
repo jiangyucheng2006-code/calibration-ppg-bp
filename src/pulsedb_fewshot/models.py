@@ -29,6 +29,10 @@ BACKBONE_NAMES = (
     "fewshot_resnet_attention",
     "bp_crnn",
     "resunet_encoder",
+    "self_attention_resunet_adaptation",
+    "runet_resunet_encoder_adaptation",
+    "cnn_bilstm_adaptation",
+    "cnn_transformer_aff_adaptation",
 )
 
 
@@ -982,6 +986,150 @@ class ResUNetEncoder1D(nn.Module):
         return self.projection(self.global_pool(value))
 
 
+class SelfAttentionResUNetAdaptationEncoder(ResUNetEncoder1D):
+    """PPG-only residual U-Net with bottleneck self-attention.
+
+    This is an architecture-family adaptation for a controlled comparison. It
+    is deliberately *not* presented as an exact reproduction of a published
+    multimodal or calibration protocol.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__(input_channels=input_channels, feature_dim=feature_dim)
+        self.backbone_name = "self_attention_resunet_adaptation"
+        self.bottleneck_attention = nn.MultiheadAttention(
+            256, num_heads=8, dropout=0.1, batch_first=True
+        )
+        self.bottleneck_norm = nn.LayerNorm(256)
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        level1 = self.enc1(inputs)
+        level2 = self.enc2(self.pool(level1))
+        level3 = self.enc3(self.pool(level2))
+        value = self.bottleneck(self.pool(level3))
+        tokens = value.transpose(1, 2)
+        attended, _ = self.bottleneck_attention(
+            tokens, tokens, tokens, need_weights=False
+        )
+        value = self.bottleneck_norm(tokens + attended).transpose(1, 2)
+        value = self.dec3(
+            torch.cat([self._match_length(self.up3(value), level3), level3], dim=1)
+        )
+        value = self.dec2(
+            torch.cat([self._match_length(self.up2(value), level2), level2], dim=1)
+        )
+        value = self.dec1(
+            torch.cat([self._match_length(self.up1(value), level1), level1], dim=1)
+        )
+        return self.projection(self.global_pool(value))
+
+
+class RUnetResUNetEncoderAdaptation(ResUNetEncoder1D):
+    """Explicitly named PPG-only rU-Net/ResUNet encoder adaptation.
+
+    The implementation reuses the audited 1-D residual U-Net already present
+    in this repository. The separate name prevents architecture-family
+    screening from being mistaken for an exact paper reproduction.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__(input_channels=input_channels, feature_dim=feature_dim)
+        self.backbone_name = "runet_resunet_encoder_adaptation"
+
+
+class CNNBiLSTMAdaptationEncoder(nn.Module):
+    """Compact PPG-only CNN-BiLSTM architecture-family adaptation."""
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "cnn_bilstm_adaptation"
+        self.to_sequence_length = nn.AdaptiveAvgPool1d(125)
+        self.convolutions = nn.Sequential(
+            ConvNormAct(input_channels, 48, 7),
+            ConvNormAct(48, 64, 7),
+            ConvNormAct(64, 96, 5),
+        )
+        self.bilstm = nn.LSTM(
+            input_size=96,
+            hidden_size=48,
+            num_layers=2,
+            dropout=0.1,
+            bidirectional=True,
+            batch_first=True,
+        )
+        self.projection = nn.Sequential(
+            nn.Linear(96, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        sequence = self.convolutions(self.to_sequence_length(inputs)).transpose(1, 2)
+        _, (hidden, _) = self.bilstm(sequence)
+        # The final two states are the forward and backward directions of the
+        # last recurrent layer.
+        summary = torch.cat([hidden[-2], hidden[-1]], dim=1)
+        return self.projection(summary)
+
+
+class CNNTransformerAFFAdaptationEncoder(nn.Module):
+    """PPG-only CNN-Transformer with learnable branch fusion.
+
+    ``AFF`` here denotes the implemented adaptive fusion gate over three
+    temporal-kernel branches. It does not imply an exact implementation of a
+    paper-specific fusion block.
+    """
+
+    def __init__(self, input_channels: int = 1, feature_dim: int = 256) -> None:
+        super().__init__()
+        self.backbone_name = "cnn_transformer_aff_adaptation"
+        self.to_sequence_length = nn.AdaptiveAvgPool1d(125)
+        self.branches = nn.ModuleList(
+            [
+                ConvNormAct(input_channels, 32, kernel_size)
+                for kernel_size in (3, 7, 15)
+            ]
+        )
+        self.fusion_gate = nn.Sequential(
+            nn.Linear(32 * len(self.branches), 32),
+            nn.SiLU(),
+            nn.Linear(32, len(self.branches)),
+        )
+        self.token_projection = nn.Conv1d(32, 128, 1, bias=False)
+        layer = nn.TransformerEncoderLayer(
+            d_model=128,
+            nhead=4,
+            dim_feedforward=256,
+            dropout=0.1,
+            activation="gelu",
+            batch_first=True,
+            norm_first=True,
+        )
+        self.transformer = nn.TransformerEncoder(layer, num_layers=2)
+        self.token_attention = nn.Linear(128, 1)
+        self.projection = nn.Sequential(
+            nn.Linear(128, feature_dim), nn.LayerNorm(feature_dim), nn.SiLU()
+        )
+        self.feature_dim = feature_dim
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        if inputs.ndim != 3 or inputs.shape[1] != 1:
+            raise ValueError("PPG input must have shape [batch, 1, time]")
+        inputs = self.to_sequence_length(inputs)
+        branches = torch.stack([branch(inputs) for branch in self.branches], dim=1)
+        context = branches.mean(dim=-1).flatten(1)
+        weights = torch.softmax(self.fusion_gate(context), dim=1)
+        fused = torch.sum(branches * weights[:, :, None, None], dim=1)
+        tokens = self.token_projection(fused).transpose(1, 2)
+        tokens = self.transformer(tokens)
+        token_weights = torch.softmax(self.token_attention(tokens), dim=1)
+        summary = torch.sum(tokens * token_weights, dim=1)
+        return self.projection(summary)
+
+
 def build_ppg_encoder(
     backbone: str = "resnet_small", *, input_channels: int = 1, feature_dim: int = 256
 ) -> nn.Module:
@@ -1006,6 +1154,10 @@ def build_ppg_encoder(
         "fewshot_resnet_attention": FewShotResNetAttentionEncoder,
         "bp_crnn": BPCRNNEncoder,
         "resunet_encoder": ResUNetEncoder1D,
+        "self_attention_resunet_adaptation": SelfAttentionResUNetAdaptationEncoder,
+        "runet_resunet_encoder_adaptation": RUnetResUNetEncoderAdaptation,
+        "cnn_bilstm_adaptation": CNNBiLSTMAdaptationEncoder,
+        "cnn_transformer_aff_adaptation": CNNTransformerAFFAdaptationEncoder,
     }
     if backbone not in constructors:
         raise ValueError(f"unknown backbone {backbone!r}; choose from {BACKBONE_NAMES}")
@@ -1046,6 +1198,42 @@ class PopulationRegressor(nn.Module):
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         return self.predict_from_features(self.encoder(inputs))
+
+
+class SubjectMeanResidualRegressor(nn.Module):
+    """Predict BP as a seen-subject train mean plus a PPG-dependent residual.
+
+    ``subject_train_mean`` must contain only labels from the training role and
+    use the same target scaling as the network output. The zero-initialized
+    final layer makes the initial prediction exactly the leakage-safe
+    subject-train-mean baseline.
+    """
+
+    def __init__(
+        self,
+        encoder: nn.Module | None = None,
+        *,
+        dropout: float = 0.2,
+    ) -> None:
+        super().__init__()
+        self.encoder = encoder or MultiScaleResNetEncoder()
+        self.residual_head = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(self.encoder.feature_dim, self.encoder.feature_dim // 2),
+            nn.SiLU(),
+            nn.Linear(self.encoder.feature_dim // 2, 2),
+        )
+        nn.init.zeros_(self.residual_head[-1].weight)
+        nn.init.zeros_(self.residual_head[-1].bias)
+
+    def forward(
+        self, inputs: torch.Tensor, subject_train_mean: torch.Tensor
+    ) -> torch.Tensor:
+        if subject_train_mean.ndim != 2 or subject_train_mean.shape[1] != 2:
+            raise ValueError("subject_train_mean must have shape [batch, 2]")
+        if subject_train_mean.shape[0] != inputs.shape[0]:
+            raise ValueError("PPG and subject_train_mean batch sizes must match")
+        return subject_train_mean + self.residual_head(self.encoder(inputs))
 
 
 class SiameseDeltaRegressor(nn.Module):
