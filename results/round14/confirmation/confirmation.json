@@ -1,0 +1,120 @@
+{
+  "status": "complete",
+  "round": 14,
+  "stage": "paired_seed_confirmation",
+  "generated_at_utc": "2026-08-27T17:25:54.042250+00:00",
+  "split": "meta_train_internal_fold4",
+  "fit_folds": [
+    0,
+    1,
+    2
+  ],
+  "early_stopping_fold": 3,
+  "selection_fold": 4,
+  "seeds": [
+    20260827,
+    20260828,
+    20260829,
+    20260830,
+    20260831
+  ],
+  "discovery_seed": 20260827,
+  "confirmation_seeds": [
+    20260828,
+    20260829,
+    20260830,
+    20260831
+  ],
+  "reference_backbone": "resnet_small",
+  "candidate_backbone": "inception_time_wide",
+  "ensemble_definition": "separately within each backbone, arithmetic mean of its five seed-specific QGH predictions; CPU diagnostic only, no tuning, and excluded from the confirmation gate",
+  "n_common_queries_per_seed": 96332,
+  "store_manifest_sha256": "f5b90fe2cd49616f6bd702ce1964617b59805a61f08208ec738cfffe8831923e",
+  "crossfit_folds_sha256": "4f696cda4aced9a93351ee29533b109d2e40723ea96de1151dfb4813830eec01",
+  "confirmation_source_tree_sha256": "3b413dc409f6c235949d55bcc1dc4f307198793cfdd72132486b7e0b11c43af5",
+  "five_seed_background_mean_gain_vs_reference": {
+    "Overall": 0.08256628467650132,
+    "MIMIC": 0.10408635147528819,
+    "VitalDB": 0.06468517961045102
+  },
+  "five_seed_background_overall_positive_seed_count": 5,
+  "four_new_seed_mean_gain_vs_reference": {
+    "Overall": 0.05592110389453353,
+    "MIMIC": 0.04268339237675001,
+    "VitalDB": 0.06692036856674166
+  },
+  "four_new_seed_overall_positive_seed_count": 4,
+  "gate_basis": "four prespecified new confirmation seeds only",
+  "discovery_seed_used_by_gate": false,
+  "gate": {
+    "four_new_seeds_overall_mean_gain_at_least_0_15": false,
+    "four_new_seeds_mimic_mean_gain_positive": true,
+    "four_new_seeds_vitaldb_mean_gain_positive": true,
+    "four_new_seeds_overall_positive_count_at_least_3_of_4": true
+  },
+  "passes_confirmation_gate": false,
+  "meta_validation_accessed": false,
+  "locked_test_accessed": false,
+  "input_evidence": [
+    {
+      "seed": 20260827,
+      "backbone": "resnet_small",
+      "run_json_sha256": "4bf728f8eb0c479a57c1537f980b41b3ea9cacd7740291563d7e20a1736fba49",
+      "queries_sha256": "30d5e3e9a6d4d81ef1960d3af9902968c75e901d8393e4325408a87d4c2f1c46"
+    },
+    {
+      "seed": 20260827,
+      "backbone": "inception_time_wide",
+      "run_json_sha256": "83b07e828d3d420a06db12a1cbdefcff0f24dbb08ca2edd683ffd0ec0778ed8b",
+      "queries_sha256": "704d8409e888f137a3f0d3e17156cbfa80a6978124de9dfe2cecdea701da6c61"
+    },
+    {
+      "seed": 20260828,
+      "backbone": "resnet_small",
+      "run_json_sha256": "d3dd9b14a4c9eedaae82240b513b04707b32a7870201da191e16ff66effc368a",
+      "queries_sha256": "bd19619abce74a7d88bbb3e83d9a2f2d58a91e43a070d2e236b51787c9ede97f"
+    },
+    {
+      "seed": 20260828,
+      "backbone": "inception_time_wide",
+      "run_json_sha256": "f9aea9661a76edaf1d41827d565ff61c4c8ccaf40a3bc77827a762b34d32e085",
+      "queries_sha256": "607bf5580d9c8072052e996421a6d2bab046e8b7ae77765743661e68dd6af1ee"
+    },
+    {
+      "seed": 20260829,
+      "backbone": "resnet_small",
+      "run_json_sha256": "df680e92350f06a2067e300eb4977ab5c95dcafe2763387c452f20835b0407f7",
+      "queries_sha256": "7ab09e6ea7a20453c122fc3c0252bf03309261016dd72e787783d710669beade"
+    },
+    {
+      "seed": 20260829,
+      "backbone": "inception_time_wide",
+      "run_json_sha256": "6405da0475f7342cd05ac7dc5306ca6247f760366ee1363fc25c60c40c3b3647",
+      "queries_sha256": "a1c5a7283602d9d24e542c1ff27f3eb6456480e67737eff3914c5deac62b60f0"
+    },
+    {
+      "seed": 20260830,
+      "backbone": "resnet_small",
+      "run_json_sha256": "792d0c3502311b4cd0f9d6a3c52a1091ca6006ba1a683b5d739ca22ee68e3748",
+      "queries_sha256": "77282b9df5bbf6c11da294cbbedbd336a54b223634d5d85e840462adc42c9a43"
+    },
+    {
+      "seed": 20260830,
+      "backbone": "inception_time_wide",
+      "run_json_sha256": "df3953dfabb19882c5ff7d7ab1b02dceab80535827d872934fcac18d3fd0785c",
+      "queries_sha256": "b5827ad89b84b791b55f55240cede0e6a8c698433812d2fd80d282c1d34e5cc4"
+    },
+    {
+      "seed": 20260831,
+      "backbone": "resnet_small",
+      "run_json_sha256": "c3e9fa05f8097239261dbce3c2959d16a0f27c7b915fa871895356bb11f91df3",
+      "queries_sha256": "e193c054a954a026c0cb85983defca01a6a50b582bb3c44f49dadf60ad35ad10"
+    },
+    {
+      "seed": 20260831,
+      "backbone": "inception_time_wide",
+      "run_json_sha256": "9ccdb79c7d9dce0e6c10748767bd037739e5775f49bf4f57af0ff843fb768d74",
+      "queries_sha256": "9092a442b29a441a67038024ac824101e21d4b829ccae7c1be0331a4a3dabd71"
+    }
+  ]
+}

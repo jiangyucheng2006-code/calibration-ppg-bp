@@ -1,0 +1,78 @@
+{
+  "status": "complete",
+  "round": 14,
+  "stage": "exploratory_method_screen",
+  "seed": 20260828,
+  "split": "meta_train_internal_fold4",
+  "fit_folds": [
+    0,
+    1,
+    2
+  ],
+  "early_stopping_fold": 3,
+  "selection_fold": 4,
+  "meta_validation_used_for_candidate_ranking": false,
+  "locked_test_accessed": false,
+  "reference": "inception_time_wide_qgh",
+  "anchor_run_json_sha256": "f9aea9661a76edaf1d41827d565ff61c4c8ccaf40a3bc77827a762b34d32e085",
+  "anchor_queries_sha256": "607bf5580d9c8072052e996421a6d2bab046e8b7ae77765743661e68dd6af1ee",
+  "candidate_artifacts": {
+    "calibration_relative": {
+      "run_json_sha256": "aa322801f6c7a8caeeb16bdca3e4f885f5c76ed7522a62b5bdd4ec5924100f95",
+      "selection_predictions_sha256": "8a02caf02720f4ff41ca34e96de7bdb762a010ce487fec840997d875e7a3c0ba"
+    },
+    "calibration_relative_standards": {
+      "run_json_sha256": "1fe9b9f26c846abbc582f9a913960ccd0139cb779ee982f2fed5709a4bdded4b",
+      "selection_predictions_sha256": "eb487658159ca08d9ec4efc12b0166806702429b118025efec93391bbebd2585"
+    }
+  },
+  "winner": "calibration_relative",
+  "gain_vs_reference": {
+    "Overall": 0.1586134802501551,
+    "MIMIC": 0.12533209307647297,
+    "VitalDB": 0.18626711099213367
+  },
+  "primary_gate_passers": [
+    "calibration_relative"
+  ],
+  "tail_gate_passers": [],
+  "advancing_candidates": [
+    "calibration_relative"
+  ],
+  "promoted_candidate": "calibration_relative",
+  "candidate_gates": [
+    {
+      "Setting": "calibration_relative",
+      "Overall mean-MAE gain": 0.1586134802501551,
+      "MIMIC mean-MAE gain": 0.12533209307647297,
+      "VitalDB mean-MAE gain": 0.18626711099213367,
+      "Overall SBP MAE worsening": -0.15703527348762947,
+      "Overall DBP MAE worsening": -0.16019168701268072,
+      "All-scope SBP/DBP pooled STD decreases": true,
+      "Overall SBP mean within-threshold gain (pp)": 0.22560865894337923,
+      "Overall DBP mean within-threshold gain (pp)": 0.5162701213857636,
+      "Minimum individual within-threshold change (pp)": -0.008067443830420018,
+      "Primary gate": true,
+      "Tail gate": false,
+      "Advance": true
+    },
+    {
+      "Setting": "calibration_relative_standards",
+      "Overall mean-MAE gain": 0.12879691680885053,
+      "MIMIC mean-MAE gain": 0.09736434372653235,
+      "VitalDB mean-MAE gain": 0.1549143609151491,
+      "Overall SBP MAE worsening": -0.15263149410019494,
+      "Overall DBP MAE worsening": -0.104962339517507,
+      "All-scope SBP/DBP pooled STD decreases": true,
+      "Overall SBP mean within-threshold gain (pp)": -0.012110894268435146,
+      "Overall DBP mean within-threshold gain (pp)": 0.29204556464449877,
+      "Minimum individual within-threshold change (pp)": -0.4235408010971753,
+      "Primary gate": false,
+      "Tail gate": false,
+      "Advance": false
+    }
+  ],
+  "passes_internal_gate": true,
+  "candidate_count": 2,
+  "aami_bhs_interpretation": "retrospective numerical screens only; no compliance claim"
+}

@@ -147,18 +147,21 @@ confirmation; it does not yet replace the reference. Aggregate tables are
 under [results/round13](results/round13). Meta-validation and the locked
 meta-test remain untouched.
 
-The prespecified [Round-14 confirmation and standards-oriented development
-plan](docs/ROUND14_CONFIRMATION_AND_STANDARDS_PLAN.md) is now in execution.
-Line A retrains the compact ResNet and wider InceptionTime QGH pipelines on
-four genuinely new paired seeds; only those four new seeds determine the
-confirmation gate, while the Round-13 discovery seed is descriptive context.
-Line B compares two complete methods against a matched same-seed
-`inception_time_wide + QGH` anchor: calibration-relative causal prediction and
-a standards-oriented version with fixed physical-mmHg Huber and bounded
-5/10/15-mmHg losses. These are complete-route candidates, not a component
-ablation. A six-group smooth worst-group candidate is held until a fit-fold
-sample-size audit establishes feasibility. All Round-14 results remain
-development-only; meta-validation and the locked meta-test remain untouched.
+The completed [Round-14 paired confirmation and complete-method
+result](docs/RESULTS_ROUND14_CONFIRMATION_AND_COMPLETE_METHODS.md) shows that
+the wider InceptionTime QGH backbone does not confirm its Round-13
+architecture gain: its four-new-seed Overall improvement over compact ResNet
+is 0.0559 mmHg, below the frozen 0.15-mmHg gate, despite four of four positive
+Overall directions. In the separate single-seed complete-method screen,
+`calibration_relative` improves participant-macro mean MAE from 8.5107 to
+8.3520 mmHg Overall and improves both internal PulseDB source strata. It
+passes the exploratory primary gate and advances only to independent-seed
+confirmation; it is not a final model. The standards-oriented variant does
+not pass either gate, and no complete setting passes the Overall
+retrospective AAMI-style numerical screen. Aggregate tables are under
+[results/round14](results/round14), and the prospective
+[plan](docs/ROUND14_CONFIRMATION_AND_STANDARDS_PLAN.md) is retained for
+comparison. Meta-validation and the locked meta-test remain untouched.
 
 ## Repository layout
 

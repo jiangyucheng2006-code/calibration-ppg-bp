@@ -1,0 +1,7 @@
+Setting,Scope,N seeds ensembled,N participants,N queries,SBP participant-macro MAE,DBP participant-macro MAE,Mean participant-macro MAE
+resnet_small | 5-seed equal-weight QGH ensemble,Overall,5,628,96332,10.680827940194384,6.148466561992435,8.414647251093408
+resnet_small | 5-seed equal-weight QGH ensemble,MIMIC,5,285,74373,11.572947635225104,6.474590968238863,9.023769301731983
+resnet_small | 5-seed equal-weight QGH ensemble,VitalDB,5,343,21959,9.939562304381687,5.877488556802254,7.908525430591969
+inception_time_wide | 5-seed equal-weight QGH ensemble,Overall,5,628,96332,10.603514118553461,6.064127320661236,8.333820719607349
+inception_time_wide | 5-seed equal-weight QGH ensemble,MIMIC,5,285,74373,11.454881936151338,6.381475782538487,8.918178859344913
+inception_time_wide | 5-seed equal-weight QGH ensemble,VitalDB,5,343,21959,9.89610937215289,5.800441280909,7.8482753265309455

@@ -1,38 +1,40 @@
 # Verified project status
 
-Last updated: 2026-08-27.
+Last updated: 2026-08-28.
 
-## Round-14 paired confirmation and complete-method screen submitted
+## Round-14 paired confirmation and complete-method screen completed
 
-Round 14 is running from immutable source commit `9d8c710`. The exact source
-snapshot passed the complete regression suite, script syntax checks, and
-separate CUDA forward/backward/update smoke tests on both available GPU types
-before submission.
+All 32 Round-14 jobs completed successfully with empty stderr. All 33 output
+directories are byte-identical between the active work area and durable NAS
+archive, and the four exploratory-job log pairs were archived before public
+reporting. The immutable source snapshot and its archived copy have matching
+hashes.
 
-Line A is a paired random-seed stability check of `resnet_small + QGH` versus
-`inception_time_wide + QGH`. It reuses the accepted Round-13 discovery seed
-only for descriptive five-seed tables and trains both settings from scratch on
-four prespecified new seeds. The confirmation decision is deliberately based
-only on those four new seeds: mean Overall gain must be at least 0.15 mmHg,
-mean MIMIC and VitalDB gains must both be positive, and at least three of four
-Overall gains must be positive. Separate equal-weight five-seed ensembles are
-reported as variance diagnostics only and cannot rescue a failed confirmation.
+Line A does not confirm the wider InceptionTime architecture. Across the four
+prespecified new seeds, `inception_time_wide + QGH` improves mean participant-
+macro MAE over `resnet_small + QGH` by 0.0559 mmHg Overall, 0.0427 in MIMIC,
+and 0.0669 in VitalDB. All four Overall directions are positive, but the
+Overall mean gain is below the frozen 0.15-mmHg confirmation threshold. The
+five-seed ensemble remains a descriptive CPU diagnostic and cannot rescue the
+failed gate.
 
-Line B uses the same-seed wide-Inception QGH run as an exact architecture-
-matched anchor and evaluates two prespecified complete routes. C1 predicts
-calibration-relative change with causal query history and a fit-fold auxiliary
-target for whether query BP lies outside the first-five support range. C2 adds
-fixed physical-mmHg Huber and bounded 5/10/15-mmHg objectives. Each candidate
-is independently checked against primary and tail-focused gates; a numerical
-winner cannot hide another candidate that passes a gate. The optional six-
-group smooth worst-group SBP penalty is not in the initial dependency chain
-and will run only if its folds-0--2 group-size audit passes.
+Line B identifies one exploratory complete-method candidate. On seed
+`20260828`, `calibration_relative` records Overall participant-macro
+SBP/DBP/mean MAE of 10.6536/6.0505/8.3520 mmHg, compared with
+10.8106/6.2107/8.5107 for the matched wider-InceptionTime QGH anchor. Mean-MAE
+gains are 0.1586 mmHg Overall, 0.1253 in MIMIC, and 0.1863 in VitalDB. It
+passes the primary internal gate but fails the tail gate, so it advances only
+to independent-seed confirmation. The standards-oriented variant improves
+Overall mean MAE by 0.1288 mmHg and passes neither gate. The optional
+six-group C3 route was not evaluated in this completed result.
 
-This is a prospective complete-route screen, not a module ablation. Because
-the same internal fold has been used repeatedly during development, Line B is
-explicitly exploratory even if its retrospective AAMI-style or historical BHS
-numbers improve. No result can establish formal device or standards
-compliance. Meta-validation and the locked meta-test remain inaccessible.
+The `calibration_relative` event-pooled Overall SBP/DBP MAE is
+12.1891/6.6635 mmHg. Both endpoints fail the retrospective AAMI-style
+numerical screen, with historical BHS Grade D for SBP and Grade C for DBP.
+These diagnostics do not establish formal device or standards compliance.
+Meta-validation and the locked meta-test remain inaccessible. See
+[RESULTS_ROUND14_CONFIRMATION_AND_COMPLETE_METHODS.md](RESULTS_ROUND14_CONFIRMATION_AND_COMPLETE_METHODS.md)
+and the aggregate files under `results/round14/`.
 
 ## Round-13 final architecture/capacity screen completed
 
