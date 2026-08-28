@@ -22,16 +22,24 @@ InceptionTime-wide, Patch Transformer, Self-Attention ResUNet adaptation,
 rU-Net/ResUNet adaptation, CNN-BiLSTM adaptation, and CNN-Transformer/AFF
 adaptation. Original-paper multimodal or demographic inputs are not used.
 
-The immutable training snapshot is commit `1cc4f7b`, archive SHA-256
-`d90e3937b5345cfaaa8d6ffdcf0b4205078abd1299b9ea4911634e3578d1de0d`.
-The full server suite passed 216 tests, and all eight neural candidates passed
+The final immutable training snapshot is commit `07de968`, archive SHA-256
+`d5ecf04fc5ac7e00de9a50402577b8cfaa66eb5ba2a1ec924dfbb22ee7b7dea2`.
+The preceding snapshot passed the full 216-test server suite, the final repair
+snapshot passed all 22 targeted protocol/materialization/model tests, and all
+eight neural candidates passed
 CUDA forward/backward finite-gradient smoke checks on both the RTX 5080 and
-RTX 5070 Ti. Data-preparation job 1176 is running on `hpc-2`; model jobs
-1156--1164 and 1166--1174 are dependency-queued, and reports 1165 and 1175
-will run only after every candidate in their split succeeds. The original prep
-job 1155 was stopped immediately after Slurm placed it on `hpc-1`; its partial
-outputs were moved intact to a recoverable quarantine directory before the
-replacement was submitted on `hpc-2`.
+RTX 5070 Ti. The first full-data attempt identified only seven raw-time
+overlaps among 823,200 random-mode windows. A deterministic role-swap repair
+removed all seven while preserving the 2,058-person cohort and exact
+320/40/40 counts; the repeated strict full-data audit passed with zero
+cross-role interval and locator overlap.
+
+Final data-preparation job 1179 is running on `hpc-2`; random-mode jobs
+1180--1188 with report 1189 and chronological-mode jobs 1190--1198 with
+report 1199 are dependency-queued. The two superseded preparation attempts
+and their never-started dependent model queues produced no model result.
+Their partial data outputs were moved intact to recoverable quarantine
+directories. All active work is constrained to `hpc-2`.
 
 Model selection reads only train and internal-validation data. Held-out BP
 targets remain physically separated and have not been accessed. After this
