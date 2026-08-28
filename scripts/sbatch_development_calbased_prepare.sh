@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ppg_cb_prepare
 #SBATCH --partition=gpu
+#SBATCH --nodelist=hpc-2
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --time=2-00:00:00

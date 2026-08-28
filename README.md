@@ -39,6 +39,21 @@ K=5:     S  S  S  S  S | Q  Q  Q ...
 future query. Query BP is evaluator-only and cannot be used for adaptation,
 preprocessing selection, early stopping, or model selection.
 
+## Separate same-subject benchmark
+
+The repository also contains a deliberately separate
+[`development-calbased-analogue-v1`](docs/PULSEDB_SAME_SUBJECT_ANALOGUE_PLAN.md)
+benchmark. It asks an easier, subject-dependent question: after a participant
+contributes hundreds of labelled training windows, how well can PPG-only
+models predict different 10-second windows from that same participant?
+
+This track uses only the frozen `meta_train` parent split, compares random
+disjoint-window and chronological-blocked assignments, audits exact PPG
+content across roles, and keeps its final held-out targets sealed during model
+selection. Its results must not be presented as unseen-participant
+generalization, K=1/2/3/5 cuff calibration, or an exact official PulseDB
+CalBased reproduction.
+
 ## Model and baseline matrix
 
 The development comparison contains:

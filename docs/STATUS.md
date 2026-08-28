@@ -2,6 +2,45 @@
 
 Last updated: 2026-08-28.
 
+## Same-subject PulseDB development analogue queued
+
+A new, strictly separate `development-calbased-analogue-v1` track has been
+implemented and queued to measure the protocol gap between the primary
+unseen-participant few-shot task and a seen-participant/new-window task. It is
+not an official PulseDB CalBased reproduction and it does not replace
+`event120-v1`.
+
+Only the frozen `meta_train` parent split is eligible. The audited target
+cohort is 2,058 participants, each contributing 320 training, 40 internal-
+validation, and 40 sealed held-out 10-second windows. Exact PPG-content hashes
+must be disjoint across roles. The two independently reported split modes are
+`random_disjoint` and the stricter `chronological_blocked` control.
+
+The queued first screen contains one train-label-mean baseline and eight
+PPG-only neural candidates: subject-mean residual PPG, compact ResNet,
+InceptionTime-wide, Patch Transformer, Self-Attention ResUNet adaptation,
+rU-Net/ResUNet adaptation, CNN-BiLSTM adaptation, and CNN-Transformer/AFF
+adaptation. Original-paper multimodal or demographic inputs are not used.
+
+The immutable training snapshot is commit `1cc4f7b`, archive SHA-256
+`d90e3937b5345cfaaa8d6ffdcf0b4205078abd1299b9ea4911634e3578d1de0d`.
+The full server suite passed 216 tests, and all eight neural candidates passed
+CUDA forward/backward finite-gradient smoke checks on both the RTX 5080 and
+RTX 5070 Ti. Data-preparation job 1176 is running on `hpc-2`; model jobs
+1156--1164 and 1166--1174 are dependency-queued, and reports 1165 and 1175
+will run only after every candidate in their split succeeds. The original prep
+job 1155 was stopped immediately after Slurm placed it on `hpc-1`; its partial
+outputs were moved intact to a recoverable quarantine directory before the
+replacement was submitted on `hpc-2`.
+
+Model selection reads only train and internal-validation data. Held-out BP
+targets remain physically separated and have not been accessed. After this
+screen, exactly one selected candidate may be refitted on 360 labelled windows
+per participant and evaluated once on the held-out 40-window role.
+
+See [PULSEDB_SAME_SUBJECT_ANALOGUE_PLAN.md](PULSEDB_SAME_SUBJECT_ANALOGUE_PLAN.md)
+for the protocol and claim boundary.
+
 ## Round-14 paired confirmation and complete-method screen completed
 
 All 32 Round-14 jobs completed successfully with empty stderr. All 33 output
