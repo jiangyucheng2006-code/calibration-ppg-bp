@@ -63,6 +63,12 @@ Overall/MIMIC/VitalDB tables are under
 [results/same_subject_dual_split](results/same_subject_dual_split). The
 held-out role remains sealed.
 
+A prospective [single-component follow-up](docs/SAME_SUBJECT_SINGLE_COMPONENT_PLAN.md)
+is now screening the paired residual reference plus 18 isolated changes. It
+keeps the full internal-validation cohort fixed and postpones combinations
+until an individual component improves Overall, MIMIC, and VitalDB under the
+prespecified gate. No result is claimed while those jobs are running.
+
 ## Model and baseline matrix
 
 The development comparison contains:

@@ -2,6 +2,30 @@
 
 Last updated: 2026-08-31.
 
+## Same-subject single-component screen running
+
+The next development-only screen uses the random-disjoint
+`subject_mean_residual_ppg` formulation as a paired reference and changes one
+factor at a time. The 19 training settings include the paired reference plus
+isolated quality, support/calibration, personalization, backbone, routing,
+demographic, and train-only beat-similarity candidates. The full matrix and
+promotion rule are documented prospectively in
+[SAME_SUBJECT_SINGLE_COMPONENT_PLAN.md](SAME_SUBJECT_SINGLE_COMPONENT_PLAN.md).
+
+The full server suite passed 239 tests. CUDA forward/backward smoke jobs passed
+all 19 candidates on both an RTX 5080 and an RTX 5070 Ti. Formal jobs
+1269--1287 are queued or running, input-only beat-similarity preparation is job
+1268, and the common report is dependency job 1288. Results do not yet exist.
+Every candidate retains all 82,040 internal-validation windows; only the two
+explicit filtering candidates may change training windows. The same-subject
+held-out role and the participant-disjoint locked meta-test remain sealed.
+
+The immutable source archive SHA-256 is
+`85f7c4b9adb5ecd969cd69c6b2c0fc7f7edc2108cd7bbf3de40a0bc49ce6da5b`.
+The prior Quality Gate + Huber + calibration-relative combination is deferred
+until its individual components have been screened, so a change can be
+attributed to one mechanism.
+
 ## Same-subject PulseDB dual-split screen completed
 
 All 18 model and baseline jobs completed successfully for the separate
