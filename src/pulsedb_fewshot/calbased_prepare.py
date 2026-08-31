@@ -15,6 +15,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
+from .calbased_content_audit import audit_calbased_candidate_content
 from .calbased_materialize import materialize_calbased_ppg
 from .calbased_protocol import (
     DEFAULT_SEED,
@@ -42,7 +45,7 @@ def prepare_calbased_data(
     heldout_shards: int = 8,
     workers: int = 4,
 ) -> dict[str, Any]:
-    """Build and materialize the random and chronological development tracks."""
+    """Build, input-audit, and materialize both development tracks."""
 
     if not split_modes or len(set(split_modes)) != len(split_modes):
         raise ValueError("split_modes must be nonempty and unique")
@@ -57,8 +60,7 @@ def prepare_calbased_data(
     segments, subject_splits, loading_filter = load_frozen_meta_train_segments(
         segment_index_path, subject_splits_path
     )
-    mode_records: dict[str, Any] = {}
-    final_materialization: dict[str, Any] | None = None
+    initial_artifacts: dict[str, Any] = {}
     for split_mode in split_modes:
         artifacts = build_calbased_analogue(
             segments,
@@ -77,6 +79,61 @@ def prepare_calbased_data(
                 "eligible same-subject cohort does not match the frozen expectation: "
                 f"{observed_subjects} != {expected_subjects}"
             )
+
+        initial_artifacts[split_mode] = artifacts
+
+    content_inputs = {
+        split_mode: pd.concat(
+            [
+                artifacts.development_fit_manifest.drop(
+                    columns=["sbp", "dbp"], errors="ignore"
+                ),
+                artifacts.heldout_test_inputs,
+            ],
+            ignore_index=True,
+        )
+        for split_mode, artifacts in initial_artifacts.items()
+    }
+    content_audit, excluded_subjects = audit_calbased_candidate_content(
+        content_inputs,
+        workers=workers,
+    )
+    retained_segments = segments.loc[
+        ~segments["subject_uid"].astype(str).isin(excluded_subjects)
+    ].copy()
+    retained_subjects = expected_subjects - len(excluded_subjects)
+    if retained_subjects <= 0:
+        raise AssertionError("exact-content exclusion removed the entire cohort")
+
+    mode_records: dict[str, Any] = {}
+    final_materialization: dict[str, Any] | None = None
+    for split_mode in split_modes:
+        artifacts = build_calbased_analogue(
+            retained_segments,
+            subject_splits,
+            split_mode=split_mode,
+            seed=seed,
+            require_include_flag=require_include_flag,
+        )
+        observed_subjects = int(artifacts.audit["eligible_subjects"])
+        if observed_subjects != retained_subjects:
+            raise AssertionError(
+                "retained same-subject cohort does not match the content-audit expectation: "
+                f"{observed_subjects} != {retained_subjects}"
+            )
+        artifacts.audit["expected_meta_train_subjects_before_content_audit"] = (
+            expected_subjects
+        )
+        artifacts.audit["input_only_exact_content_excluded_subjects"] = len(
+            excluded_subjects
+        )
+        artifacts.audit["retained_subjects_after_content_audit"] = retained_subjects
+        artifacts.audit["content_exclusion_subject_set_sha256"] = content_audit[
+            "excluded_subject_set_sha256"
+        ]
+        artifacts.audit["input_loading_filter"] = loading_filter
+        artifacts.audit["segment_index_path"] = str(segment_index_path.resolve())
+        artifacts.audit["subject_splits_path"] = str(subject_splits_path.resolve())
 
         mode_protocol_root = protocol_root / split_mode
         manifest_paths = write_calbased_analogue(artifacts, mode_protocol_root)
@@ -103,7 +160,10 @@ def prepare_calbased_data(
         "protocol_id": PROTOCOL_ID,
         "split_modes": list(split_modes),
         "seed": seed,
-        "expected_subjects": expected_subjects,
+        "expected_subjects_before_content_audit": expected_subjects,
+        "retained_subjects": retained_subjects,
+        "input_only_exact_content_audit": content_audit,
+        "input_only_exact_content_excluded_subjects": len(excluded_subjects),
         "source_parent_split": "meta_train",
         "source_parent_splits": ["meta_train"],
         "input_loading_filter": loading_filter,
@@ -117,6 +177,20 @@ def prepare_calbased_data(
         "materialization": final_materialization,
     }
     protocol_root.mkdir(parents=True, exist_ok=True)
+    private_root = protocol_root / "private"
+    private_root.mkdir(parents=True, exist_ok=True)
+    excluded_frame = pd.DataFrame(
+        {
+            "subject_uid": sorted(excluded_subjects),
+            "reason": [
+                "selected exact PPG_F content duplicated within at least one split mode"
+            ]
+            * len(excluded_subjects),
+        }
+    )
+    excluded_frame.to_parquet(
+        private_root / "input_only_content_excluded_subjects.parquet", index=False
+    )
     report_path = protocol_root / "data_preparation.json"
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

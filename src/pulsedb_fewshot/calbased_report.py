@@ -14,6 +14,11 @@ from .calbased_screen import PROTOCOL_ID, SCREENING_READ_ROLES
 from .training import save_json
 
 
+TARGET_KEY_COLUMNS = ["subject_uid", "source", "event_id"]
+TARGET_VALUE_COLUMNS = ["target_sbp", "target_dbp"]
+TARGET_ATOL_MMHG = 1e-4
+
+
 def _load_valid_run(run_dir: Path) -> dict[str, object]:
     path = run_dir / "run.json"
     if not path.is_file():
@@ -62,15 +67,32 @@ def aggregate_screen_runs(run_dirs: list[Path], output: Path) -> dict[str, objec
             run_dir / "best_internal_validation_predictions.parquet"
         )
         targets = predictions[
-            ["event_id", "subject_uid", "source", "target_sbp", "target_dbp"]
-        ].sort_values("event_id", kind="mergesort").reset_index(drop=True)
+            TARGET_KEY_COLUMNS + TARGET_VALUE_COLUMNS
+        ].sort_values(TARGET_KEY_COLUMNS, kind="mergesort").reset_index(drop=True)
         if reference_targets is None:
             reference_targets = targets
-        elif not targets.equals(reference_targets):
-            raise ValueError(
-                "all candidates must use the identical internal-validation "
-                "events and targets"
-            )
+        else:
+            if not targets[TARGET_KEY_COLUMNS].equals(
+                reference_targets[TARGET_KEY_COLUMNS]
+            ):
+                raise ValueError(
+                    "all candidates must use the identical internal-validation "
+                    "events and targets"
+                )
+            try:
+                pd.testing.assert_frame_equal(
+                    targets[TARGET_VALUE_COLUMNS],
+                    reference_targets[TARGET_VALUE_COLUMNS],
+                    check_dtype=False,
+                    check_exact=False,
+                    rtol=0.0,
+                    atol=TARGET_ATOL_MMHG,
+                )
+            except AssertionError as exc:
+                raise ValueError(
+                    "all candidates must use the identical internal-validation "
+                    "events and targets"
+                ) from exc
         diagnostics.append(pooled_diagnostics(predictions, candidate))
         metrics = run.get("metrics")
         if not isinstance(metrics, dict) or "Overall" not in metrics:

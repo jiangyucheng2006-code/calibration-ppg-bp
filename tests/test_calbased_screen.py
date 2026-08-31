@@ -7,9 +7,11 @@ import pytest
 
 from pulsedb_fewshot.calbased_screen import (
     CANDIDATES,
+    PRE_AUDIT_SUBJECT_COUNT,
     PROTOCOL_ID,
     ROLE_WINDOWS_PER_SUBJECT,
     SUBJECT_COUNT,
+    SUBJECT_SET_SHA256,
     build_screen_plan,
     fit_subject_train_means,
     predict_subject_train_mean,
@@ -26,8 +28,36 @@ def _write_store_manifest(store_root: Path) -> None:
                 "protocol_id": PROTOCOL_ID,
                 "source_parent_split": "meta_train",
                 "source_parent_splits": ["meta_train"],
+                "status": "pass",
                 "subject_count": SUBJECT_COUNT,
+                "subject_set_sha256": SUBJECT_SET_SHA256,
                 "windows_per_subject": ROLE_WINDOWS_PER_SUBJECT,
+                "split_modes_materialized": [
+                    "random_disjoint",
+                    "chronological_blocked",
+                ],
+                "exact_ppg_content_overlap_audits": {
+                    mode: {
+                        "status": "pass",
+                        "global_exact_content_unique": True,
+                        "cross_role_overlap_counts": {
+                            "train__internal_validation": 0,
+                            "train__heldout_test": 0,
+                            "internal_validation__heldout_test": 0,
+                        },
+                        "within_role_duplicate_counts": {
+                            "train": 0,
+                            "internal_validation": 0,
+                            "heldout_test": 0,
+                        },
+                    }
+                    for mode in ("random_disjoint", "chronological_blocked")
+                },
+                "meta_validation_windows_accessed": False,
+                "locked_meta_test_windows_accessed": False,
+                "heldout_test_targets_accessed": False,
+                "heldout_test_targets_path_accepted_by_entrypoint": False,
+                "screen_loader_includes_heldout_test": False,
             }
         ),
         encoding="utf-8",
@@ -106,6 +136,27 @@ def test_store_manifest_rejects_meta_validation_or_locked_meta_test(
             store_root=store_root,
             output_root=tmp_path / "runs",
         )
+
+
+def test_store_manifest_rejects_pre_audit_cohort_or_exact_content_overlap(
+    tmp_path: Path,
+) -> None:
+    store_root = tmp_path / "store"
+    _write_store_manifest(store_root)
+    manifest_path = store_root / "materialization.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["subject_count"] = PRE_AUDIT_SUBJECT_COUNT
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="post-content-audit cohort"):
+        build_screen_plan(store_root=store_root, output_root=tmp_path / "runs")
+
+    manifest["subject_count"] = SUBJECT_COUNT
+    manifest["exact_ppg_content_overlap_audits"]["random_disjoint"][
+        "cross_role_overlap_counts"
+    ]["train__internal_validation"] = 1
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="exact PPG duplicates"):
+        build_screen_plan(store_root=store_root, output_root=tmp_path / "runs")
 
 
 def test_subject_train_mean_uses_train_labels_only() -> None:

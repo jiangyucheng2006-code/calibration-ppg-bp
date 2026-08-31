@@ -54,6 +54,15 @@ selection. Its results must not be presented as unseen-participant
 generalization, K=1/2/3/5 cuff calibration, or an exact official PulseDB
 CalBased reproduction.
 
+The completed [same-subject dual-split result](docs/RESULTS_SAME_SUBJECT_DUAL_SPLIT.md)
+reports all nine settings under both split modes. The participant-mean plus PPG
+residual model is best in both: Overall participant-macro SBP/DBP/mean MAE is
+7.6485/4.1693/5.9089 mmHg for random disjoint windows and
+8.0361/4.3716/6.2039 mmHg for chronological blocked windows. Complete
+Overall/MIMIC/VitalDB tables are under
+[results/same_subject_dual_split](results/same_subject_dual_split). The
+held-out role remains sealed.
+
 ## Model and baseline matrix
 
 The development comparison contains:

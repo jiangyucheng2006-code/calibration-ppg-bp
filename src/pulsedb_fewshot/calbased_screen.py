@@ -23,7 +23,12 @@ import pandas as pd
 PROTOCOL_ID = "development-calbased-analogue-v1"
 SOURCE_PARENT_SPLIT = "meta_train"
 FORBIDDEN_PARENT_SPLITS = ("meta_validation", "meta_test")
-SUBJECT_COUNT = 2058
+PRE_AUDIT_SUBJECT_COUNT = 2058
+EXACT_CONTENT_EXCLUDED_SUBJECT_COUNT = 7
+SUBJECT_COUNT = PRE_AUDIT_SUBJECT_COUNT - EXACT_CONTENT_EXCLUDED_SUBJECT_COUNT
+SUBJECT_SET_SHA256 = (
+    "a241917126d96874389f9f974ba042aaa6d9e1655e8115dc47248bfd5465ca13"
+)
 ROLE_WINDOWS_PER_SUBJECT = {
     "train": 320,
     "internal_validation": 40,
@@ -329,14 +334,51 @@ def _validate_store_manifest(store_root: Path) -> dict[str, Any]:
     declared_sources = set(manifest.get("source_parent_splits", [SOURCE_PARENT_SPLIT]))
     if declared_sources != {SOURCE_PARENT_SPLIT}:
         raise ValueError("store declares a forbidden parent split")
+    if manifest.get("status") != "pass":
+        raise ValueError("CalBased store manifest did not pass preparation")
     if int(manifest.get("subject_count", -1)) != SUBJECT_COUNT:
-        raise ValueError(f"store must contain exactly {SUBJECT_COUNT} participants")
+        raise ValueError(
+            "store must contain the frozen post-content-audit cohort of "
+            f"exactly {SUBJECT_COUNT} participants"
+        )
+    if manifest.get("subject_set_sha256") != SUBJECT_SET_SHA256:
+        raise ValueError("store participant set does not match the frozen cohort")
     observed_counts = manifest.get("windows_per_subject")
     if observed_counts != ROLE_WINDOWS_PER_SUBJECT:
         raise ValueError(
             "store windows_per_subject must be exactly "
             f"{ROLE_WINDOWS_PER_SUBJECT}, got {observed_counts!r}"
         )
+    if set(manifest.get("split_modes_materialized", [])) != set(SPLIT_MODES):
+        raise ValueError("store must materialize both frozen split modes")
+    content_audits = manifest.get("exact_ppg_content_overlap_audits", {})
+    if set(content_audits) != set(SPLIT_MODES):
+        raise ValueError("store is missing a split-mode exact-content audit")
+    for split_mode in SPLIT_MODES:
+        audit = content_audits[split_mode]
+        if audit.get("status") != "pass" or audit.get(
+            "global_exact_content_unique"
+        ) is not True:
+            raise ValueError(
+                f"store exact-content audit did not pass for {split_mode}"
+            )
+        cross_role = audit.get("cross_role_overlap_counts", {})
+        within_role = audit.get("within_role_duplicate_counts", {})
+        if any(int(value) != 0 for value in cross_role.values()) or any(
+            int(value) != 0 for value in within_role.values()
+        ):
+            raise ValueError(
+                f"store contains exact PPG duplicates for {split_mode}"
+            )
+    for flag in (
+        "meta_validation_windows_accessed",
+        "locked_meta_test_windows_accessed",
+        "heldout_test_targets_accessed",
+        "heldout_test_targets_path_accepted_by_entrypoint",
+        "screen_loader_includes_heldout_test",
+    ):
+        if manifest.get(flag) is not False:
+            raise ValueError(f"store leakage guard is not closed: {flag}")
     return manifest
 
 
@@ -405,7 +447,12 @@ def build_screen_plan(
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "source_parent_split": SOURCE_PARENT_SPLIT,
         "forbidden_parent_splits": list(FORBIDDEN_PARENT_SPLITS),
+        "pre_audit_subject_count": PRE_AUDIT_SUBJECT_COUNT,
+        "input_only_exact_content_excluded_subjects": (
+            EXACT_CONTENT_EXCLUDED_SUBJECT_COUNT
+        ),
         "subject_count": SUBJECT_COUNT,
+        "subject_set_sha256": SUBJECT_SET_SHA256,
         "windows_per_subject": ROLE_WINDOWS_PER_SUBJECT,
         "selection_role": SELECTION_ROLE,
         "screening_read_roles": list(SCREENING_READ_ROLES),

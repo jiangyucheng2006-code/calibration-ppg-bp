@@ -171,7 +171,7 @@ def test_materialization_rejects_exact_ppg_content_shared_across_roles(
     development.to_parquet(development_path, index=False)
     heldout.to_parquet(heldout_path, index=False)
 
-    with pytest.raises(AssertionError, match="duplicated across protocol roles"):
+    with pytest.raises(AssertionError, match="duplicated within the accepted protocol"):
         materialize_calbased_ppg(
             development_path,
             heldout_path,

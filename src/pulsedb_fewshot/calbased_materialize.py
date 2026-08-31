@@ -215,11 +215,15 @@ def _exact_content_overlap_audit(metadata_paths: list[Path]) -> dict[str, Any]:
         )
         for role in roles
     }
+    globally_unique = not any(pairs.values()) and not any(
+        within_role_duplicates.values()
+    )
     return {
         "method": "SHA-256 of canonical little-endian float32 PPG_F sample bytes",
         "cross_role_overlap_counts": pairs,
         "within_role_duplicate_counts": within_role_duplicates,
-        "status": "pass" if not any(pairs.values()) else "fail",
+        "global_exact_content_unique": globally_unique,
+        "status": "pass" if globally_unique else "fail",
     }
 
 
@@ -301,8 +305,14 @@ def materialize_calbased_ppg(
     content_audit = _exact_content_overlap_audit(metadata_paths)
     if content_audit["status"] != "pass":
         raise AssertionError(
-            "exact PPG content is duplicated across protocol roles: "
-            + json.dumps(content_audit["cross_role_overlap_counts"], sort_keys=True)
+            "exact PPG content is duplicated within the accepted protocol: "
+            + json.dumps(
+                {
+                    "cross_role": content_audit["cross_role_overlap_counts"],
+                    "within_role": content_audit["within_role_duplicate_counts"],
+                },
+                sort_keys=True,
+            )
         )
 
     per_subject_windows: dict[str, int] = {}

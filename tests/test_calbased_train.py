@@ -12,6 +12,7 @@ from pulsedb_fewshot.calbased_screen import (
     PROTOCOL_ID,
     ROLE_WINDOWS_PER_SUBJECT,
     SUBJECT_COUNT,
+    SUBJECT_SET_SHA256,
 )
 from pulsedb_fewshot.calbased_train import (
     EXECUTABLE_CANDIDATES,
@@ -28,8 +29,36 @@ def _write_manifest(store: Path) -> None:
                 "protocol_id": PROTOCOL_ID,
                 "source_parent_split": "meta_train",
                 "source_parent_splits": ["meta_train"],
+                "status": "pass",
                 "subject_count": SUBJECT_COUNT,
+                "subject_set_sha256": SUBJECT_SET_SHA256,
                 "windows_per_subject": ROLE_WINDOWS_PER_SUBJECT,
+                "split_modes_materialized": [
+                    "random_disjoint",
+                    "chronological_blocked",
+                ],
+                "exact_ppg_content_overlap_audits": {
+                    mode: {
+                        "status": "pass",
+                        "global_exact_content_unique": True,
+                        "cross_role_overlap_counts": {
+                            "train__internal_validation": 0,
+                            "train__heldout_test": 0,
+                            "internal_validation__heldout_test": 0,
+                        },
+                        "within_role_duplicate_counts": {
+                            "train": 0,
+                            "internal_validation": 0,
+                            "heldout_test": 0,
+                        },
+                    }
+                    for mode in ("random_disjoint", "chronological_blocked")
+                },
+                "meta_validation_windows_accessed": False,
+                "locked_meta_test_windows_accessed": False,
+                "heldout_test_targets_accessed": False,
+                "heldout_test_targets_path_accepted_by_entrypoint": False,
+                "screen_loader_includes_heldout_test": False,
             }
         ),
         encoding="utf-8",
@@ -174,6 +203,39 @@ def test_report_selects_only_by_internal_validation(tmp_path: Path) -> None:
             "AAMI",
             "BHS",
         ]
+
+
+def test_report_accepts_float_serialization_noise_and_row_reordering(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    _write_fake_run(first, "compact_resnet", 8.0)
+    _write_fake_run(second, "subject_mean_residual_ppg", 7.0)
+    path = second / "best_internal_validation_predictions.parquet"
+    predictions = pd.read_parquet(path).iloc[::-1].reset_index(drop=True)
+    predictions["target_sbp"] = predictions["target_sbp"].astype("float32")
+    predictions["target_dbp"] = predictions["target_dbp"].astype("float32")
+    predictions.loc[0, "target_sbp"] += 5e-5
+    predictions.to_parquet(path, index=False)
+
+    result = aggregate_screen_runs([first, second], tmp_path / "report")
+
+    assert result["winner"]["candidate"] == "subject_mean_residual_ppg"
+
+
+def test_report_rejects_material_target_mismatch(tmp_path: Path) -> None:
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    _write_fake_run(first, "compact_resnet", 8.0)
+    _write_fake_run(second, "subject_mean_residual_ppg", 7.0)
+    path = second / "best_internal_validation_predictions.parquet"
+    predictions = pd.read_parquet(path)
+    predictions.loc[0, "target_sbp"] += 0.01
+    predictions.to_parquet(path, index=False)
+
+    with pytest.raises(ValueError, match="identical internal-validation"):
+        aggregate_screen_runs([first, second], tmp_path / "report")
 
 
 def test_report_rejects_any_claim_of_heldout_access(tmp_path: Path) -> None:

@@ -1,8 +1,43 @@
 # Verified project status
 
-Last updated: 2026-08-28.
+Last updated: 2026-08-31.
 
-## Same-subject PulseDB development analogue queued
+## Same-subject PulseDB dual-split screen completed
+
+All 18 model and baseline jobs completed successfully for the separate
+`development-calbased-analogue-v1` track. The accepted cohort contains 2,051
+participants: 1,011 PulseDB MIMIC and 1,040 PulseDB VitalDB. Each split uses
+320 labelled training windows and 40 internal-validation windows per
+participant; the 40-window held-out role remains sealed.
+
+`subject_mean_residual_ppg` is the validation winner under both independently
+reported split modes. It combines the participant's training-label mean with a
+compact-ResNet PPG residual. Overall participant-macro SBP/DBP/mean MAE is
+7.6485/4.1693/5.9089 mmHg under `random_disjoint` and
+8.0361/4.3716/6.2039 mmHg under `chronological_blocked`. The chronological
+mean MAE is 0.2949 mmHg worse. Chronological VitalDB is the weakest source view
+at 8.6213/4.8730/6.7472 mmHg, while chronological MIMIC records
+7.4341/3.8558/5.6449 mmHg.
+
+The original report jobs stopped after training because a target-consistency
+assertion required bit-exact equality across float32 and float64
+serializations. The scientific outputs were intact: composite event keys were
+identical, and the maximum serialization-only target difference was about
+2.24e-5 mmHg. The repaired reporter sorts by participant/source/event keys,
+accepts at most 1e-4 mmHg absolute serialization noise, and continues to reject
+a 0.01-mmHg mismatch. The full server test suite passed, both reports were
+rebuilt from unchanged saved predictions, and work/NAS report directories are
+byte-identical.
+
+No new model was trained for the repair, no new experiment was submitted, and
+the held-out role was not accessed. See
+[RESULTS_SAME_SUBJECT_DUAL_SPLIT.md](RESULTS_SAME_SUBJECT_DUAL_SPLIT.md) and
+the public tables under `results/same_subject_dual_split/`. These results are a
+development-only same-subject analogue, not unseen-participant performance,
+not K=1/2/3/5 calibration, and not an exact official PulseDB CalBased
+reproduction.
+
+## Historical same-subject submission record (superseded)
 
 A new, strictly separate `development-calbased-analogue-v1` track has been
 implemented and queued to measure the protocol gap between the primary
@@ -10,11 +45,19 @@ unseen-participant few-shot task and a seen-participant/new-window task. It is
 not an official PulseDB CalBased reproduction and it does not replace
 `event120-v1`.
 
-Only the frozen `meta_train` parent split is eligible. The audited target
-cohort is 2,058 participants, each contributing 320 training, 40 internal-
-validation, and 40 sealed held-out 10-second windows. Exact PPG-content hashes
-must be disjoint across roles. The two independently reported split modes are
-`random_disjoint` and the stricter `chronological_blocked` control.
+Only the frozen `meta_train` parent split is eligible. The pre-audit cohort has
+2,058 participants. Each retained participant contributes 320 training, 40
+internal-validation, and 40 sealed held-out 10-second windows. The two
+independently reported split modes are `random_disjoint` and the stricter
+`chronological_blocked` control.
+
+The first full materialization failed closed after finding exact PPG content
+under different storage locators. No model started and no accuracy result was
+produced. The repair does not disable that gate: an input-only pre-audit now
+hashes selected `PPG_F` samples without loading held-out BP targets. Every
+participant represented in an exact-content duplicate group is excluded from
+both split modes, after which all manifests and stores are rebuilt. Accepted
+stores require zero exact-content duplicates both across and within roles.
 
 The queued first screen contains one train-label-mean baseline and eight
 PPG-only neural candidates: subject-mean residual PPG, compact ResNet,
@@ -22,11 +65,9 @@ InceptionTime-wide, Patch Transformer, Self-Attention ResUNet adaptation,
 rU-Net/ResUNet adaptation, CNN-BiLSTM adaptation, and CNN-Transformer/AFF
 adaptation. Original-paper multimodal or demographic inputs are not used.
 
-The final immutable training snapshot is commit `07de968`, archive SHA-256
-`d5ecf04fc5ac7e00de9a50402577b8cfaa66eb5ba2a1ec924dfbb22ee7b7dea2`.
-The preceding snapshot passed the full 216-test server suite, the final repair
-snapshot passed all 22 targeted protocol/materialization/model tests, and all
-eight neural candidates passed
+The repaired immutable training snapshot is commit `addd3b1`, archive SHA-256
+`a57d8ab452cd76bea10f021a82f5c619faaee298a9ee17ddbc3169e5f75b9dec`.
+It passed all 224 server tests. The preceding model implementation also passed
 CUDA forward/backward finite-gradient smoke checks on both the RTX 5080 and
 RTX 5070 Ti. The first full-data attempt identified only seven raw-time
 overlaps among 823,200 random-mode windows. A deterministic role-swap repair
@@ -34,12 +75,13 @@ removed all seven while preserving the 2,058-person cohort and exact
 320/40/40 counts; the repeated strict full-data audit passed with zero
 cross-role interval and locator overlap.
 
-Final data-preparation job 1179 is running on `hpc-2`; random-mode jobs
-1180--1188 with report 1189 and chronological-mode jobs 1190--1198 with
-report 1199 are dependency-queued. The two superseded preparation attempts
-and their never-started dependent model queues produced no model result.
-Their partial data outputs were moved intact to recoverable quarantine
-directories. All active work is constrained to `hpc-2`.
+Failed preparation job 1179 produced no model result. Its partial outputs were
+moved intact to recoverable quarantine, and its never-started jobs 1180--1199
+were cancelled. Repaired data-preparation job 1202 is running on `hpc-2`;
+random-mode jobs 1203--1211 with report 1212 and chronological-mode jobs
+1213--1221 with report 1222 are dependency-queued. No GPU model can start
+unless job 1202 completes every audit successfully. The retained cohort size
+will be reported from that completed audit rather than assumed in advance.
 
 Model selection reads only train and internal-validation data. Held-out BP
 targets remain physically separated and have not been accessed. After this
