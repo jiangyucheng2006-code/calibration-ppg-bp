@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timezone
 import itertools
 import json
@@ -289,11 +290,28 @@ def predict(
     return pd.concat(rows, ignore_index=True)
 
 
-def train_component(args: argparse.Namespace) -> dict[str, object]:
-    if args.candidate not in COMPONENTS:
+def train_component(
+    args: argparse.Namespace,
+    *,
+    components: Mapping[str, object] = COMPONENTS,
+    model_factory: Callable[..., nn.Module] = SameSubjectComponentRegressor,
+    screen_id: str = SCREEN_ID,
+    runner: str = "single_component_residual",
+    allowed_split_modes: Sequence[str] = ("random_disjoint",),
+) -> dict[str, object]:
+    """Train one residual candidate under an explicitly supplied registry.
+
+    The defaults preserve the frozen single-component screen.  A separate
+    combination runner supplies its own registry/model/screen identifier while
+    reusing the same audited data, optimization, prediction, and artifact path.
+    """
+
+    if args.candidate not in components:
         raise ValueError(f"unknown component candidate {args.candidate!r}")
-    if args.split_mode != "random_disjoint":
-        raise ValueError("single-component discovery is frozen to random_disjoint")
+    if args.split_mode not in set(allowed_split_modes):
+        raise ValueError(
+            f"split_mode {args.split_mode!r} is not allowed for screen {screen_id!r}"
+        )
     if args.epochs != 0 or args.patience != EARLY_STOPPING_PATIENCE:
         raise ValueError("component screen requires no epoch cap and patience=8")
     seed_everything(args.seed)
@@ -304,7 +322,7 @@ def train_component(args: argparse.Namespace) -> dict[str, object]:
     validation_with_quality, _ = fit_quality_proxy_for_validation(
         validation, quality_parameters
     )
-    spec = COMPONENTS[args.candidate]
+    spec = components[args.candidate]
     filtered_train, training_rule = apply_training_rule(
         train_with_quality,
         spec.training_rule,
@@ -332,9 +350,7 @@ def train_component(args: argparse.Namespace) -> dict[str, object]:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if args.require_cuda and device.type != "cuda":
         raise RuntimeError("CUDA was required but is unavailable")
-    model = SameSubjectComponentRegressor(
-        spec, subject_count=len(subject_ids)
-    ).to(device)
+    model = model_factory(spec, subject_count=len(subject_ids)).to(device)
     train_dataset = SameSubjectComponentDataset(
         filtered_train,
         args.store_root,
@@ -428,10 +444,11 @@ def train_component(args: argparse.Namespace) -> dict[str, object]:
             torch.save(
                 {
                     "protocol_id": PROTOCOL_ID,
-                    "screen_id": SCREEN_ID,
+                    "screen_id": screen_id,
                     "candidate": spec.name,
                     "backbone": spec.backbone,
                     "adapter": spec.adapter,
+                    "modules": list(getattr(spec, "modules", (spec.adapter,))),
                     "model_state": model.state_dict(),
                     "target_scaler": scaler,
                     "epoch": epoch,
@@ -455,13 +472,14 @@ def train_component(args: argparse.Namespace) -> dict[str, object]:
     run = {
         "status": "complete",
         "protocol_id": PROTOCOL_ID,
-        "screen_id": SCREEN_ID,
+        "screen_id": screen_id,
         "track": "development_only_same_subject_analogue",
         "official_pulsedb_calbased_reproduction": False,
         "candidate": spec.name,
-        "runner": "single_component_residual",
+        "runner": runner,
         "backbone": spec.backbone,
         "adapter": spec.adapter,
+        "modules": list(getattr(spec, "modules", (spec.adapter,))),
         "training_rule": training_rule,
         "split_mode": args.split_mode,
         "source_parent_split": "meta_train",
@@ -547,4 +565,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
