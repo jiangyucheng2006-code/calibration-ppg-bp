@@ -75,6 +75,13 @@ calibration claim. Public aggregate tables are under
 [results/same_subject_single_component](results/same_subject_single_component),
 and the held-out role remains sealed.
 
+The terminal [module-combination plan](docs/PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md)
+keeps LoRA fixed and tests a bounded 15-candidate hierarchy of the five
+next-best single components under both random-disjoint and chronological-
+blocked assignments. Selection remains internal-validation-only: a combination
+must improve Overall, MIMIC, and VitalDB in both modes or the LoRA reference is
+retained. No held-out result is released by this screen.
+
 ## Model and baseline matrix
 
 The development comparison contains:

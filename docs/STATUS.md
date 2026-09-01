@@ -2,6 +2,26 @@
 
 Last updated: 2026-09-02.
 
+## Same-subject terminal combination screen running
+
+A prespecified 15-candidate screen now keeps participant-indexed rank-4 LoRA
+as the common core and combines it with FiLM, support attention, adaptive
+multiple-event weighting, support reliability weighting, and calibration-
+relative correction. All 15 candidates run independently under both random-
+disjoint and chronological-blocked assignments. The final internal selector
+requires an improvement of at least 0.15 mmHg Overall in both modes and a
+positive gain in both MIMIC and VitalDB in both modes; otherwise it retains the
+LoRA reference.
+
+All 259 regression tests, targeted CUDA smoke tests for all 15 candidates on
+both available GPU types, Bash syntax checks, and Slurm test-only checks passed
+before submission. Thirty GPU training jobs and three dependent reporting jobs
+are queued under seed `20260902`. The same-subject held-out role and the
+participant-disjoint locked meta-test remain sealed. See
+[PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md](PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md)
+for the frozen matrix and decision rule. No combination result is claimed
+until both split reports and the final cross-split report complete.
+
 ## Same-subject single-component screen completed
 
 All 19 paired training settings and common report job 1288 completed with exit
