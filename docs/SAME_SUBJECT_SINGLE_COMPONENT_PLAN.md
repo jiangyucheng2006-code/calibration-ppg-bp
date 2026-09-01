@@ -21,12 +21,17 @@ development benchmark using many labeled train windows per participant.
 
 ## Execution status
 
-Submitted on 2026-08-31 after 239 server tests and dual-GPU smoke validation.
-Input-only similarity preparation is job 1268, the 19 paired training jobs are
-1269--1287, and common report job 1288 waits for all candidates. The source is
-an immutable snapshot with archive SHA-256
+Completed on 2026-09-01. Input-only similarity preparation job 1268, all 19
+paired training jobs 1269--1287, and common report job 1288 completed with exit
+code `0:0`. The selected candidate is `residual_subject_lora_rank4`, with
+Overall participant-macro SBP/DBP/mean MAE
+`3.9663/2.2043/3.0853` mmHg. See the
+[formal result report](RESULTS_SAME_SUBJECT_SINGLE_COMPONENT.md) and public
+aggregate files under `results/same_subject_single_component/`.
+
+The source remains the immutable snapshot with archive SHA-256
 `85f7c4b9adb5ecd969cd69c6b2c0fc7f7edc2108cd7bbf3de40a0bc49ce6da5b`.
-No candidate result is available at submission time.
+No held-out target was accessed.
 
 ## Frozen comparison rule
 

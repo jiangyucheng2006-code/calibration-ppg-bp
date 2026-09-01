@@ -63,11 +63,17 @@ Overall/MIMIC/VitalDB tables are under
 [results/same_subject_dual_split](results/same_subject_dual_split). The
 held-out role remains sealed.
 
-A prospective [single-component follow-up](docs/SAME_SUBJECT_SINGLE_COMPONENT_PLAN.md)
-is now screening the paired residual reference plus 18 isolated changes. It
-keeps the full internal-validation cohort fixed and postpones combinations
-until an individual component improves Overall, MIMIC, and VitalDB under the
-prespecified gate. No result is claimed while those jobs are running.
+The completed [single-component follow-up](docs/RESULTS_SAME_SUBJECT_SINGLE_COMPONENT.md)
+compares the paired residual reference with 18 isolated changes on the same
+complete internal-validation cohort. The selected seen-subject rank-4 LoRA
+adapter reaches Overall participant-macro SBP/DBP/mean MAE of
+3.9663/2.2043/3.0853 mmHg, versus 7.7155/4.2092/5.9624 mmHg for the paired
+reference, while also improving both PulseDB source strata. The result is a
+same-participant random-window development finding based on 320 labelled
+training windows per participant; it is not an unseen-participant K=1/2/3/5
+calibration claim. Public aggregate tables are under
+[results/same_subject_single_component](results/same_subject_single_component),
+and the held-out role remains sealed.
 
 ## Model and baseline matrix
 

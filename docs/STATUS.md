@@ -1,30 +1,38 @@
 # Verified project status
 
-Last updated: 2026-08-31.
+Last updated: 2026-09-02.
 
-## Same-subject single-component screen running
+## Same-subject single-component screen completed
 
-The next development-only screen uses the random-disjoint
-`subject_mean_residual_ppg` formulation as a paired reference and changes one
-factor at a time. The 19 training settings include the paired reference plus
-isolated quality, support/calibration, personalization, backbone, routing,
-demographic, and train-only beat-similarity candidates. The full matrix and
-promotion rule are documented prospectively in
-[SAME_SUBJECT_SINGLE_COMPONENT_PLAN.md](SAME_SUBJECT_SINGLE_COMPONENT_PLAN.md).
+All 19 paired training settings and common report job 1288 completed with exit
+code `0:0`. `residual_subject_lora_rank4` is the internal-validation winner at
+Overall participant-macro SBP/DBP/mean MAE
+`3.9663/2.2043/3.0853` mmHg. The paired `residual_reference` records
+`7.7155/4.2092/5.9624` mmHg, so the winner improves mean MAE by 2.8771 mmHg
+(48.25%). It also improves MIMIC from 5.9817 to 3.3604 mmHg and VitalDB from
+5.9436 to 2.8180 mmHg, passing the prospective discovery gate in all three
+views.
 
-The full server suite passed 239 tests. CUDA forward/backward smoke jobs passed
-all 19 candidates on both an RTX 5080 and an RTX 5070 Ti. Formal jobs
-1269--1287 are queued or running, input-only beat-similarity preparation is job
-1268, and the common report is dependency job 1288. Results do not yet exist.
-Every candidate retains all 82,040 internal-validation windows; only the two
-explicit filtering candidates may change training windows. The same-subject
-held-out role and the participant-disjoint locked meta-test remain sealed.
+The winning model uses a compact ResNet, the participant's train-role BP mean,
+and a rank-4 feature adapter indexed by the already-seen participant. It uses
+no five-event support set at inference (`support_count=0`); its personal
+adapter and shared network were jointly learned from 320 labelled training
+windows per participant. Its strong result therefore supports persistent
+known-user personalization, not unseen-user K=1/2/3/5 calibration.
 
-The immutable source archive SHA-256 is
-`85f7c4b9adb5ecd969cd69c6b2c0fc7f7edc2108cd7bbf3de40a0bc49ce6da5b`.
-The prior Quality Gate + Huber + calibration-relative combination is deferred
-until its individual components have been screened, so a change can be
-attributed to one mechanism.
+Every candidate contains the same 2,051 participants and 82,040 internal-
+validation windows. Work and NAS copies of all candidate run metadata,
+predictions, and diagnostics are byte-identical, as are all nine common report
+files. The only nonempty stderr is the known Patch Transformer nested-tensor
+performance warning. The same-subject held-out role and participant-disjoint
+locked meta-test remain sealed.
+
+The full result, interpretation, standards qualification, and next gate are in
+[RESULTS_SAME_SUBJECT_SINGLE_COMPONENT.md](RESULTS_SAME_SUBJECT_SINGLE_COMPONENT.md),
+with public aggregate files under `results/same_subject_single_component/`.
+The candidate passes random-disjoint discovery but still requires a paired
+chronological-blocked confirmation and mechanism ablations before any
+winner-only held-out release.
 
 ## Same-subject PulseDB dual-split screen completed
 
