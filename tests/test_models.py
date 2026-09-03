@@ -10,6 +10,7 @@ from pulsedb_fewshot.models import (  # noqa: E402
     MultiScaleResNetEncoder,
     PopulationRegressor,
     SiameseDeltaRegressor,
+    SupportConditionedAdapterBank,
     VariableKPersonalizer,
     build_ppg_encoder,
     configure_personal_adaptation,
@@ -72,6 +73,98 @@ def test_zero_initialized_main_model_starts_at_residual_offset() -> None:
             weights[..., None] * (support_bp - pop_support), dim=1
         )
     assert torch.allclose(actual, expected, atol=1e-5)
+
+
+@pytest.mark.parametrize("basis_count", [5, 10, 15, 20, 25, 30])
+def test_support_conditioned_adapter_bank_routing_contract(
+    basis_count: int,
+) -> None:
+    context = torch.randn(4, 32)
+    mask = torch.tensor(
+        [
+            [1, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0],
+            [1, 1, 1, 0, 0],
+            [1, 1, 1, 1, 1],
+        ],
+        dtype=torch.bool,
+    )
+    dense = SupportConditionedAdapterBank(32, basis_count=basis_count, rank=4)
+    dense_weights = dense.routing_weights(context, mask)
+    assert dense_weights.shape == (4, basis_count)
+    assert torch.all(dense_weights > 0)
+    assert torch.allclose(dense_weights.sum(dim=1), torch.ones(4))
+
+    sparse = SupportConditionedAdapterBank(
+        32, basis_count=basis_count, rank=4, top_k=5
+    )
+    sparse_weights = sparse.routing_weights(context, mask)
+    assert torch.equal(
+        (sparse_weights > 0).sum(dim=1), torch.full((4,), min(5, basis_count))
+    )
+    assert torch.allclose(sparse_weights.sum(dim=1), torch.ones(4))
+
+
+def test_five_basis_top5_and_dense_routing_are_identical() -> None:
+    dense = SupportConditionedAdapterBank(16, basis_count=5, rank=2)
+    top5 = SupportConditionedAdapterBank(16, basis_count=5, rank=2, top_k=5)
+    top5.load_state_dict(dense.state_dict())
+    context = torch.randn(7, 16)
+    mask = torch.tensor([[1, 1, 1, 0, 0]] * 7, dtype=torch.bool)
+    assert torch.equal(
+        dense.routing_weights(context, mask), top5.routing_weights(context, mask)
+    )
+
+
+def test_adapter_bank_initialization_preserves_m0_and_is_support_order_invariant() -> None:
+    model = VariableKPersonalizer(
+        use_film=False,
+        query_conditioned_weights=False,
+        adapter_basis_count=20,
+        adapter_rank=4,
+        adapter_top_k=5,
+    )
+    reference = VariableKPersonalizer(
+        use_film=False,
+        query_conditioned_weights=False,
+    )
+    # Copy every shared M0 parameter; the adapter output factors remain zero.
+    reference.load_state_dict(
+        {
+            key: value
+            for key, value in model.state_dict().items()
+            if not key.startswith("adapter_bank.")
+        }
+    )
+    model.eval()
+    reference.eval()
+    query = torch.randn(3, 1, 1250)
+    support = torch.randn(3, 5, 1, 1250)
+    support_bp = torch.randn(3, 5, 2)
+    mask = torch.ones(3, 5, dtype=torch.bool)
+    permutation = torch.tensor([2, 4, 0, 3, 1])
+    with torch.no_grad():
+        expected = reference(query, support, support_bp, mask)
+        actual = model(query, support, support_bp, mask)
+        permuted = model(
+            query,
+            support[:, permutation],
+            support_bp[:, permutation],
+            mask[:, permutation],
+        )
+    assert torch.allclose(actual, expected, atol=1e-6)
+    assert torch.allclose(actual, permuted, atol=1e-6)
+
+
+def test_adapter_bank_receives_gradient_without_subject_identity() -> None:
+    bank = SupportConditionedAdapterBank(24, basis_count=10, rank=4, top_k=5)
+    query = torch.randn(8, 24)
+    context = torch.randn(8, 24)
+    mask = torch.ones(8, 5, dtype=torch.bool)
+    bank(query, context, mask).square().mean().backward()
+    assert bank.output_factors.grad is not None
+    assert torch.isfinite(bank.output_factors.grad).all()
+    assert bank.output_factors.grad.abs().sum() > 0
 
 
 def test_adaptation_modes_expose_only_intended_parameters() -> None:

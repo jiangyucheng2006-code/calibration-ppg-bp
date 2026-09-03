@@ -107,6 +107,13 @@ set pooling in isolation. Robustness to contact pressure, motion, and device or
 acquisition shift is a later phase and begins only after the base personalized
 model passes the calibration gate.
 
+The current prospective unseen-user extension is the
+[shared adapter-bank screen](docs/FEWSHOT_ADAPTER_BANK_SCREEN_PLAN.md). It
+compares 5/10/15/20/25/30 shared rank-4 bases with Top-5 versus dense routing,
+while keeping the participant-disjoint variable-K protocol and every other
+training factor fixed. These shared bases are selected from support events and
+must not be interpreted as stored participant-indexed LoRA parameters.
+
 See [METHODS.md](docs/METHODS.md) for equations and allowed inputs,
 [PROTOCOL.md](docs/PROTOCOL.md) for leakage controls, and
 [STATUS.md](docs/STATUS.md) for the current verified development state. The

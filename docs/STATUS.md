@@ -1,6 +1,24 @@
 # Verified project status
 
-Last updated: 2026-09-03.
+Last updated: 2026-09-04.
+
+## Few-shot shared adapter-bank screen prepared
+
+A prospective unseen-participant screen has been frozen to compare six shared
+low-rank adapter-bank sizes (`M=5/10/15/20/25/30`) under Top-5 and dense
+routing. This is 12 scheduled candidate jobs but 11 functionally unique
+configurations because Top-5 and dense routing are identical when `M=5`; the
+duplicate is retained as a numerical consistency control. A paired M0
+reference is trained separately and is not counted among the 12 candidates.
+
+The population ResNet, 256-dimensional cached PPG features, rank-4 adapters,
+optimizer, seed, fixed-first K=1/2/3/5 support events, event-6-and-later query
+set, and participant-disjoint fold roles are held fixed. Folds 0--2 fit, fold
+3 controls patience-8 early stopping with no epoch-count cap, and fold 4 is
+opened only after checkpoint freezing for internal ranking. Meta-validation
+and the locked meta-test remain inaccessible. See
+[FEWSHOT_ADAPTER_BANK_SCREEN_PLAN.md](FEWSHOT_ADAPTER_BANK_SCREEN_PLAN.md) for
+the complete prospective matrix, leakage boundary, report, and promotion gate.
 
 ## Same-subject terminal combination screen completed
 

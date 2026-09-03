@@ -1265,6 +1265,110 @@ class SiameseDeltaRegressor(nn.Module):
         return support_bp + delta
 
 
+class SupportConditionedAdapterBank(nn.Module):
+    """Build an unseen-user low-rank feature update from support events.
+
+    The bank is shared across all meta-training participants.  It does not
+    contain a participant-ID lookup table.  A support-only router produces a
+    convex mixture over the shared low-rank bases.  ``top_k=None`` uses every
+    basis; otherwise exactly ``min(top_k, basis_count)`` bases remain active.
+
+    The output factors are zero-initialized, so adding the bank preserves the
+    residual-anchor prediction at initialization while still allowing the
+    randomly initialized input factors to break basis symmetry after the first
+    optimizer step.
+    """
+
+    def __init__(
+        self,
+        dimension: int,
+        *,
+        basis_count: int,
+        rank: int = 4,
+        top_k: int | None = None,
+        alpha: float = 4.0,
+    ) -> None:
+        super().__init__()
+        if dimension < 1:
+            raise ValueError("adapter feature dimension must be positive")
+        if basis_count < 1:
+            raise ValueError("adapter basis count must be positive")
+        if rank < 1:
+            raise ValueError("adapter rank must be positive")
+        if top_k is not None and not 1 <= top_k <= basis_count:
+            raise ValueError("adapter top_k must be between one and basis_count")
+        if alpha <= 0:
+            raise ValueError("adapter alpha must be positive")
+        self.dimension = int(dimension)
+        self.basis_count = int(basis_count)
+        self.rank = int(rank)
+        self.top_k = int(top_k) if top_k is not None else None
+        self.scale = float(alpha) / float(rank)
+
+        hidden = max(32, dimension // 2)
+        self.router = nn.Sequential(
+            nn.Linear(dimension + 1, hidden),
+            nn.SiLU(),
+            nn.Linear(hidden, basis_count),
+        )
+        # Small support-dependent differences avoid a permanent arbitrary
+        # Top-k tie while keeping the initial routing close to uniform.
+        final = self.router[-1]
+        assert isinstance(final, nn.Linear)
+        nn.init.normal_(final.weight, mean=0.0, std=0.01)
+        nn.init.zeros_(final.bias)
+
+        self.input_factors = nn.Parameter(torch.empty(basis_count, rank, dimension))
+        self.output_factors = nn.Parameter(torch.zeros(basis_count, dimension, rank))
+        nn.init.normal_(self.input_factors, mean=0.0, std=0.02)
+
+    def routing_weights(
+        self, context: torch.Tensor, support_mask: torch.Tensor
+    ) -> torch.Tensor:
+        if context.ndim != 2 or context.shape[1] != self.dimension:
+            raise ValueError("adapter context must have shape [batch, feature]")
+        if support_mask.ndim != 2 or support_mask.shape[0] != context.shape[0]:
+            raise ValueError("adapter support mask must have shape [batch, Kmax]")
+        if not support_mask.bool().any(dim=1).all():
+            raise ValueError("every adapter episode requires at least one support event")
+        support_fraction = (
+            support_mask.to(dtype=context.dtype).sum(dim=1, keepdim=True)
+            / float(support_mask.shape[1])
+        )
+        logits = self.router(torch.cat([context, support_fraction], dim=-1))
+        if self.top_k is not None and self.top_k < self.basis_count:
+            _, indexes = logits.topk(self.top_k, dim=-1, largest=True, sorted=False)
+            selected = torch.zeros_like(logits, dtype=torch.bool)
+            selected.scatter_(1, indexes, True)
+            logits = logits.masked_fill(~selected, torch.finfo(logits.dtype).min)
+        return torch.softmax(logits, dim=-1)
+
+    def forward(
+        self,
+        query_features: torch.Tensor,
+        context: torch.Tensor,
+        support_mask: torch.Tensor,
+        *,
+        return_weights: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+        if query_features.ndim != 2 or query_features.shape[1] != self.dimension:
+            raise ValueError("adapter query features must have shape [batch, feature]")
+        if query_features.shape[0] != context.shape[0]:
+            raise ValueError("adapter query/context batch sizes differ")
+        weights = self.routing_weights(context, support_mask)
+        low_rank = torch.einsum(
+            "mrd,bd->bmr", self.input_factors, query_features
+        )
+        basis_updates = torch.einsum(
+            "mdr,bmr->bmd", self.output_factors, low_rank
+        )
+        update = torch.einsum("bm,bmd->bd", weights, basis_updates) * self.scale
+        result = query_features + update
+        if return_weights:
+            return result, weights
+        return result
+
+
 class VariableKPersonalizer(nn.Module):
     """Residual-anchor support-set model with optional FiLM and reliability weights."""
 
@@ -1279,6 +1383,9 @@ class VariableKPersonalizer(nn.Module):
         use_demographics: bool = False,
         demographic_dim: int = 5,
         demographic_mode: str = "encoded",
+        adapter_basis_count: int = 0,
+        adapter_rank: int = 4,
+        adapter_top_k: int | None = None,
     ) -> None:
         super().__init__()
         self.population = population or PopulationRegressor()
@@ -1297,6 +1404,20 @@ class VariableKPersonalizer(nn.Module):
         if demographic_mode not in {"encoded", "direct"}:
             raise ValueError("demographic_mode must be 'encoded' or 'direct'")
         self.demographic_mode = demographic_mode
+        if adapter_basis_count < 0:
+            raise ValueError("adapter_basis_count must be nonnegative")
+        if adapter_basis_count == 0 and adapter_top_k is not None:
+            raise ValueError("adapter_top_k requires a positive adapter_basis_count")
+        self.adapter_basis_count = int(adapter_basis_count)
+        self.adapter_rank = int(adapter_rank)
+        self.adapter_top_k = adapter_top_k
+        if adapter_basis_count:
+            self.adapter_bank = SupportConditionedAdapterBank(
+                dimension,
+                basis_count=adapter_basis_count,
+                rank=adapter_rank,
+                top_k=adapter_top_k,
+            )
         if query_conditioned_weights:
             self.reliability = nn.Sequential(
                 nn.Linear(dimension * 2 + 2, dimension),
@@ -1445,6 +1566,10 @@ class VariableKPersonalizer(nn.Module):
         support_ppg_context = torch.sum(weights[..., None] * support_features, dim=1)
 
         personalized_query = query_features
+        if self.adapter_basis_count:
+            personalized_query = self.adapter_bank(
+                personalized_query, context, support_mask
+            )
         if self.use_film:
             gamma, beta = self.film(context).chunk(2, dim=-1)
             personalized_query = (1.0 + gamma) * personalized_query + beta
