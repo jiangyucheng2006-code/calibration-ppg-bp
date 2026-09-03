@@ -1,26 +1,32 @@
 # Verified project status
 
-Last updated: 2026-09-02.
+Last updated: 2026-09-03.
 
-## Same-subject terminal combination screen running
+## Same-subject terminal combination screen completed
 
-A prespecified 15-candidate screen now keeps participant-indexed rank-4 LoRA
-as the common core and combines it with FiLM, support attention, adaptive
-multiple-event weighting, support reliability weighting, and calibration-
-relative correction. All 15 candidates run independently under both random-
-disjoint and chronological-blocked assignments. The final internal selector
-requires an improvement of at least 0.15 mmHg Overall in both modes and a
-positive gain in both MIMIC and VitalDB in both modes; otherwise it retains the
-LoRA reference.
+A prespecified 15-candidate screen kept participant-indexed rank-4 LoRA as the
+common core and combined it with FiLM, support attention, adaptive multiple-
+event weighting, support reliability weighting, and calibration-relative
+correction. All 30 training jobs, both split reports, and the final selector
+completed with exit code `0:0`; all three report directories are byte-
+identical between the active work area and NAS archive.
 
-All 259 regression tests, targeted CUDA smoke tests for all 15 candidates on
-both available GPU types, Bash syntax checks, and Slurm test-only checks passed
-before submission. Thirty GPU training jobs and three dependent reporting jobs
-are queued under seed `20260902`. The same-subject held-out role and the
-participant-disjoint locked meta-test remain sealed. See
-[PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md](PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md)
-for the frozen matrix and decision rule. No combination result is claimed
-until both split reports and the final cross-split report complete.
+`lora_film_reliability` is numerically lowest under random disjoint windows at
+Overall participant-macro SBP/DBP/mean MAE
+`3.8668/2.1544/3.0106` mmHg. `lora_film_attention` is lowest under
+chronological blocking at `4.8925/2.6737/3.7831` mmHg. Their Overall mean-MAE
+gains over the paired LoRA reference are only 0.0347 and 0.0896 mmHg,
+respectively. No non-reference combination reaches the frozen 0.15-mmHg gain
+in both modes, so the prespecified fallback rule retains plain LoRA.
+
+The full Overall/MIMIC/VitalDB result, requested event-pooled diagnostic table,
+cross-split ranking, integrity evidence, and next mechanism-control gate are in
+[RESULTS_SAME_SUBJECT_COMBINATIONS.md](RESULTS_SAME_SUBJECT_COMBINATIONS.md),
+with machine-readable path-free files under `results/same_subject_combinations/`.
+The same-subject held-out role and the participant-disjoint locked meta-test
+remain sealed. The result is persistent seen-participant personalization based
+on 320 labelled training windows per participant, not unseen-user K=1/2/3/5
+calibration or an official PulseDB CalBased reproduction.
 
 ## Same-subject single-component screen completed
 

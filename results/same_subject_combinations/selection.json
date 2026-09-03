@@ -1,0 +1,28 @@
+{
+  "status": "complete",
+  "protocol_id": "development-calbased-analogue-v1",
+  "screen_id": "same-subject-combination-v1",
+  "track": "development_only_same_subject_analogue",
+  "official_pulsedb_calbased_reproduction": false,
+  "generated_at_utc": "2026-09-03T12:26:23.026613+00:00",
+  "seed": 20260902,
+  "selection_role": "internal_validation",
+  "heldout_test_accessed": false,
+  "candidate_count": 15,
+  "promotion_margin_mmhg": 0.15,
+  "selection_rule": "minimum mean Overall participant-macro mean MAE across random and chronological splits among candidates gaining at least 0.15 mmHg Overall in both modes and improving MIMIC and VitalDB in both modes; otherwise retain LoRA",
+  "winner": {
+    "candidate": "lora",
+    "robust_mean_mae": 3.4590121507644653,
+    "random_mean_mae": 3.0452773571014404,
+    "chronological_mean_mae": 3.87274694442749,
+    "passes_robust_gate": true
+  },
+  "winner_test_policy": "No held-out target was accessed. Freeze the selected architecture and complete mechanism controls before any one-time held-out evaluation.",
+  "decision": {
+    "outcome": "retain_reference",
+    "reference": "lora",
+    "non_reference_combinations_passing_upgrade_gate": 0,
+    "interpretation": "The reference is retained by the prespecified fallback rule; it is not a claim that LoRA achieved a 0.15-mmHg improvement over itself."
+  }
+}

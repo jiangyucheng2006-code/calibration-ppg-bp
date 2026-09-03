@@ -91,3 +91,13 @@ Every candidate uses a participant-indexed adapter jointly learned from 320
 labelled train-role windows for each already-seen participant. Results cannot be
 described as calibration-free performance, unseen-user K=1/2/3/5 calibration,
 or external validation.
+
+## Completed decision
+
+All 30 candidate runs and the three reporting jobs completed successfully.
+No non-reference combination met the prespecified 0.15-mmHg gain in both
+split modes. The final selector therefore retained plain LoRA according to the
+fallback rule. See
+[RESULTS_SAME_SUBJECT_COMBINATIONS.md](RESULTS_SAME_SUBJECT_COMBINATIONS.md)
+and the path-free aggregate files under
+`../results/same_subject_combinations/` for the completed evidence.

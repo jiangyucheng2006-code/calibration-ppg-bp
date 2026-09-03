@@ -75,12 +75,18 @@ calibration claim. Public aggregate tables are under
 [results/same_subject_single_component](results/same_subject_single_component),
 and the held-out role remains sealed.
 
-The terminal [module-combination plan](docs/PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md)
+The completed [terminal module-combination result](docs/RESULTS_SAME_SUBJECT_COMBINATIONS.md)
 keeps LoRA fixed and tests a bounded 15-candidate hierarchy of the five
 next-best single components under both random-disjoint and chronological-
-blocked assignments. Selection remains internal-validation-only: a combination
-must improve Overall, MIMIC, and VitalDB in both modes or the LoRA reference is
-retained. No held-out result is released by this screen.
+blocked assignments. `lora_film_reliability` is numerically lowest under
+random disjoint windows at 3.0106 mmHg Overall participant-macro mean MAE,
+while `lora_film_attention` is lowest under chronological blocking at 3.7831
+mmHg. Neither reaches the prespecified 0.15-mmHg gain in both modes, so the
+cross-split selector retains plain LoRA. Complete path-free aggregate tables
+are under [results/same_subject_combinations](results/same_subject_combinations),
+and no held-out result is released by this screen. The prospective
+[plan](docs/PLAN_SAME_SUBJECT_COMBINATION_SCREEN.md) remains available for
+comparison with the completed decision.
 
 ## Model and baseline matrix
 
