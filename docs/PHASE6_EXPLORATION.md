@@ -1,0 +1,77 @@
+# Phase-6 single-seed improvement screening
+
+## Objective
+
+Phase 6 searches for a meaningful improvement over the parsimonious M0 model without spending repeated-seed or multi-fold compute on unpromising ideas. Model selection remains restricted to `meta_validation`; the locked meta-test is not accessed.
+
+## Execution rule
+
+- Development seed: `20260813` only.
+- Training has no epoch-count cap and stops after eight consecutive epochs without improvement.
+- Interventions are tested separately before combinations are considered.
+- A candidate is promoted only if it improves multiple calibration budgets, improves or preserves SBP error, and does not worsen the participant-level error tail materially.
+- Multi-seed and multi-fold confirmation are deferred until a candidate passes this screening gate.
+
+## Current candidates
+
+| Candidate | Single changed factor | Purpose | Slurm job |
+|---|---|---|---:|
+| Original rolling-support M0 | support policy | Historical comparison result | 783 |
+| Fixed-first M0 reference | support policy | Train and validate with events 1 to K; predict event 6 onward | 818 |
+| Robust loss | Huber loss, delta 0.5 standardized units | Reduce sensitivity to large residuals | 826 |
+| BP-change sampling | meta-train episode sampler | Emphasize calibration-drift episodes without validation leakage | 827 |
+| Robust anchor | coordinate-wise median support residual | Reduce sensitivity to an atypical cuff calibration event | 828 |
+| PPG quality gate | PPG-only personalization gate | Attenuate unreliable personalization without query BP/error | 829 |
+| Demographic conditioning | cleaned age/sex vector | Test whether subject context adds information beyond PPG and cuff anchors | 830 |
+
+No repeated-seed or multi-fold job is part of this submission. Every corrected
+candidate uses the senior-proposed fixed-first protocol and changes only one
+factor relative to job 818. Jobs 822--825 were cancelled while still pending
+and before using GPU time because they had retained the old rolling-support
+training policy. Job 819 had already started and is retained only as an
+old-protocol Huber comparison; it is not part of the corrected candidate set.
+Combinations will be considered only after isolated screening.
+
+The fixed-first protocol ablation (job 818) completed at epoch 4 after 12
+epochs with patience-8 early stopping. Its participant-macro mean MAE was
+9.559, 9.189, 9.018, and 8.782 mmHg for K=1/2/3/5, giving a four-K mean of
+9.137 mmHg. Relative to the same-seed rolling-support M0 result, K=1/2/3
+improved by 0.439/0.246/0.101 mmHg and K=5 worsened by 0.094 mmHg. This is a
+single-seed protocol result, not a confirmed final-model improvement.
+
+## Residual-tail audit
+
+The development-only K=5 audit contains 697 participants and 103,564 common queries. Participant mean-MAE quantiles are:
+
+| Quantile | Mean MAE (mmHg) |
+|---:|---:|
+| 50% | 7.722 |
+| 90% | 14.665 |
+| 95% | 16.919 |
+| 99% | 22.492 |
+
+The prespecified worst-20% participant analysis is reported in
+[PHASE6_HIGH_ERROR_ANALYSIS.md](PHASE6_HIGH_ERROR_ANALYSIS.md). The tail has
+larger within-participant BP variability, larger support-to-query BP changes,
+more targets outside the support BP range, and a later average event horizon.
+MIMIC also has a higher tail proportion than VitalDB. PPG amplitude and mean
+age are nearly unchanged. Coverage-error calculations based on observed query
+error remain oracle-only and cannot be used as deployable quality screening.
+
+## Demographic audit decision
+
+Age and sex were audited and converted to a participant-level development
+table. Age uses the participant median of finite values from 18 to 100 years;
+25 participants without a valid adult age are retained with `age_valid=0`, and
+76 participants with multiple valid age records are summarized by the median.
+Age normalization is fitted on meta-train participants only. Sex uses the
+participant mode with an explicit unknown channel. This cleaned representation
+is evaluated as one isolated candidate rather than being added to every model.
+
+## Leakage controls
+
+- Participant split remains subject-disjoint.
+- Validation support remains the first K events and queries remain event 6 onward.
+- Meta-validation targets are used only for evaluation and early stopping.
+- No query BP, query residual, or true error may be used by a deployable quality gate.
+- The locked meta-test remains untouched.

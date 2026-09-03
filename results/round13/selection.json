@@ -1,0 +1,39 @@
+{
+  "status": "complete",
+  "round": 13,
+  "stage": "backbone_screen",
+  "generated_at_utc": "2026-08-24T03:01:44.844908+00:00",
+  "seed": 20260827,
+  "split": "meta_train_internal_fold4",
+  "fit_folds": [
+    0,
+    1,
+    2
+  ],
+  "early_stopping_fold": 3,
+  "selection_fold": 4,
+  "meta_validation_used_for_candidate_ranking": false,
+  "locked_test_accessed": false,
+  "reference_backbone": "resnet_small",
+  "winner_backbone": "inception_time_wide",
+  "gain_vs_reference": {
+    "Overall": 0.18914700780437244,
+    "MIMIC": 0.34969818786944096,
+    "VitalDB": 0.05574442378528843
+  },
+  "passes_internal_gate": true,
+  "candidate_count": 13,
+  "training_audit": {
+    "status": "pass",
+    "population_microbatch": 32,
+    "population_accumulation": 4,
+    "population_effective_batch": 128,
+    "qgh_microbatch": 16,
+    "qgh_accumulation": 4,
+    "qgh_effective_batch": 64,
+    "episodes_per_epoch": 99968,
+    "source_tree_sha256": "54a5251254e2a92007f6d9e465c7ca627675ad8ea289f59e26d7328062bbce6c",
+    "store_manifest_sha256": "f5b90fe2cd49616f6bd702ce1964617b59805a61f08208ec738cfffe8831923e",
+    "crossfit_folds_sha256": "4f696cda4aced9a93351ee29533b109d2e40723ea96de1151dfb4813830eec01"
+  }
+}

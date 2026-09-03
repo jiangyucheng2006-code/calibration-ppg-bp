@@ -1,0 +1,26 @@
+{
+  "analysis": "development-only residual-tail analysis",
+  "predictions_file_name": "best_validation_predictions.parquet",
+  "store_directory_name": "event120-v1",
+  "k": 5,
+  "split": "meta_validation",
+  "locked_meta_test_accessed": false,
+  "participants": 697,
+  "queries": 103564,
+  "mean_mae": 8.782456021924384,
+  "sbp_mae": 11.211810055262978,
+  "dbp_mae": 6.35310198858579,
+  "participant_mean_mae_quantiles": {
+    "0.5": 7.944129040366725,
+    "0.75": 10.628962336562749,
+    "0.9": 14.428887234118159,
+    "0.95": 16.248839898731394,
+    "0.99": 22.252114862080656
+  },
+  "tail_fraction": 0.3,
+  "tail_participants": 210,
+  "tail_selection_rule": "participant mean MAE descending, subject_uid ascending tie-break; first ceil(tail_fraction*N); oracle diagnostic only",
+  "high_error_threshold_quantile": 0.7,
+  "high_error_threshold_mean_mae": 9.96865457646987,
+  "oracle_warning": "Coverage-error rows rank participants using observed query error. They are diagnostic only and cannot be used for deployment or headline accuracy."
+}

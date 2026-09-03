@@ -1,0 +1,10 @@
+Setting,Scope,N participants,Mean delta mmHg,CI95 low mmHg,CI95 high mmHg,Bootstrap fraction improved
+QGHuber-weight2 standalone,Overall,697,-0.019078,-0.109206,0.069114,0.662250
+QGHuber-weight2 standalone,MIMIC,316,-0.065103,-0.225474,0.090154,0.793650
+QGHuber-weight2 standalone,VitalDB,381,0.019095,-0.081609,0.120351,0.355050
+QGHuber-weight2 event hard route,Overall,697,-0.003701,-0.052492,0.043346,0.559700
+QGHuber-weight2 event hard route,MIMIC,316,-0.024686,-0.115749,0.060924,0.703900
+QGHuber-weight2 event hard route,VitalDB,381,0.013703,-0.031340,0.059769,0.279550
+QGHuber-weight2 event soft fusion,Overall,697,-0.061160,-0.097465,-0.026273,0.999950
+QGHuber-weight2 event soft fusion,MIMIC,316,-0.089106,-0.155813,-0.026769,0.998100
+QGHuber-weight2 event soft fusion,VitalDB,381,-0.037982,-0.075480,-0.002187,0.980650

@@ -1,0 +1,24 @@
+{
+  "status": "complete",
+  "generated_at_utc": "2026-08-19T14:05:55.858571+00:00",
+  "split": "meta_validation",
+  "locked_test_accessed": false,
+  "k": 5,
+  "general_job": "841",
+  "settings": [
+    "General QGate + Huber",
+    "R6-1 Ridge residual",
+    "R6-2 Residual MLP",
+    "R6-3 Gated residual MLP",
+    "R6-4 Difficult-2x residual MLP",
+    "R6-5 Causal GRU residual",
+    "R6-6 Supervised MoE",
+    "R6-7 Morphology cluster MoE"
+  ],
+  "winner": "R6-5 Causal GRU residual",
+  "winner_overall_mean_mae": 8.407601534241683,
+  "gain_vs_general_mmHg": 0.07750928867311302,
+  "promotion_threshold_mmHg": 0.15,
+  "passes_screening_gate": false,
+  "claim_limit": "single-seed development screening; locked test not accessed"
+}

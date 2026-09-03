@@ -1,0 +1,21 @@
+{
+  "status": "complete",
+  "protocol_id": "development-calbased-analogue-v1",
+  "track": "development_only_same_subject_analogue",
+  "official_pulsedb_calbased_reproduction": false,
+  "generated_at_utc": "2026-09-01T10:46:05.606935+00:00",
+  "split_mode": "random_disjoint",
+  "seed": 20260831,
+  "selection_role": "internal_validation",
+  "heldout_test_accessed": false,
+  "selection_metric": "Overall participant_macro_mean_mae",
+  "candidate_count": 19,
+  "winner": {
+    "candidate": "residual_subject_lora_rank4",
+    "mean_mae": 3.0853376388549805,
+    "sbp_mae": 3.966346025466919,
+    "dbp_mae": 2.2043297290802,
+    "run_dir": "/home/jiangyu.cheng/work/ppg_bp/outputs/same-subject-single-component-v1_random_disjoint_residual_subject_lora_rank4_seed20260831_job1278"
+  },
+  "winner_test_policy": "No held-out test was accessed. Refit this one selected candidate on train plus internal_validation before a separate one-time test."
+}

@@ -1,0 +1,68 @@
+{
+  "status": "complete",
+  "protocol_id": "development-calbased-analogue-v1",
+  "screen_id": "same-subject-combination-v1",
+  "track": "development_only_same_subject_analogue",
+  "official_pulsedb_calbased_reproduction": false,
+  "seed": 20260902,
+  "selection_role": "internal_validation",
+  "heldout_test_accessed": false,
+  "candidate_count": 15,
+  "promotion_margin_mmhg": 0.15,
+  "decision": "retain_reference",
+  "selected_reference": "lora",
+  "split_winners": {
+    "random_disjoint": "lora_film_reliability",
+    "chronological_blocked": "lora_film_attention"
+  },
+  "participants": {
+    "Overall": 2051,
+    "MIMIC": 1011,
+    "VitalDB": 1040
+  },
+  "internal_validation_events": {
+    "Overall": 82040,
+    "MIMIC": 40440,
+    "VitalDB": 41600
+  },
+  "jobs": {
+    "random_training": "1294-1308",
+    "random_report": 1309,
+    "chronological_training": "1310-1324",
+    "chronological_report": 1325,
+    "final_report": 1326,
+    "all_completed_zero_exit": true
+  },
+  "source_archive_sha256": "28de69526afdeacbb94e4ef1c3cd199ae70b8475b0481d4b95e1d436b8cb5e4c",
+  "server_report_checksums": {
+    "random_disjoint": {
+      "participant_macro_summary.csv": "e405761f497f400df91b4dd454ebb998affe9594d88bb544472dcef7ee52790f",
+      "event_pooled_diagnostics_all_scopes.csv": "3b26dfd1c4e192e1ac810f27bbad5606b3da8a19da449e824d1849e32a74c061",
+      "selection.json": "d30eacd5e06ab8bdc1ec67a312e215cccd8efdb9295d5e31eb30ce34fd5acc7c"
+    },
+    "chronological_blocked": {
+      "participant_macro_summary.csv": "64cdea9840e5f24b72f975c77781bde1ad8b404f66ed9f2c0223c35c30139d05",
+      "event_pooled_diagnostics_all_scopes.csv": "57132c287c53afd7b3f4578fbe045e2d6dde0022314143a8a99712d55549c329",
+      "selection.json": "23229acb2da0325da8236ef40fed619b9f2896c58e39e9b4e583392ada02a664"
+    },
+    "final": {
+      "combination_comparison.csv": "deb478e4d0beccbad43b7415db86fda5df46b78553b6f3570f969b4b0f8b25c4",
+      "selection.json": "8ba7dc71b8acd375a8e8c61035bfb1b739affe44699367b358e08f788bdf4d3c"
+    }
+  },
+  "integrity": {
+    "report_work_nas_identical": true,
+    "validation_coverage_equal_across_candidates": true,
+    "source_counts_sum_to_overall": true,
+    "all_reported_scopes_recomputed_from_saved_predictions": true
+  },
+  "public_files": [
+    "participant_macro.csv",
+    "event_pooled_diagnostics.csv",
+    "cross_split_comparison.csv",
+    "selected_lora_views.csv",
+    "split_winner_views.csv",
+    "selection.json"
+  ],
+  "claim_boundary": "Seen-participant internal validation with 320 labelled train windows per participant; not unseen-participant K-shot calibration, not an official PulseDB CalBased reproduction, not external validation, and not formal standards compliance."
+}

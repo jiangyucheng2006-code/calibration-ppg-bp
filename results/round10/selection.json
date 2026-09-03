@@ -1,0 +1,17 @@
+{
+  "status": "complete",
+  "round": 10,
+  "seed": 20260824,
+  "split": "meta_train_internal_fold4",
+  "meta_validation_used_for_candidate_ranking": false,
+  "locked_test_accessed": false,
+  "reference": "T10-0 Frozen-encoder reference",
+  "winner": "T10-8 Last block + direction + temporal",
+  "gain_vs_reference": {
+    "Overall": 0.08648856800984106,
+    "MIMIC": 0.0724571162613703,
+    "VitalDB": 0.0981473544480771
+  },
+  "passes_internal_gate": false,
+  "candidate_count": 9
+}

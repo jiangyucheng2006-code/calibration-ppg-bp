@@ -1,6 +1,343 @@
 # Verified project status
 
-Last updated: 2026-08-13.
+Last updated: 2026-09-03.
+
+## Same-subject terminal combination screen completed
+
+A prespecified 15-candidate screen kept participant-indexed rank-4 LoRA as the
+common core and combined it with FiLM, support attention, adaptive multiple-
+event weighting, support reliability weighting, and calibration-relative
+correction. All 30 training jobs, both split reports, and the final selector
+completed with exit code `0:0`; all three report directories are byte-
+identical between the active work area and NAS archive.
+
+`lora_film_reliability` is numerically lowest under random disjoint windows at
+Overall participant-macro SBP/DBP/mean MAE
+`3.8668/2.1544/3.0106` mmHg. `lora_film_attention` is lowest under
+chronological blocking at `4.8925/2.6737/3.7831` mmHg. Their Overall mean-MAE
+gains over the paired LoRA reference are only 0.0347 and 0.0896 mmHg,
+respectively. No non-reference combination reaches the frozen 0.15-mmHg gain
+in both modes, so the prespecified fallback rule retains plain LoRA.
+
+The full Overall/MIMIC/VitalDB result, requested event-pooled diagnostic table,
+cross-split ranking, integrity evidence, and next mechanism-control gate are in
+[RESULTS_SAME_SUBJECT_COMBINATIONS.md](RESULTS_SAME_SUBJECT_COMBINATIONS.md),
+with machine-readable path-free files under `results/same_subject_combinations/`.
+The same-subject held-out role and the participant-disjoint locked meta-test
+remain sealed. The result is persistent seen-participant personalization based
+on 320 labelled training windows per participant, not unseen-user K=1/2/3/5
+calibration or an official PulseDB CalBased reproduction.
+
+## Same-subject single-component screen completed
+
+All 19 paired training settings and common report job 1288 completed with exit
+code `0:0`. `residual_subject_lora_rank4` is the internal-validation winner at
+Overall participant-macro SBP/DBP/mean MAE
+`3.9663/2.2043/3.0853` mmHg. The paired `residual_reference` records
+`7.7155/4.2092/5.9624` mmHg, so the winner improves mean MAE by 2.8771 mmHg
+(48.25%). It also improves MIMIC from 5.9817 to 3.3604 mmHg and VitalDB from
+5.9436 to 2.8180 mmHg, passing the prospective discovery gate in all three
+views.
+
+The winning model uses a compact ResNet, the participant's train-role BP mean,
+and a rank-4 feature adapter indexed by the already-seen participant. It uses
+no five-event support set at inference (`support_count=0`); its personal
+adapter and shared network were jointly learned from 320 labelled training
+windows per participant. Its strong result therefore supports persistent
+known-user personalization, not unseen-user K=1/2/3/5 calibration.
+
+Every candidate contains the same 2,051 participants and 82,040 internal-
+validation windows. Work and NAS copies of all candidate run metadata,
+predictions, and diagnostics are byte-identical, as are all nine common report
+files. The only nonempty stderr is the known Patch Transformer nested-tensor
+performance warning. The same-subject held-out role and participant-disjoint
+locked meta-test remain sealed.
+
+The full result, interpretation, standards qualification, and next gate are in
+[RESULTS_SAME_SUBJECT_SINGLE_COMPONENT.md](RESULTS_SAME_SUBJECT_SINGLE_COMPONENT.md),
+with public aggregate files under `results/same_subject_single_component/`.
+The candidate passes random-disjoint discovery but still requires a paired
+chronological-blocked confirmation and mechanism ablations before any
+winner-only held-out release.
+
+## Same-subject PulseDB dual-split screen completed
+
+All 18 model and baseline jobs completed successfully for the separate
+`development-calbased-analogue-v1` track. The accepted cohort contains 2,051
+participants: 1,011 PulseDB MIMIC and 1,040 PulseDB VitalDB. Each split uses
+320 labelled training windows and 40 internal-validation windows per
+participant; the 40-window held-out role remains sealed.
+
+`subject_mean_residual_ppg` is the validation winner under both independently
+reported split modes. It combines the participant's training-label mean with a
+compact-ResNet PPG residual. Overall participant-macro SBP/DBP/mean MAE is
+7.6485/4.1693/5.9089 mmHg under `random_disjoint` and
+8.0361/4.3716/6.2039 mmHg under `chronological_blocked`. The chronological
+mean MAE is 0.2949 mmHg worse. Chronological VitalDB is the weakest source view
+at 8.6213/4.8730/6.7472 mmHg, while chronological MIMIC records
+7.4341/3.8558/5.6449 mmHg.
+
+The original report jobs stopped after training because a target-consistency
+assertion required bit-exact equality across float32 and float64
+serializations. The scientific outputs were intact: composite event keys were
+identical, and the maximum serialization-only target difference was about
+2.24e-5 mmHg. The repaired reporter sorts by participant/source/event keys,
+accepts at most 1e-4 mmHg absolute serialization noise, and continues to reject
+a 0.01-mmHg mismatch. The full server test suite passed, both reports were
+rebuilt from unchanged saved predictions, and work/NAS report directories are
+byte-identical.
+
+No new model was trained for the repair, no new experiment was submitted, and
+the held-out role was not accessed. See
+[RESULTS_SAME_SUBJECT_DUAL_SPLIT.md](RESULTS_SAME_SUBJECT_DUAL_SPLIT.md) and
+the public tables under `results/same_subject_dual_split/`. These results are a
+development-only same-subject analogue, not unseen-participant performance,
+not K=1/2/3/5 calibration, and not an exact official PulseDB CalBased
+reproduction.
+
+## Historical same-subject submission record (superseded)
+
+A new, strictly separate `development-calbased-analogue-v1` track has been
+implemented and queued to measure the protocol gap between the primary
+unseen-participant few-shot task and a seen-participant/new-window task. It is
+not an official PulseDB CalBased reproduction and it does not replace
+`event120-v1`.
+
+Only the frozen `meta_train` parent split is eligible. The pre-audit cohort has
+2,058 participants. Each retained participant contributes 320 training, 40
+internal-validation, and 40 sealed held-out 10-second windows. The two
+independently reported split modes are `random_disjoint` and the stricter
+`chronological_blocked` control.
+
+The first full materialization failed closed after finding exact PPG content
+under different storage locators. No model started and no accuracy result was
+produced. The repair does not disable that gate: an input-only pre-audit now
+hashes selected `PPG_F` samples without loading held-out BP targets. Every
+participant represented in an exact-content duplicate group is excluded from
+both split modes, after which all manifests and stores are rebuilt. Accepted
+stores require zero exact-content duplicates both across and within roles.
+
+The queued first screen contains one train-label-mean baseline and eight
+PPG-only neural candidates: subject-mean residual PPG, compact ResNet,
+InceptionTime-wide, Patch Transformer, Self-Attention ResUNet adaptation,
+rU-Net/ResUNet adaptation, CNN-BiLSTM adaptation, and CNN-Transformer/AFF
+adaptation. Original-paper multimodal or demographic inputs are not used.
+
+The repaired immutable training snapshot is commit `addd3b1`, archive SHA-256
+`a57d8ab452cd76bea10f021a82f5c619faaee298a9ee17ddbc3169e5f75b9dec`.
+It passed all 224 server tests. The preceding model implementation also passed
+CUDA forward/backward finite-gradient smoke checks on both the RTX 5080 and
+RTX 5070 Ti. The first full-data attempt identified only seven raw-time
+overlaps among 823,200 random-mode windows. A deterministic role-swap repair
+removed all seven while preserving the 2,058-person cohort and exact
+320/40/40 counts; the repeated strict full-data audit passed with zero
+cross-role interval and locator overlap.
+
+Failed preparation job 1179 produced no model result. Its partial outputs were
+moved intact to recoverable quarantine, and its never-started jobs 1180--1199
+were cancelled. Repaired data-preparation job 1202 is running on `hpc-2`;
+random-mode jobs 1203--1211 with report 1212 and chronological-mode jobs
+1213--1221 with report 1222 are dependency-queued. No GPU model can start
+unless job 1202 completes every audit successfully. The retained cohort size
+will be reported from that completed audit rather than assumed in advance.
+
+Model selection reads only train and internal-validation data. Held-out BP
+targets remain physically separated and have not been accessed. After this
+screen, exactly one selected candidate may be refitted on 360 labelled windows
+per participant and evaluated once on the held-out 40-window role.
+
+See [PULSEDB_SAME_SUBJECT_ANALOGUE_PLAN.md](PULSEDB_SAME_SUBJECT_ANALOGUE_PLAN.md)
+for the protocol and claim boundary.
+
+## Round-14 paired confirmation and complete-method screen completed
+
+All 32 Round-14 jobs completed successfully with empty stderr. All 33 output
+directories are byte-identical between the active work area and durable NAS
+archive, and the four exploratory-job log pairs were archived before public
+reporting. The immutable source snapshot and its archived copy have matching
+hashes.
+
+Line A does not confirm the wider InceptionTime architecture. Across the four
+prespecified new seeds, `inception_time_wide + QGH` improves mean participant-
+macro MAE over `resnet_small + QGH` by 0.0559 mmHg Overall, 0.0427 in MIMIC,
+and 0.0669 in VitalDB. All four Overall directions are positive, but the
+Overall mean gain is below the frozen 0.15-mmHg confirmation threshold. The
+five-seed ensemble remains a descriptive CPU diagnostic and cannot rescue the
+failed gate.
+
+Line B identifies one exploratory complete-method candidate. On seed
+`20260828`, `calibration_relative` records Overall participant-macro
+SBP/DBP/mean MAE of 10.6536/6.0505/8.3520 mmHg, compared with
+10.8106/6.2107/8.5107 for the matched wider-InceptionTime QGH anchor. Mean-MAE
+gains are 0.1586 mmHg Overall, 0.1253 in MIMIC, and 0.1863 in VitalDB. It
+passes the primary internal gate but fails the tail gate, so it advances only
+to independent-seed confirmation. The standards-oriented variant improves
+Overall mean MAE by 0.1288 mmHg and passes neither gate. The optional
+six-group C3 route was not evaluated in this completed result.
+
+The `calibration_relative` event-pooled Overall SBP/DBP MAE is
+12.1891/6.6635 mmHg. Both endpoints fail the retrospective AAMI-style
+numerical screen, with historical BHS Grade D for SBP and Grade C for DBP.
+These diagnostics do not establish formal device or standards compliance.
+Meta-validation and the locked meta-test remain inaccessible. See
+[RESULTS_ROUND14_CONFIRMATION_AND_COMPLETE_METHODS.md](RESULTS_ROUND14_CONFIRMATION_AND_COMPLETE_METHODS.md)
+and the aggregate files under `results/round14/`.
+
+## Round-13 final architecture/capacity screen completed
+
+The wider InceptionTime QGH setting is the Round-13 numerical winner. Overall
+participant-macro SBP/DBP/mean MAE is 10.8759/6.1636/8.5197 mmHg, compared
+with 11.0255/6.3922/8.7089 for the same-round compact ResNet QGH reference.
+The mean-MAE gain is 0.1891 mmHg Overall, 0.3497 in PulseDB MIMIC, and 0.0557
+in PulseDB VitalDB. It passes the prespecified single-seed internal gate and
+therefore advances to seed-stability confirmation; it is not yet the final
+model.
+
+Event-pooled Overall SBP/DBP MAE is 12.3256/6.8079 mmHg. Both endpoints fail
+the retrospective AAMI-style numerical screen, with historical BHS Grade D
+for SBP and Grade C for DBP. These are internal numerical diagnostics only.
+See [RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md](RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md)
+and the aggregate tables under `results/round13/`.
+
+## Round-10 partial end-to-end screen completed
+
+Round 10 is complete. Recovery jobs 1017--1025 and deterministic report job
+1026 all completed with exit code `0:0`, every stderr file is empty, and every
+work output matches its NAS archive. The full server suite passes 119 tests.
+All nine candidates use the identical K=5 fold-4 comparison of 628 participants
+and 96,332 queries after folds 0--2 fitting and fold-3 patience-8 early
+stopping. Meta-validation and the locked meta-test were not accessed.
+
+T10-8, last-block adaptation with pair-direction and temporal-consistency
+objectives, is the numerical winner. Its Overall participant-macro SBP/DBP/
+mean MAE is 10.7820/6.1093/8.4457 mmHg, versus 10.8946/6.1697/8.5322 for the
+frozen-encoder reference. Mean MAE improves by 0.0865 mmHg Overall, 0.0725 in
+MIMIC, and 0.0981 in VitalDB.
+
+Although both internal source strata improve, the Overall gain is below the
+prespecified 0.15-mmHg promotion threshold. No Round-10 candidate is promoted
+or evaluated on meta-validation. See the complete
+[Round-10 result](RESULTS_ROUND10_PARTIAL_END_TO_END.md), the prospective
+[plan](ROUND10_PARTIAL_END_TO_END_PLAN.md), and aggregate tables under
+`results/round10/`.
+
+The earlier failed chains produced no scientific result. Jobs 991--1003
+exposed an argument-validation defect, while jobs 1007--1016 exposed a
+mixed-precision loss-boundary defect. Both were corrected and regression-
+tested before the accepted recovery run. The exact accepted snapshot is
+`event120-v1_round10_dtype_fix_20260821-160940.tar.gz`, SHA-256
+`2c239ba85501baca2a561b0c3076778c6661d225e975ccc120178f4df30b6e7d`.
+
+## Round-9 calibration refinement completed
+
+Round 9 is complete. Jobs 975--985 all completed with exit code `0:0`, empty
+stderr, and byte-identical work/NAS reports. The screen compares one
+architecture-matched R8 reference with eight isolated changes at K=5.
+
+To reduce repeated model-selection pressure on the previously viewed
+meta-validation set, folds 0--2 of participant-disjoint meta-train fit each
+candidate, fold 3 controls patience-8 early stopping, and fold 4 ranks the
+candidates. Meta-validation is not used for training, early stopping,
+prediction, scoring, or candidate ranking in this screen. The locked meta-test
+is not accessed. The server suite passes 97 tests. The fold-4 comparison covers
+628 participants and 96,332 common queries.
+
+No candidate passes the internal promotion gate. R9-1 adaptive fusion is the
+numerical winner but improves Overall participant-macro mean MAE by only 0.036
+mmHg and worsens VitalDB by 0.003 mmHg. R9-7 is the only method to improve both
+source strata, but its Overall gain is only 0.010 mmHg. No Round-9 candidate is
+promoted or evaluated on meta-validation. See the complete
+[Round-9 result](RESULTS_ROUND9_CALIBRATION_REFINEMENT.md) and aggregate files
+under `results/round9/`. The next justified route is partial end-to-end
+PPG-encoder adaptation to query-to-calibration BP change.
+
+## Ten-second PPG beat-to-beat similarity audit
+
+The within-window morphology audit is complete for all 103,564 K=5
+meta-validation query PPG windows from 697 participants; the locked meta-test
+was not accessed. The median within-window pairwise beat correlation is 0.9923
+Overall, 0.9932 for PulseDB MIMIC, and 0.9783 for PulseDB VitalDB. However, the
+window-level 10th percentiles are 0.5792, 0.7741, and 0.3088, respectively.
+Thus typical morphology is highly repeatable, but there is a marked low-
+similarity tail, especially in VitalDB. Full aggregate results and method
+limitations are documented in
+[PPG_BEAT_TO_BEAT_SIMILARITY.md](PPG_BEAT_TO_BEAT_SIMILARITY.md); private
+participant/event rows are not published.
+
+The follow-up similarity--error analysis is also complete. In both the Quality
+Gate + Huber reference and the R7-5 causal GRU, event-level correlations are
+near zero and within-participant comparisons do not show higher error below
+0.90 similarity. Participant-level correlations are weakly positive rather
+than negative. Therefore the current normalized morphology-similarity score is
+not promoted as a quality gate, rejection rule, or specialist-routing feature.
+See [PPG_BEAT_SIMILARITY_ERROR_RELATION.md](PPG_BEAT_SIMILARITY_ERROR_RELATION.md).
+
+## Round-7 new training submitted
+
+Round 7 supersedes the earlier interpretation that the completed Phase-6E
+cluster head fully represented the requested waveform-category system. Nine
+new candidates are now submitted under seed `20260821`: six newly trained OOF
+residual methods, a separately trained waveform-phenotype router with hard and
+soft independent category experts, and a deeper waveform-embedding causal GRU.
+
+The full server suite passed 72 tests before submission. Slurm jobs 932--942
+form the new chain; no previous candidate job is substituted into its final
+report. The exact submitted-code snapshot is
+`event120-v1_round7_nine_routes_20260819-1437.tar.gz`, SHA-256
+`56888eb537b573d5d4295f53ee0ae99967a00c23f7f5e5732ad3bf2b3baa9a91`.
+The design and leakage boundary are documented in
+[ROUND7_NINE_ROUTE_PLAN.md](ROUND7_NINE_ROUTE_PLAN.md).
+
+## Phase-6E result
+
+The seven-route K=5 development screen is complete. All jobs 915--924 and the
+cluster-audit correction jobs 925--926 completed with exit code `0:0`, empty
+stderr, and byte-identical work/NAS report artifacts. The locked meta-test was
+not accessed.
+
+The causal GRU residual corrector is the numerical winner: Overall
+participant-macro SBP/DBP/mean MAE is 10.674/6.141/8.408 mmHg versus
+10.803/6.168/8.485 for Quality Gate + Huber. MIMIC mean MAE improves from
+9.075 to 8.969 and VitalDB from 7.996 to 7.942. The Overall gain is only
+0.078 mmHg, below the frozen 0.15-mmHg promotion threshold, so no route is
+promoted and Quality Gate + Huber remains the development base.
+
+The morphology-cluster MoE used an explicitly exploratory K=8 fallback because
+none of K=8/16/32 reached the 0.75 meta-train stability gate. Its Overall gain
+was only 0.005 mmHg and MIMIC worsened. It does not establish stable learned
+waveform phenotypes. Full aggregate results are in
+[RESULTS_PHASE6E_SEVEN_ROUTES.md](RESULTS_PHASE6E_SEVEN_ROUTES.md) and
+`results/phase6e/`.
+
+## Phase-6E seven-route screen submitted
+
+Phase-6E now tests seven K=5 continuous-error corrections against the frozen
+Quality Gate + Huber development comparator: ridge residual correction,
+residual MLP, confidence-gated residual MLP, difficult-participant 2x weighted
+MLP, causal GRU residual correction, supervised mixture-of-experts, and an
+unsupervised morphology-cluster mixture-of-experts. The last route learns
+waveform phenotypes from frozen PPG embeddings rather than imposing a fixed
+70%/30% partition; a new query is softly assigned to cluster-specific residual
+experts and every query retains a prediction.
+
+The server regression suite passed 70 tests and all seven routes passed a
+real-data end-to-end preflight. The corrected submission chain is jobs
+915--924: preparation 915, routes 916--921, waveform embedding 922,
+morphology-cluster route 923, and unified report 924. Preparation job 915
+completed successfully with empty stderr. The exact submitted-code archive is
+`event120-v1_phase6e_seven_routes_postfix_20260819-1351.tar.gz` with SHA-256
+`acf357bfc2085656e8e078775f1d5d1fed935940a359b87a917a0fb30864e1d8`.
+An earlier dependency chain 900--907 was superseded after job 900 exposed an
+NAS permission-preservation incompatibility; jobs 901--907 were cancelled
+without running, and the corrected chain also reduces the cluster job's memory
+request to the verified node limit.
+
+All candidate targets are derived from participant-disjoint Quality Gate +
+Huber out-of-fold meta-train predictions. Folds 0--3 fit candidate parameters,
+fold 4 performs internal selection, and meta-validation is evaluated only
+after freezing. The locked meta-test remains inaccessible. A candidate advances
+only if Overall participant-macro mean MAE improves by at least 0.15 mmHg and
+both MIMIC and VitalDB improve; otherwise Phase-6E remains a negative screen.
 
 ## Completed gates
 
@@ -27,32 +364,268 @@ Last updated: 2026-08-13.
 
 ## Development-only training
 
-The single-seed calibration-free population run completed after early stopping.
-Its best meta-validation participant-macro result was:
+The five prespecified seed pipelines (`20260813`--`20260817`) completed for the
+population model, M0, M1, M2, and the shared calibration controls. Scheduler
+jobs 782--807 all exited `0:0`; the final aggregation and independently rebuilt
+report were archived identically to work and NAS. The locked meta-test was not
+accessed.
 
-| Metric | Value |
-|---|---:|
-| SBP MAE | 14.552 mmHg |
-| DBP MAE | 8.725 mmHg |
-| Mean of SBP/DBP MAE | 11.638 mmHg |
+M0 has the lowest five-seed mean participant-macro MAE at every calibration
+budget. Values below are mean ± sample SD across training seeds:
 
-This is a development result, not a locked-test or final-paper result.
+| K | SBP MAE | DBP MAE | Mean MAE |
+|---:|---:|---:|---:|
+| 1 | 12.920 ± 0.111 | 7.242 ± 0.096 | 10.081 ± 0.096 |
+| 2 | 12.240 ± 0.136 | 6.812 ± 0.095 | 9.526 ± 0.112 |
+| 3 | 11.894 ± 0.144 | 6.576 ± 0.095 | 9.235 ± 0.116 |
+| 5 | 11.318 ± 0.110 | 6.253 ± 0.086 | 8.785 ± 0.094 |
 
-At the status timestamp, M0 was running and M1/M2, calibration controls, and the
-corrected first-anchor Siamese comparator were queued. M0 had successfully
-written separate `K=1,2,3,5` validation outputs for its first epoch. Finalists
-require multiple seeds and reproducibility from saved per-event predictions.
+All rows contain the same 697 meta-validation participants and 103,564 future
+query events per K. Across K, M0 has mean MAE 9.407 ± 0.104 mmHg, followed by
+M1 at 9.453 ± 0.143 and M2 at 9.510 ± 0.102. The M0--M1 difference is small
+relative to seed variability; M0 is therefore the parsimonious provisional
+finalist, not a conclusively superior model.
+
+The unlimited-epoch runs all stopped by patience-8 early stopping. M0 selected
+best epochs 10--33 across seeds, confirming that the original fixed 25-epoch
+cap was not adequate for every initialization while showing that the new runs
+did converge under the prespecified stopping rule.
+
+The five-seed [extended report](RESULTS_PHASE5_REPEAT5.md) contains the required
+Setting/BP/MAE/R²/ME/STD/5--10--15-mmHg/AAMI/BHS columns. All 88 method/K/BP
+summary rows fail the AAMI numerical screen in every seed, and no row obtains
+a BHS Grade A or B in any seed. These are retrospective numerical screens, not
+formal device-validation determinations.
+
+The complete first-run data-selection funnel and acceptance/exclusion rules are
+documented in
+[DATA_SELECTION_AND_TRAINING_COHORT.md](DATA_SELECTION_AND_TRAINING_COHORT.md).
 
 ## Current gate
 
-Complete the meta-validation comparison and determine whether M0/M1/M2 add
-value beyond last-cuff persistence, residual offset, and architecture-matched
-adaptation. Do not submit locked-test scoring yet.
+The convergence and repeat-seed gates are complete. Before a one-time locked-
+test evaluation, use development data only to complete the planned residual-
+tail analysis, decide whether it motivates one prespecified training change,
+and then freeze M0 (or a justified alternative), the seed/checkpoint policy,
+statistics, exclusions, and reporting script.
+
+The fixed-first single-factor Phase-6 screen is complete and documented in
+[RESULTS_PHASE6_SCREENING.md](RESULTS_PHASE6_SCREENING.md). Jobs 826--830 all
+completed successfully on the same seed and query set. The PPG-only quality
+gate improved the four-K Overall participant-macro mean MAE from 9.137 to
+8.962 mmHg and improved all four K values, but most of the gain occurred in
+MIMIC; it is a provisional component, not yet a confirmed replacement for M0.
+
+The exact observed-error worst 30% contains 210 of 697 participants at K=5.
+Their M0 mean MAE is 13.714 mmHg versus 6.656 mmHg for the oracle retained 70%.
+They show more support-to-query BP change, greater within-participant BP
+variability, and later query horizons. These are oracle associations and cannot
+be used as a deployable filter.
+
+Round 4 is complete and documented in
+[RESULTS_PHASE6B_FACTORIAL.md](RESULTS_PHASE6B_FACTORIAL.md). All five new jobs
+completed successfully; together with the three existing factorial cells they
+provide the full quality-gate x Huber x participant-tail-CVaR comparison.
+Quality gate plus Huber has the lowest four-K Overall participant-macro mean
+MAE: 8.888 mmHg versus 9.137 for fixed-first M0 and 8.962 for quality gate
+alone. The participant-cluster bootstrap difference versus M0 is -0.249 mmHg
+(exploratory 95% interval -0.353 to -0.150). The gain is larger in MIMIC
+(-0.472) than VitalDB (-0.065; interval includes zero), so this is a
+provisional single-seed candidate rather than a frozen final model.
+
+Participant-CVaR does not improve the full cohort, either alone or when added
+to the quality gate and/or Huber. The three-factor setting is slightly best on
+the fixed observed-error tail at K=5, but worse than quality gate plus Huber on
+the full four-K cohort. Because true tail membership uses query error, that
+result remains an oracle diagnostic and does not justify a deployment-time
+router. The locked meta-test remains untouched.
+
+An additional Phase-6C two-stage experiment has been implemented and submitted
+to answer the separate deployment question: can difficult cases be recognised
+without seeing their reference BP, and can a dedicated model improve them?
+Five source-stratified participant folds inside `meta_train` create K=5
+out-of-fold M0 errors and exact within-source worst-30% labels. A 22-feature
+input-visible risk MLP is then trained without query BP, true error, source, or
+participant identity. Three specialist variants test 4x difficult-group
+sampling, difficult-group-only training, and difficult-group-only training
+with the PPG quality gate. Each will be evaluated alone, through a frozen hard
+router, and through soft risk-weighted fusion with M0.
+
+The new implementation passed 61 server regression tests and a read-only real-
+store preflight covering all 3,143 meta-train participants and all 103,564 K=5
+meta-validation query rows. The dependent jobs are queued; no Phase-6C result
+is reported yet. This prototype is deliberately K=5. It may be extended to
+K=1/2/3 only with support-budget-specific features that do not use unavailable
+cuff measurements. Promotion requires useful held-out participant AUPRC and a
+full-coverage gain in Overall, MIMIC, and VitalDB; a single-seed gain would
+still require confirmation.
+
+Phase-6C subsequently completed without scheduler or artifact-integrity
+failures. Its input-only risk classifier showed moderate, not yet decisive,
+held-out meta-train discrimination (Overall participant AUPRC 0.469;
+precision 0.444 and recall 0.442 at the frozen threshold). The best original
+specialist route improved K=5 Overall participant-macro mean MAE only slightly,
+from 8.783 to 8.736 mmHg. This supports testing the two-stage idea further but
+does not yet establish reliable automatic identification or specialist value.
+
+Phase-6D is complete and reported in
+[RESULTS_PHASE6D_RISK_ROUTING.md](RESULTS_PHASE6D_RISK_ROUTING.md). Jobs
+880--890 all completed with exit code `0:0` and empty stderr. The corrected
+Quality Gate + Huber risk classifier achieves Overall participant AUPRC 0.457,
+AUROC 0.659, precision 0.470, and recall 0.486. Predicted-high-risk
+participants have mean MAE 10.140 versus 7.737 mmHg in the predicted-low group,
+showing useful but incomplete separation.
+
+Moderate 2x difficult-participant weighting is the only specialist that
+improves the fixed evaluation-only difficult tail in both sources. Fourfold
+weighting is too aggressive, and difficult-only training worsens the tail. The
+binary event hard route changes Overall mean MAE only from 8.485 to 8.481 mmHg
+and worsens VitalDB, so the requested 70%/30% hard-routing system is not
+promoted. Continuous event-risk soft fusion is the Phase-6D winner at 8.424
+mmHg Overall, 8.986 MIMIC, and 7.958 VitalDB, improving the general model by
+0.061/0.089/0.038 mmHg. Exploratory 20,000-repetition paired participant
+bootstrap intervals exclude zero in all three scopes, but the gain is small
+and comes from the same single-seed development screen. Soft fusion advances
+only to independent-seed confirmation; locked meta-test remains untouched.
+
+## Round-11A backbone screen completed
+
+All formal jobs 1033--1048 completed with exit code `0:0`, and all 16 work/NAS
+result pairs are byte-identical. The patch-Transformer stderr contains only a
+PyTorch nested-tensor optimization warning; the other formal stderr files are
+empty. Every setting uses the same 628 fold-4 participants and 96,332 K=5
+queries after folds 0--2 fitting and fold-3 patience-8 early stopping.
+
+The compact ResNet remains the numerical winner. QGH participant-macro
+SBP/DBP/mean MAE is 11.0136/6.2771/8.6453 mmHg Overall, with mean MAE 9.3631
+in MIMIC and 8.0489 in VitalDB. InceptionTime is the closest alternative but
+worsens the three means by 0.0774/0.0741/0.0801 mmHg. Deeper ResNet, patch
+Transformer and Conformer worsen Overall by 0.2583, 0.2679 and 0.3336 mmHg,
+respectively. No alternative improves either internal source stratum.
+
+`winner_backbone=resnet_small` and `passes_internal_gate=false`; no new
+backbone is promoted. The result supports retaining the smaller encoder and
+rejects complexity-for-complexity's-sake under the current protocol. It does
+not establish a universal negative conclusion about all attention models.
+Meta-validation and the locked meta-test were not accessed. The accepted
+report is [RESULTS_ROUND11_BACKBONE_SCREEN.md](RESULTS_ROUND11_BACKBONE_SCREEN.md),
+with public aggregate files under `results/round11a/`.
+
+Stage 11B may now use the retained compact ResNet to perform a structural subtraction
+ablation of the personal correction MLP, PPG-only quality gate and
+query-conditioned support attention, followed by a paired MSE-versus-Huber
+loss comparison on the selected minimal structure.
+Stage 11C will then compare universal-only, universal + stable personal bias,
+universal + dynamic change and the full three-part decomposition. These later
+stages are intentionally not submitted before the upstream winner is known.
+The complete prospective design is in
+[ROUND11_SYSTEMATIC_MODEL_REVISION_PLAN.md](ROUND11_SYSTEMATIC_MODEL_REVISION_PLAN.md).
 
 ## Not yet established
 
-- no locked-test result;
-- no final multi-seed model comparison;
+- no locked-test result or frozen final configuration;
 - no real pressure-, motion-, or device-shift robustness result;
 - no independent external validation;
 - no clinical validation or standards claim.
+
+## Round-12 literature-derived backbone screen completed
+
+A broad calibrated/personalized PPG-BP literature audit was completed before
+new jobs were defined. The central finding is that no audited paper currently
+demonstrates PulseDB + PPG-only + participant-disjoint development + strictly
+chronological first K<=5 labeled events + no later label access + SBP/DBP
+AAMI/BHS acceptance at the same time. Several very low PulseDB errors instead
+use same-participant high-volume window splits, multimodal inputs, or ongoing
+reference-BP updates. The evidence table and source links are preserved in
+[LITERATURE_AUDIT_CALIBRATED_PPG_BP_20260822.md](LITERATURE_AUDIT_CALIBRATED_PPG_BP_20260822.md).
+
+Round 12 therefore performs a controlled architecture-family screen rather
+than copying incomparable headline scores. It compares the unchanged compact
+ResNet with a causal TCN, a five-shot residual-attention encoder, a compact
+CNN-GRU and a 1D residual U-Net. All five use the same PPG-only QGH calibration
+head, fixed-first K=5 support, folds 0--2/3/4, Huber loss, quality gate and
+single seed. Meta-validation and the locked meta-test remain quarantined. The
+prospective specification is in
+[ROUND12_LITERATURE_BACKBONE_PLAN.md](ROUND12_LITERATURE_BACKBONE_PLAN.md).
+
+Server verification passed all 131 regression tests. CUDA smoke job 1049
+completed with exit code `0:0` after forward propagation, backpropagation and
+an optimizer update for all existing and new backbones. Formal jobs 1050--1065
+then all completed with exit code `0:0`, all stderr files are empty, and all 16
+work/NAS output pairs are byte-identical.
+
+The compact ResNet remains the numerical winner at Overall participant-macro
+SBP/DBP/mean MAE 11.0294/6.2592/8.6443 mmHg. The residual U-Net, TCN,
+five-shot residual-attention encoder and CNN-GRU worsen Overall mean MAE by
+0.1120, 0.1778, 0.4141 and 0.4245 mmHg, respectively, and every candidate also
+worsens mean MAE in both internal PulseDB source strata.
+`passes_internal_gate=false`; no new architecture advances to meta-validation,
+multi-seed confirmation, or the locked meta-test. The accepted aggregate report is
+[RESULTS_ROUND12_LITERATURE_BACKBONES.md](RESULTS_ROUND12_LITERATURE_BACKBONES.md),
+with machine-readable tables under `results/round12/`.
+
+## Round-8 calibration-relative screen completed
+
+All Round-8 jobs completed successfully with empty stderr, and the locked
+meta-test was not accessed. This was a K=5, single-seed development screen
+built around the Quality Gate + Huber job-841 reference. Every full-coverage
+candidate used the same 697 participants and 103,564 query events.
+
+R8-4, which combines pairwise calibration-relative prediction, causal query
+history, and a support-BP-range auxiliary task, is the numerical winner. Its
+Overall participant-macro SBP/DBP/mean MAE is
+10.487/6.021/8.254 mmHg, compared with 10.803/6.168/8.485 mmHg for the
+reference. Mean MAE also improves in both internal PulseDB source strata:
+9.075 to 8.852 mmHg in MIMIC and 7.996 to 7.758 mmHg in VitalDB.
+
+The `similarity >=0.90` sensitivity retains only 79.81% of Overall queries and
+has strongly source-dependent coverage, so it is not a full-coverage model and
+is not promoted. Direct demographic concatenation is nearly neutral, while a
+128-dimensional PPG representation is slightly worse than the 256-dimensional
+reference. R8-4 advances as a candidate base for a further development round;
+multi-seed confirmation is deferred until that method round is complete.
+
+The full result, scope limitations, candidate interpretation, and links to all
+public Overall/MIMIC/VitalDB tables are in
+[RESULTS_ROUND8_CALIBRATION_RELATIVE.md](RESULTS_ROUND8_CALIBRATION_RELATIVE.md).
+The prespecified design remains available in
+[ROUND8_CALIBRATION_RELATIVE_PLAN.md](ROUND8_CALIBRATION_RELATIVE_PLAN.md).
+
+## Round-13 final architecture/capacity screen completed
+
+Round 13 completed the controlled single-seed comparison of 13 population PPG
+encoders. Every candidate retains the same K=5 fixed-first Quality Gate + Huber
+calibration model, folds 0--2/3/4, query set, effective batches, sampled
+examples per epoch, seed, and 256-dimensional encoder output. Meta-validation
+and the locked meta-test remain quarantined.
+
+The wider InceptionTime encoder is the numerical winner. Its Overall
+participant-macro SBP/DBP/mean MAE is 10.8759/6.1636/8.5197 mmHg, compared with
+11.0255/6.3922/8.7089 mmHg for the same-round compact ResNet. Mean MAE improves
+by 0.1891 mmHg Overall, 0.3497 mmHg in the internal MIMIC stratum, and 0.0557
+mmHg in the internal VitalDB stratum. This satisfies the prespecified internal
+gate, so `winner_backbone=inception_time_wide` and
+`passes_internal_gate=true`.
+
+The result does not support network scaling in general. A wider InceptionTime
+helps, but deeper/wider ResNets, deeper/wider or differently tokenized Patch
+Transformers, a larger Conformer, and ConvNeXt-1D do not improve the reference.
+The VitalDB mean gain is also small and is driven by DBP while SBP is slightly
+worse, so source- and endpoint-level confirmation remains necessary.
+
+All 173 pre-submission regression tests and both formal-batch GPU smoke tests
+passed. All 13 population, QGH, and fold-4 evaluation chains completed. A
+post-run SHA-256 inventory found identical relative file sets, sizes, and
+contents for all 41 work/archive output pairs. One final housekeeping step
+returned a nonzero status because the archive target does not support
+preserving POSIX permission metadata; this occurred after the scientific
+outputs completed and did not produce a content mismatch.
+
+The accepted result and full Overall/MIMIC/VitalDB tables are in
+[RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md](RESULTS_ROUND13_FINAL_CAPACITY_SCREEN.md),
+with machine-readable aggregate files under `results/round13/`. The prospective
+specification remains in
+[ROUND13_FINAL_CAPACITY_SCREEN_PLAN.md](ROUND13_FINAL_CAPACITY_SCREEN_PLAN.md).
+The wider InceptionTime candidate advances only to independent-seed
+confirmation and does not yet replace the compact ResNet reference. Neither
+meta-validation nor the locked meta-test has been accessed.

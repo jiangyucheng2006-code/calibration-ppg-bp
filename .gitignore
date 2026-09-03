@@ -64,3 +64,6 @@ secrets*
 
 # Local research history (paper text, audits, temporary download metadata)
 local_archive/
+
+# Local group-meeting materials are not part of the public research repository
+presentations/

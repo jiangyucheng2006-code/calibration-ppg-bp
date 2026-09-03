@@ -1,0 +1,44 @@
+{
+  "status": "complete",
+  "protocol_id": "development-calbased-analogue-v1",
+  "screen_id": "same-subject-single-component-v1",
+  "track": "development_only_same_subject_analogue",
+  "official_pulsedb_calbased_reproduction": false,
+  "split_mode": "random_disjoint",
+  "seed": 20260831,
+  "candidate_count": 19,
+  "selection_role": "internal_validation",
+  "selection_metric": "Overall participant_macro_mean_mae",
+  "heldout_test_accessed": false,
+  "winner": "residual_subject_lora_rank4",
+  "winner_job_id": 1278,
+  "report_job_id": 1288,
+  "participants": {
+    "Overall": 2051,
+    "MIMIC": 1011,
+    "VitalDB": 1040
+  },
+  "internal_validation_events": {
+    "Overall": 82040,
+    "MIMIC": 40440,
+    "VitalDB": 41600
+  },
+  "source_archive_sha256": "85f7c4b9adb5ecd969cd69c6b2c0fc7f7edc2108cd7bbf3de40a0bc49ce6da5b",
+  "source_tree_sha256": "814e7c57080f025d571c27acc13814d9a27aed7732f5785bf94e3c3fc329f78a",
+  "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+  "winner_checkpoint_sha256": "2ef92dbc3f41353b56b94cd2697ccf5d0870e846c1b9d545d3ba50a381e948f7",
+  "server_report_checksums": {
+    "participant_macro_summary.csv": "76ba1895aeac4a86fc3c5723f48dfa6258035f9924459fcd7b0fb0534300bf83",
+    "event_pooled_diagnostics.csv": "45a93b65c47b4a61f27e157d8f62dfdd5eab78c532a11c9558c8150e5c4d602c",
+    "selection.json": "b531294e6cdbdca675d93dbab027ca45a552252ec15c4b6e47dbb978213804b0"
+  },
+  "integrity": {
+    "all_training_jobs_completed_zero_exit": true,
+    "report_job_completed_zero_exit": true,
+    "report_work_nas_identical": true,
+    "candidate_key_files_checked": 57,
+    "candidate_key_files_work_nas_identical": true,
+    "validation_coverage_equal_across_candidates": true
+  },
+  "claim_boundary": "Seen-participant random-disjoint internal validation with 320 labelled train windows per participant; not unseen-participant K-shot calibration, not official PulseDB CalBased reproduction, not external validation, and not formal standards compliance."
+}

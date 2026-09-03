@@ -1,0 +1,70 @@
+{
+  "protocol_id": "development-calbased-analogue-v1",
+  "track": "development_only_same_subject_analogue",
+  "official_pulsedb_calbased_reproduction": false,
+  "seed": 20260828,
+  "selection_role": "internal_validation",
+  "heldout_test_accessed": false,
+  "winner": "subject_mean_residual_ppg",
+  "split_reports": {
+    "random_disjoint": {
+      "selection": {
+        "status": "complete",
+        "protocol_id": "development-calbased-analogue-v1",
+        "track": "development_only_same_subject_analogue",
+        "official_pulsedb_calbased_reproduction": false,
+        "generated_at_utc": "2026-08-31T02:55:57.539179+00:00",
+        "split_mode": "random_disjoint",
+        "seed": 20260828,
+        "selection_role": "internal_validation",
+        "heldout_test_accessed": false,
+        "selection_metric": "Overall participant_macro_mean_mae",
+        "candidate_count": 9,
+        "winner": {
+          "candidate": "subject_mean_residual_ppg",
+          "mean_mae": 5.90892219543457,
+          "sbp_mae": 7.648508071899414,
+          "dbp_mae": 4.16933536529541
+        },
+        "winner_test_policy": "No held-out test was accessed. Refit this one selected candidate on train plus internal_validation before a separate one-time test."
+      },
+      "checksums": {
+        "participant_macro_summary.csv": "b2beed6fa9a3c2da2e341a86f0704804be13797bbb0d5ef1a1f1a2da7703e4bb",
+        "event_pooled_diagnostics_all_scopes.csv": "39a41a30108b20d3ae49ad559528bd6e785c8fcced309ebdbdc44fbbe00cf4bb",
+        "selection.json": "6c48cdb533180a032028fc27cd2b2fd5ae99e8819d1a65daba5c7a173388bf0d"
+      }
+    },
+    "chronological_blocked": {
+      "selection": {
+        "status": "complete",
+        "protocol_id": "development-calbased-analogue-v1",
+        "track": "development_only_same_subject_analogue",
+        "official_pulsedb_calbased_reproduction": false,
+        "generated_at_utc": "2026-08-31T02:55:59.367886+00:00",
+        "split_mode": "chronological_blocked",
+        "seed": 20260828,
+        "selection_role": "internal_validation",
+        "heldout_test_accessed": false,
+        "selection_metric": "Overall participant_macro_mean_mae",
+        "candidate_count": 9,
+        "winner": {
+          "candidate": "subject_mean_residual_ppg",
+          "mean_mae": 6.203857421875,
+          "sbp_mae": 8.036089897155762,
+          "dbp_mae": 4.371624946594238
+        },
+        "winner_test_policy": "No held-out test was accessed. Refit this one selected candidate on train plus internal_validation before a separate one-time test."
+      },
+      "checksums": {
+        "participant_macro_summary.csv": "9c357ba2452e402731bbf290d1350b1743b3df07456d29574d7e4042ad788467",
+        "event_pooled_diagnostics_all_scopes.csv": "c0985789f91c869561a230c2cb99bced2e526ef2935e36988bb3e1115b88a36c",
+        "selection.json": "309d23c55dbcc7bc472dd020a1f37de2bc113343d718b8cd535d021ff61f8109"
+      }
+    }
+  },
+  "public_files": [
+    "participant_macro.csv",
+    "event_pooled_diagnostics.csv",
+    "four_view_winner.csv"
+  ]
+}

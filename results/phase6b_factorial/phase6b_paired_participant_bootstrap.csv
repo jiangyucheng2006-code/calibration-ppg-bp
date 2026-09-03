@@ -1,0 +1,121 @@
+Comparison,Candidate,Reference,Scope,K,N participants,mean_delta_mmHg,ci95_low_mmHg,ci95_high_mmHg,bootstrap_standard_error_mmHg,paired_difference_sd_mmHg,paired_standardized_effect,bootstrap_fraction_improved
+Huber vs M0,Huber,Fixed-first M0,Overall,1,697,-0.118284,-0.212312,-0.026863,0.047420,1.246783,-0.094871,0.994000
+Huber vs M0,Huber,Fixed-first M0,Overall,2,697,-0.051796,-0.133412,0.029505,0.041708,1.112843,-0.046544,0.891500
+Huber vs M0,Huber,Fixed-first M0,Overall,3,697,-0.037806,-0.123154,0.045237,0.043001,1.136176,-0.033275,0.812800
+Huber vs M0,Huber,Fixed-first M0,Overall,5,697,-0.026751,-0.108800,0.054602,0.041619,1.103960,-0.024232,0.739000
+Huber vs M0,Huber,Fixed-first M0,Overall,All K,697,-0.058659,-0.139323,0.020073,0.040517,1.074247,-0.054605,0.926950
+Huber vs M0,Huber,Fixed-first M0,MIMIC,1,316,-0.124713,-0.285861,0.037677,0.083044,1.477202,-0.084425,0.931500
+Huber vs M0,Huber,Fixed-first M0,MIMIC,2,316,-0.104374,-0.263933,0.048248,0.079522,1.405114,-0.074282,0.904650
+Huber vs M0,Huber,Fixed-first M0,MIMIC,3,316,-0.104335,-0.269433,0.053740,0.082301,1.458648,-0.071529,0.900600
+Huber vs M0,Huber,Fixed-first M0,MIMIC,5,316,-0.095632,-0.261380,0.063453,0.082432,1.465124,-0.065272,0.876950
+Huber vs M0,Huber,Fixed-first M0,MIMIC,All K,316,-0.107264,-0.261816,0.044367,0.077653,1.387213,-0.077323,0.919400
+Huber vs M0,Huber,Fixed-first M0,VitalDB,1,381,-0.112952,-0.218062,-0.013874,0.052364,1.018921,-0.110855,0.986950
+Huber vs M0,Huber,Fixed-first M0,VitalDB,2,381,-0.008189,-0.089195,0.070584,0.040650,0.792104,-0.010338,0.575900
+Huber vs M0,Huber,Fixed-first M0,VitalDB,3,381,0.017372,-0.060399,0.094479,0.039548,0.770669,0.022542,0.334300
+Huber vs M0,Huber,Fixed-first M0,VitalDB,5,381,0.030379,-0.037952,0.096284,0.034099,0.667510,0.045511,0.187300
+Huber vs M0,Huber,Fixed-first M0,VitalDB,All K,381,-0.018347,-0.090258,0.052656,0.036620,0.717542,-0.025570,0.689250
+Quality gate vs M0,PPG quality gate,Fixed-first M0,Overall,1,697,-0.173061,-0.286625,-0.065771,0.056634,1.501156,-0.115285,0.998950
+Quality gate vs M0,PPG quality gate,Fixed-first M0,Overall,2,697,-0.153812,-0.264510,-0.046732,0.055820,1.476052,-0.104205,0.998300
+Quality gate vs M0,PPG quality gate,Fixed-first M0,Overall,3,697,-0.178172,-0.291672,-0.071288,0.056385,1.473812,-0.120892,0.999900
+Quality gate vs M0,PPG quality gate,Fixed-first M0,Overall,5,697,-0.195329,-0.312154,-0.088953,0.057089,1.496532,-0.130521,0.999750
+Quality gate vs M0,PPG quality gate,Fixed-first M0,Overall,All K,697,-0.175094,-0.280942,-0.075278,0.052419,1.397537,-0.125287,0.999850
+Quality gate vs M0,PPG quality gate,Fixed-first M0,MIMIC,1,316,-0.251353,-0.433875,-0.076606,0.091070,1.610930,-0.156030,0.997950
+Quality gate vs M0,PPG quality gate,Fixed-first M0,MIMIC,2,316,-0.331791,-0.529721,-0.147614,0.098134,1.750793,-0.189509,0.999750
+Quality gate vs M0,PPG quality gate,Fixed-first M0,MIMIC,3,316,-0.375786,-0.584192,-0.179441,0.103063,1.826614,-0.205728,0.999950
+Quality gate vs M0,PPG quality gate,Fixed-first M0,MIMIC,5,316,-0.420035,-0.633686,-0.218247,0.106663,1.910500,-0.219856,1.000000
+Quality gate vs M0,PPG quality gate,Fixed-first M0,MIMIC,All K,316,-0.344741,-0.537702,-0.163758,0.095517,1.697878,-0.203043,0.999950
+Quality gate vs M0,PPG quality gate,Fixed-first M0,VitalDB,1,381,-0.108127,-0.252090,0.030916,0.071980,1.402457,-0.077098,0.937300
+Quality gate vs M0,PPG quality gate,Fixed-first M0,VitalDB,2,381,-0.006197,-0.123944,0.113487,0.060475,1.183796,-0.005234,0.531800
+Quality gate vs M0,PPG quality gate,Fixed-first M0,VitalDB,3,381,-0.014271,-0.122691,0.090850,0.054659,1.073874,-0.013289,0.596700
+Quality gate vs M0,PPG quality gate,Fixed-first M0,VitalDB,5,381,-0.008958,-0.109204,0.089918,0.050979,0.999769,-0.008961,0.566400
+Quality gate vs M0,PPG quality gate,Fixed-first M0,VitalDB,All K,381,-0.034388,-0.144261,0.070285,0.054776,1.069490,-0.032154,0.731900
+CVaR vs M0,Participant CVaR,Fixed-first M0,Overall,1,697,0.058313,-0.052193,0.169998,0.056721,1.496845,0.038958,0.150800
+CVaR vs M0,Participant CVaR,Fixed-first M0,Overall,2,697,0.026905,-0.066398,0.121450,0.047955,1.271466,0.021161,0.283450
+CVaR vs M0,Participant CVaR,Fixed-first M0,Overall,3,697,-0.001361,-0.091376,0.089291,0.045835,1.215046,-0.001120,0.511400
+CVaR vs M0,Participant CVaR,Fixed-first M0,Overall,5,697,-0.019676,-0.103915,0.064144,0.042875,1.126387,-0.017469,0.671600
+CVaR vs M0,Participant CVaR,Fixed-first M0,Overall,All K,697,0.016045,-0.073081,0.103937,0.045197,1.202277,0.013346,0.354950
+CVaR vs M0,Participant CVaR,Fixed-first M0,MIMIC,1,316,-0.092424,-0.250667,0.068736,0.080978,1.444597,-0.063979,0.877100
+CVaR vs M0,Participant CVaR,Fixed-first M0,MIMIC,2,316,-0.064650,-0.218258,0.091069,0.078239,1.395143,-0.046339,0.800200
+CVaR vs M0,Participant CVaR,Fixed-first M0,MIMIC,3,316,-0.058155,-0.209994,0.095460,0.078202,1.378555,-0.042186,0.775500
+CVaR vs M0,Participant CVaR,Fixed-first M0,MIMIC,5,316,-0.052981,-0.200320,0.092463,0.074709,1.336273,-0.039649,0.761400
+CVaR vs M0,Participant CVaR,Fixed-first M0,MIMIC,All K,316,-0.067053,-0.214583,0.082322,0.075874,1.352441,-0.049579,0.811800
+CVaR vs M0,Participant CVaR,Fixed-first M0,VitalDB,1,381,0.183334,0.032919,0.338646,0.078296,1.529467,0.119868,0.008150
+CVaR vs M0,Participant CVaR,Fixed-first M0,VitalDB,2,381,0.102841,-0.015102,0.217444,0.058986,1.155311,0.089016,0.041550
+CVaR vs M0,Participant CVaR,Fixed-first M0,VitalDB,3,381,0.045744,-0.064222,0.147997,0.054465,1.060084,0.043151,0.197600
+CVaR vs M0,Participant CVaR,Fixed-first M0,VitalDB,5,381,0.007946,-0.086302,0.096709,0.046671,0.917570,0.008660,0.425300
+CVaR vs M0,Participant CVaR,Fixed-first M0,VitalDB,All K,381,0.084966,-0.022805,0.188779,0.054068,1.058661,0.080258,0.061500
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,Overall,1,697,-0.208431,-0.316378,-0.104438,0.054014,1.418295,-0.146959,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,Overall,2,697,-0.229340,-0.338362,-0.124752,0.054462,1.439327,-0.159338,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,Overall,3,697,-0.262354,-0.372845,-0.156699,0.055034,1.453012,-0.180559,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,Overall,5,697,-0.297345,-0.411336,-0.190792,0.056444,1.494793,-0.198921,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,Overall,All K,697,-0.249367,-0.352893,-0.150351,0.051606,1.368629,-0.182202,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,MIMIC,1,316,-0.366142,-0.552878,-0.191928,0.091653,1.636624,-0.223718,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,MIMIC,2,316,-0.458422,-0.660737,-0.268026,0.100239,1.777847,-0.257853,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,MIMIC,3,316,-0.503385,-0.711133,-0.306385,0.103048,1.837182,-0.273998,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,MIMIC,5,316,-0.558201,-0.778097,-0.350462,0.108823,1.921248,-0.290541,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,MIMIC,All K,316,-0.471538,-0.666962,-0.287671,0.096945,1.716312,-0.274739,1.000000
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,VitalDB,1,381,-0.077626,-0.199955,0.043166,0.061900,1.194206,-0.065002,0.894450
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,VitalDB,2,381,-0.039339,-0.144576,0.066548,0.053533,1.046178,-0.037603,0.769700
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,VitalDB,3,381,-0.062444,-0.162312,0.035731,0.050524,0.990270,-0.063058,0.890150
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,VitalDB,5,381,-0.080992,-0.179658,0.014372,0.049307,0.963934,-0.084022,0.952650
+Quality gate + Huber vs M0,Quality gate + Huber,Fixed-first M0,VitalDB,All K,381,-0.065100,-0.161310,0.029931,0.048709,0.955965,-0.068099,0.908750
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,Overall,1,697,-0.035370,-0.095614,0.028753,0.031968,0.841937,-0.042010,0.864650
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,Overall,2,697,-0.075528,-0.127368,-0.023921,0.026310,0.695606,-0.108578,0.997750
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,Overall,3,697,-0.084182,-0.132423,-0.036631,0.024426,0.648622,-0.129787,0.999600
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,Overall,5,697,-0.102016,-0.149136,-0.056175,0.023595,0.617697,-0.165156,1.000000
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,Overall,All K,697,-0.074274,-0.123721,-0.026079,0.024724,0.651862,-0.113941,0.998950
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,MIMIC,1,316,-0.114789,-0.202366,-0.028251,0.044470,0.791359,-0.145053,0.995000
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,MIMIC,2,316,-0.126631,-0.208550,-0.045195,0.041434,0.734862,-0.172319,0.999250
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,MIMIC,3,316,-0.127598,-0.205585,-0.051889,0.039409,0.705911,-0.180757,0.999450
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,MIMIC,5,316,-0.138166,-0.214434,-0.063879,0.038748,0.694282,-0.199005,0.999900
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,MIMIC,All K,316,-0.126796,-0.205183,-0.051869,0.039324,0.698249,-0.181592,0.999650
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,VitalDB,1,381,0.030501,-0.055622,0.120630,0.045075,0.877272,0.034768,0.257050
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,VitalDB,2,381,-0.033143,-0.099798,0.032801,0.033626,0.659256,-0.050273,0.841250
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,VitalDB,3,381,-0.048173,-0.108824,0.011378,0.030751,0.595504,-0.080895,0.943550
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,VitalDB,5,381,-0.072034,-0.127601,-0.018138,0.027865,0.545229,-0.132116,0.996300
+Huber added to quality gate,Quality gate + Huber,PPG quality gate,VitalDB,All K,381,-0.030712,-0.092221,0.031614,0.031446,0.608218,-0.050495,0.833600
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,Overall,1,697,-0.000007,-0.126187,0.130368,0.065400,1.730179,-0.000004,0.505450
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,Overall,2,697,0.022296,-0.087544,0.132987,0.056621,1.485975,0.015005,0.349600
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,Overall,3,697,0.030559,-0.071962,0.132823,0.052411,1.382245,0.022108,0.279400
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,Overall,5,697,0.042665,-0.054295,0.138382,0.049540,1.304177,0.032714,0.199350
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,Overall,All K,697,0.023878,-0.078108,0.128466,0.052772,1.387769,0.017206,0.328550
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,MIMIC,1,316,-0.005319,-0.191280,0.181267,0.095231,1.694485,-0.003139,0.522600
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,MIMIC,2,316,0.033351,-0.141033,0.209116,0.088800,1.580943,0.021095,0.351800
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,MIMIC,3,316,0.046516,-0.123135,0.217281,0.086697,1.544625,0.030115,0.295350
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,MIMIC,5,316,0.057301,-0.110017,0.225386,0.086250,1.534351,0.037345,0.252950
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,MIMIC,All K,316,0.032962,-0.135663,0.198135,0.085720,1.522862,0.021645,0.342750
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,VitalDB,1,381,0.004399,-0.167379,0.185064,0.089881,1.761444,0.002497,0.488700
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,VitalDB,2,381,0.013128,-0.128142,0.153780,0.071566,1.404389,0.009348,0.427250
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,VitalDB,3,381,0.017325,-0.105534,0.142907,0.063423,1.233399,0.014046,0.387550
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,VitalDB,5,381,0.030526,-0.077126,0.140227,0.055480,1.078624,0.028301,0.288550
+CVaR added to quality gate,Quality gate + CVaR,PPG quality gate,VitalDB,All K,381,0.016344,-0.108335,0.146359,0.064965,1.266845,0.012902,0.401400
+CVaR added to Huber,Huber + CVaR,Huber,Overall,1,697,0.122565,0.007604,0.242803,0.060209,1.588863,0.077140,0.018100
+CVaR added to Huber,Huber + CVaR,Huber,Overall,2,697,0.037505,-0.062540,0.137079,0.050696,1.341630,0.027955,0.227050
+CVaR added to Huber,Huber + CVaR,Huber,Overall,3,697,-0.011015,-0.107848,0.085997,0.049873,1.325332,-0.008311,0.583550
+CVaR added to Huber,Huber + CVaR,Huber,Overall,5,697,-0.046867,-0.135671,0.043438,0.045722,1.219838,-0.038420,0.847250
+CVaR added to Huber,Huber + CVaR,Huber,Overall,All K,697,0.025547,-0.068644,0.120887,0.048251,1.270164,0.020113,0.293450
+CVaR added to Huber,Huber + CVaR,Huber,MIMIC,1,316,-0.049258,-0.210897,0.114376,0.083160,1.484163,-0.033189,0.723450
+CVaR added to Huber,Huber + CVaR,Huber,MIMIC,2,316,-0.034545,-0.188137,0.125583,0.080247,1.426981,-0.024208,0.670050
+CVaR added to Huber,Huber + CVaR,Huber,MIMIC,3,316,-0.038842,-0.196573,0.123743,0.081760,1.451814,-0.026754,0.681100
+CVaR added to Huber,Huber + CVaR,Huber,MIMIC,5,316,-0.056472,-0.210990,0.100613,0.079543,1.434978,-0.039354,0.766150
+CVaR added to Huber,Huber + CVaR,Huber,MIMIC,All K,316,-0.044779,-0.200753,0.108909,0.078900,1.405151,-0.031868,0.714000
+CVaR added to Huber,Huber + CVaR,Huber,VitalDB,1,381,0.265075,0.101765,0.435400,0.084963,1.659195,0.159761,0.000650
+CVaR added to Huber,Huber + CVaR,Huber,VitalDB,2,381,0.097263,-0.031238,0.221814,0.064818,1.265277,0.076871,0.070050
+CVaR added to Huber,Huber + CVaR,Huber,VitalDB,3,381,0.012064,-0.113699,0.131301,0.062100,1.211929,0.009955,0.411500
+CVaR added to Huber,Huber + CVaR,Huber,VitalDB,5,381,-0.038900,-0.140683,0.060201,0.051084,1.009120,-0.038548,0.777500
+CVaR added to Huber,Huber + CVaR,Huber,VitalDB,All K,381,0.083876,-0.032799,0.197806,0.058926,1.144849,0.073264,0.080650
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,Overall,1,697,-0.013416,-0.117002,0.090305,0.053185,1.408559,-0.009524,0.603200
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,Overall,2,697,0.031395,-0.061759,0.124080,0.047078,1.247795,0.025161,0.253850
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,Overall,3,697,0.034128,-0.052552,0.120614,0.043814,1.154258,0.029567,0.214600
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,Overall,5,697,0.036823,-0.044352,0.117519,0.041367,1.088055,0.033843,0.190500
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,Overall,All K,697,0.022233,-0.062441,0.106081,0.043083,1.143729,0.019439,0.300750
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,MIMIC,1,316,-0.013032,-0.167569,0.141716,0.079453,1.418396,-0.009188,0.562050
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,MIMIC,2,316,0.015665,-0.128000,0.160095,0.073415,1.310141,0.011957,0.411400
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,MIMIC,3,316,0.021609,-0.118175,0.160961,0.070954,1.271015,0.017002,0.378200
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,MIMIC,5,316,0.012066,-0.126504,0.149371,0.070810,1.262531,0.009557,0.426200
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,MIMIC,All K,316,0.009077,-0.127545,0.146200,0.070003,1.246410,0.007283,0.443550
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,VitalDB,1,381,-0.013734,-0.150811,0.130301,0.071902,1.402215,-0.009795,0.584550
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,VitalDB,2,381,0.044442,-0.075327,0.167783,0.061337,1.195206,0.037184,0.234250
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,VitalDB,3,381,0.044510,-0.061735,0.149088,0.053816,1.049213,0.042423,0.208900
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,VitalDB,5,381,0.057357,-0.034337,0.150128,0.046823,0.919826,0.062357,0.108400
+CVaR added to quality gate + Huber,Quality gate + Huber + CVaR,Quality gate + Huber,VitalDB,All K,381,0.033144,-0.070273,0.139231,0.053580,1.052545,0.031489,0.270000

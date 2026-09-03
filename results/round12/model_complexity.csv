@@ -1,0 +1,6 @@
+Backbone,Population parameters,QGH total parameters,QGH trainable parameters
+resnet_small,665490,1127318,461828
+tcn_bp,20482,482310,461828
+fewshot_resnet_attention,16130818,16592646,461828
+bp_crnn,50901,512729,461828
+resunet_encoder,1158946,1620774,461828

@@ -1,0 +1,10 @@
+Setting,Scope,Reference mean participant-macro MAE,Candidate mean participant-macro MAE,Candidate minus reference
+inception_time_wide_qgh,Overall,8.510653668896676,8.510653668896676,0.0
+inception_time_wide_qgh,MIMIC,9.097195699196472,9.097195699196472,0.0
+inception_time_wide_qgh,VitalDB,8.02329367287498,8.02329367287498,0.0
+calibration_relative,Overall,8.510653668896676,8.352040188646521,-0.1586134802501551
+calibration_relative,MIMIC,9.097195699196472,8.97186360612,-0.12533209307647297
+calibration_relative,VitalDB,8.02329367287498,7.837026561882846,-0.18626711099213367
+calibration_relative_standards,Overall,8.510653668896676,8.381856752087826,-0.12879691680885053
+calibration_relative_standards,MIMIC,9.097195699196472,8.99983135546994,-0.09736434372653235
+calibration_relative_standards,VitalDB,8.02329367287498,7.86837931195983,-0.1549143609151491
