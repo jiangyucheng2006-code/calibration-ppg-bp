@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-04.
 
-## Few-shot shared adapter-bank screen prepared
+## Few-shot shared adapter-bank screen submitted
 
 A prospective unseen-participant screen has been frozen to compare six shared
 low-rank adapter-bank sizes (`M=5/10/15/20/25/30`) under Top-5 and dense
@@ -16,7 +16,22 @@ optimizer, seed, fixed-first K=1/2/3/5 support events, event-6-and-later query
 set, and participant-disjoint fold roles are held fixed. Folds 0--2 fit, fold
 3 controls patience-8 early stopping with no epoch-count cap, and fold 4 is
 opened only after checkpoint freezing for internal ranking. Meta-validation
-and the locked meta-test remain inaccessible. See
+and the locked meta-test remain inaccessible.
+
+The immutable training snapshot is commit `a95ec36`; its archived tarball
+SHA-256 is
+`6d5ea653f93c6e715c4830c16dba9eb69d98d743fca72d5ec3362865791d7ba1`.
+All 274 server tests passed, and CUDA smoke jobs 1372 and 1373 passed on the
+RTX 5080 and RTX 5070 Ti. Cache job 1374 completed and archived 3,143
+participants and 483,246 common query events. Jobs 1375--1387 are the paired
+M0 reference plus 12 candidates; report job 1388 depends on all 13. At the
+last verified check, jobs 1375 and 1376 were running with improving fold-3
+scores and empty stderr; the remaining jobs were scheduler-pending.
+
+An earlier chain 1357--1371 is ineligible and was cancelled before any
+candidate completed after audit found that routing mode was systematically
+confounded with GPU type. The corrected submission alternates GPU assignment
+by bank size and holds the equivalent M=5 pair on the same RTX 5080. See
 [FEWSHOT_ADAPTER_BANK_SCREEN_PLAN.md](FEWSHOT_ADAPTER_BANK_SCREEN_PLAN.md) for
 the complete prospective matrix, leakage boundary, report, and promotion gate.
 
