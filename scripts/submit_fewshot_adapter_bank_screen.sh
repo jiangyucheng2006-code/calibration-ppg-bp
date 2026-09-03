@@ -47,17 +47,27 @@ done
 
 jobs=()
 runs=()
+choose_gpu() {
+  local basis="$1"
+  local mode="$2"
+  if [[ "$basis" == "0" ]]; then
+    printf '%s\n' "$gpu_b"
+  elif [[ "$basis" == "5" ]]; then
+    # Keep the mathematically equivalent M=5 jobs on one device so that their
+    # prediction difference is a clean implementation-consistency check.
+    printf '%s\n' "$gpu_a"
+  elif (( (basis / 5) % 2 == 0 )); then
+    [[ "$mode" == "top5" ]] && printf '%s\n' "$gpu_a" || printf '%s\n' "$gpu_b"
+  else
+    [[ "$mode" == "top5" ]] && printf '%s\n' "$gpu_b" || printf '%s\n' "$gpu_a"
+  fi
+}
+
 for index in "${!settings[@]}"; do
   setting="${settings[$index]}"
   basis="${bases[$index]}"
   mode="${modes[$index]}"
-  if [[ "$basis" == "5" ]]; then
-    gpu="$gpu_a"
-  elif (( index % 2 == 0 )); then
-    gpu="$gpu_a"
-  else
-    gpu="$gpu_b"
-  fi
+  gpu="$(choose_gpu "$basis" "$mode")"
   job="$(sbatch --parsable \
     --dependency="afterok:${cache_job}" \
     --gres="gpu:${gpu}:1" \
@@ -83,7 +93,7 @@ report_job="${report_job%%;*}"
     setting="${settings[$index]}"
     basis="${bases[$index]}"
     mode="${modes[$index]}"
-    if [[ "$basis" == "5" ]]; then gpu="$gpu_a"; elif (( index % 2 == 0 )); then gpu="$gpu_a"; else gpu="$gpu_b"; fi
+    gpu="$(choose_gpu "$basis" "$mode")"
     printf 'train\t%s\t%s\t%s\t%s\tafterok:%s\t%s\t%s\n' \
       "$setting" "$basis" "$mode" "${jobs[$index]}" "$cache_job" "$gpu" "${runs[$index]#*=}"
   done
