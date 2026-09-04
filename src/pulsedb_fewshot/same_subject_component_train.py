@@ -347,6 +347,41 @@ def train_component(
     )
 
     args.output.mkdir(parents=True, exist_ok=False)
+    subject_index_path = args.output / "subject_index.json"
+    save_json(
+        subject_index_path,
+        {
+            "protocol_id": PROTOCOL_ID,
+            "screen_id": screen_id,
+            "split_mode": args.split_mode,
+            "source_parent_split": "meta_train",
+            "read_roles": list(SCREENING_READ_ROLES),
+            "heldout_test_accessed": False,
+            "subject_count": len(subject_ids),
+            "subject_to_index": subject_indices,
+        },
+    )
+    participant_profile = subject_means.copy()
+    participant_profile["subject_uid"] = participant_profile["subject_uid"].astype(str)
+    participant_profile["subject_index"] = participant_profile["subject_uid"].map(
+        subject_indices
+    )
+    if participant_profile["subject_index"].isna().any():
+        raise ValueError("participant profile could not be mapped to subject indices")
+    participant_profile["subject_index"] = participant_profile["subject_index"].astype(int)
+    if support_bank is not None:
+        participant_profile["support_segment_uids"] = participant_profile[
+            "subject_uid"
+        ].map(
+            lambda subject: json.dumps(
+                support_bank[str(subject)]["segment_uids"], separators=(",", ":")
+            )
+        )
+    participant_profile = participant_profile.sort_values(
+        "subject_index", kind="mergesort"
+    ).reset_index(drop=True)
+    participant_profile_path = args.output / "participant_profile_index.parquet"
+    participant_profile.to_parquet(participant_profile_path, index=False)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if args.require_cuda and device.type != "cuda":
         raise RuntimeError("CUDA was required but is unavailable")
@@ -454,6 +489,7 @@ def train_component(
                     "epoch": epoch,
                     "seed": args.seed,
                     "metrics": metrics,
+                    "subject_to_index": subject_indices,
                 },
                 checkpoint_path,
             )
@@ -505,6 +541,23 @@ def train_component(
             if spec.uses_support
             else None
         ),
+        "participant_trainable_parameters": int(
+            getattr(spec, "participant_trainable_parameters", 0)
+        ),
+        "personal_state_storage": {
+            "subject_index": str(subject_index_path),
+            "subject_index_sha256": file_sha256(subject_index_path),
+            "participant_profile_index": str(participant_profile_path),
+            "participant_profile_index_sha256": file_sha256(
+                participant_profile_path
+            ),
+            "participant_profile_contains_train_role_bp_anchor": True,
+            "participant_profile_contains_support_event_ids": support_bank is not None,
+            "checkpoint_contains_subject_to_index": True,
+            "checkpoint_contains_subject_specific_state": bool(
+                getattr(spec, "uses_subject_index", False)
+            ),
+        },
         "parameter_counts": model_parameter_counts(model),
         "best_epoch": best_epoch,
         "epochs_completed": len(history),
