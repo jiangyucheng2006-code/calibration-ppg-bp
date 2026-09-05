@@ -2,6 +2,10 @@
 
 ## Status and scope
 
+Completed; see the [full result](RESULTS_SAME_SUBJECT_PERSONAL_PROFILES.md).
+All 16 runs succeeded, but the prespecified primary did not outperform paired
+LoRA. The original hypothesis and decision rule below are retained unchanged.
+
 This is a prespecified development experiment for persistent, seen-participant
 personalization. It is **not** an unseen-participant few-shot claim and it is
 **not** an official PulseDB CalBased reproduction.

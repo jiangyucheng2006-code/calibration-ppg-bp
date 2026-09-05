@@ -1,0 +1,329 @@
+{
+  "status": "pass",
+  "training_run_count": 16,
+  "identical_validation_keys_and_targets_within_each_mode": true,
+  "participant_macro_and_pooled_metrics_recomputed": true,
+  "report_work_nas_identical": true,
+  "run_metadata_prediction_and_profile_archives_identical": true,
+  "checkpoint_binary_hashes_rechecked_in_this_audit": false,
+  "heldout_test_accessed": false,
+  "report_checksums": {
+    "random_disjoint": {
+      "participant_macro_summary.csv": "c8ec01577069764a45dd8cd3c13d62906ee6766a62dcf1ae1225c7f4bbf99b96",
+      "event_pooled_overall.csv": "74be55b4b4f4385f8c7cb62f8f6437bdbaecd110663e432a02afb4fe88e20355",
+      "event_pooled_mimic.csv": "67c466cc97bde67e6ce06c3f6a63166e1e0dfda4b39b76714ebe2f23d6e4dde5",
+      "README.md": "6bb7a6e037098ae32b0cddaaf18553e9ccd2c647aa26c2921f10ab7635f29e73",
+      "selection.json": "1c97de66a6abe95db108fb1305b9af1a5d24110e8f912e2984ed26ff0d4f74e7",
+      "internal_validation_summary.csv": "c8ec01577069764a45dd8cd3c13d62906ee6766a62dcf1ae1225c7f4bbf99b96",
+      "internal_validation_summary.json": "d79eca5ccfeb004105460335c456a41700ad063911af3b04cb966b032ad81062",
+      "event_pooled_vitaldb.csv": "0f1dc57fd47e2d490c05b5ae87be52319c5fb566673870122f81e44c255613c7",
+      "event_pooled_diagnostics_all_scopes.csv": "0eccd57aaa85972207affe44e13d43733d4f4e28788f3106f622f56c221dcf59"
+    },
+    "chronological_blocked": {
+      "participant_macro_summary.csv": "84954772f941d9e7d9d31e8fbd78569db80e591824ae142ee163d1c59b7e3548",
+      "event_pooled_overall.csv": "1f42f58a7871b64734b913b57a0abb0842faa885cfa1cc6dd9d22df3f3832489",
+      "event_pooled_mimic.csv": "9ceac1f27ca2212f4c56f03516e32a78e083621ca6cdd2f30c1f627766b0852f",
+      "README.md": "d0a053b1c214cfbd97e3631d5c2f4c669d2f724626a8de045af367045061de7b",
+      "selection.json": "1ece0a613ba09536dc477691bac6c0fef2f1bb2036703448e356f65072f660c1",
+      "internal_validation_summary.csv": "84954772f941d9e7d9d31e8fbd78569db80e591824ae142ee163d1c59b7e3548",
+      "internal_validation_summary.json": "071363370533314b532dc75cb633cb95f4c8fd8ed50643c658bdac281b27c1e0",
+      "event_pooled_vitaldb.csv": "5ed478ebdb316e1c590dfa9937b4a2a7c6a6cce3a3ad30aa6f075b1a2a0689b4",
+      "event_pooled_diagnostics_all_scopes.csv": "1f19fd0eeceb4ad8a6fe66c3d3f52f7b108df5c2bc48e9f21d5c73bf0921334f"
+    },
+    "both": {
+      "personal_profile_comparison.csv": "50c861080eff9ee2fe0502566d634549c5b176cfb9425096e711d80eeac06321",
+      "README.md": "8b6aaf01a511db90b2920464687252b9e80739183b84f99a6ae4d118691e58e3",
+      "selection.json": "4d67a762220ad7bb53b3eaf7d20d7ef9ed084b3f09b4a2fcb09782466406c6cb"
+    }
+  },
+  "runs": [
+    {
+      "candidate": "residual_reference",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1398",
+      "best_epoch": 68,
+      "epochs_completed": 76,
+      "stop_reason": "early_stopping",
+      "support_count": 0,
+      "participant_trainable_parameters": 0,
+      "parameter_counts": {
+        "total": 698130,
+        "trainable": 698130
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "subject_lora_rank4",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1399",
+      "best_epoch": 106,
+      "epochs_completed": 114,
+      "stop_reason": "early_stopping",
+      "support_count": 0,
+      "participant_trainable_parameters": 2048,
+      "parameter_counts": {
+        "total": 4898578,
+        "trainable": 4898578
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_support_only",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1400",
+      "best_epoch": 86,
+      "epochs_completed": 94,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 0,
+      "parameter_counts": {
+        "total": 743320,
+        "trainable": 743320
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_no_support",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1401",
+      "best_epoch": 84,
+      "epochs_completed": 92,
+      "stop_reason": "early_stopping",
+      "support_count": 0,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 809404,
+        "trainable": 809404
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_no_reliability",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1402",
+      "best_epoch": 87,
+      "epochs_completed": 95,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 809404,
+        "trainable": 809404
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_reliability",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1403",
+      "best_epoch": 123,
+      "epochs_completed": 131,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 813054,
+        "trainable": 813054
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code64_reliability",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1404",
+      "best_epoch": 95,
+      "epochs_completed": 103,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 66,
+      "parameter_counts": {
+        "total": 889630,
+        "trainable": 889630
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_stable_only",
+      "split_mode": "random_disjoint",
+      "seed": 20260904,
+      "slurm_job_id": "1405",
+      "best_epoch": 63,
+      "epochs_completed": 71,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 770618,
+        "trainable": 770618
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "residual_reference",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1407",
+      "best_epoch": 79,
+      "epochs_completed": 87,
+      "stop_reason": "early_stopping",
+      "support_count": 0,
+      "participant_trainable_parameters": 0,
+      "parameter_counts": {
+        "total": 698130,
+        "trainable": 698130
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "subject_lora_rank4",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1408",
+      "best_epoch": 63,
+      "epochs_completed": 71,
+      "stop_reason": "early_stopping",
+      "support_count": 0,
+      "participant_trainable_parameters": 2048,
+      "parameter_counts": {
+        "total": 4898578,
+        "trainable": 4898578
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_support_only",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1409",
+      "best_epoch": 66,
+      "epochs_completed": 74,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 0,
+      "parameter_counts": {
+        "total": 743320,
+        "trainable": 743320
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_no_support",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1410",
+      "best_epoch": 76,
+      "epochs_completed": 84,
+      "stop_reason": "early_stopping",
+      "support_count": 0,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 809404,
+        "trainable": 809404
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_no_reliability",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1411",
+      "best_epoch": 63,
+      "epochs_completed": 71,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 809404,
+        "trainable": 809404
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_reliability",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1412",
+      "best_epoch": 70,
+      "epochs_completed": 78,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 813054,
+        "trainable": 813054
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code64_reliability",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1413",
+      "best_epoch": 49,
+      "epochs_completed": 57,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 66,
+      "parameter_counts": {
+        "total": 889630,
+        "trainable": 889630
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    },
+    {
+      "candidate": "personal_profile_code32_stable_only",
+      "split_mode": "chronological_blocked",
+      "seed": 20260904,
+      "slurm_job_id": "1414",
+      "best_epoch": 53,
+      "epochs_completed": 61,
+      "stop_reason": "early_stopping",
+      "support_count": 5,
+      "participant_trainable_parameters": 34,
+      "parameter_counts": {
+        "total": 770618,
+        "trainable": 770618
+      },
+      "source_tree_sha256": "76f1dd0499c7a75c43a22a6183732b742df1d15df837a41a9d46135c4c5aa341",
+      "store_manifest_sha256": "7ba24c7b7ba84f646126ff354be10e0d005ef1916420973b4823d196357c03a2",
+      "heldout_test_accessed": false
+    }
+  ]
+}

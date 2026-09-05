@@ -1,5 +1,21 @@
 # Calibration PPG BP
 
+## Latest completed experiment — 2026-09-06
+
+The [compact personal-profile result](docs/RESULTS_SAME_SUBJECT_PERSONAL_PROFILES.md)
+is complete: eight candidates under each of two same-subject development
+splits. Paired LoRA remains best at Overall mean MAE **3.0394** mmHg for
+random disjoint windows and **3.7945** mmHg for chronological blocking.
+The proposed 32D profile reaches **4.0179 / 4.3140** mmHg and does not pass
+the prospective upgrade gate. The report explains the useful dynamic branch,
+the unhelpful current reliability gate, and the proposed next mechanism tests.
+
+[All Overall/MIMIC/VitalDB tables](results/same_subject_personal_profiles/)
+include MAE, R², ME, STD, percentages within 5/10/15 mmHg, and qualified
+AAMI/BHS numerical screens. This experiment uses persistent profiles learned
+from 320 labelled windows per seen participant. Held-out targets remain sealed.
+See [verified project status](docs/STATUS.md) for the experiment record.
+
 Research code for leakage-safe, event-level, few-shot personalization of
 photoplethysmography (PPG) blood-pressure models.
 

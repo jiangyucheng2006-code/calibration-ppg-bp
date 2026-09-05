@@ -1,6 +1,41 @@
 # Verified project status
 
-Last updated: 2026-09-03.
+Last updated: 2026-09-06.
+
+## Compact personal-profile screen completed
+
+All 16 training jobs (1398–1405, 1407–1414), split reports 1406/1415 and
+final report 1416 completed with exit code `0:0`. The final report was written
+on 2026-09-05 at 14:53 UTC+8. At the 2026-09-06 check the user queue is empty
+and all 19 corresponding stderr files are empty.
+
+Paired LoRA is best in both modes and all three source scopes. Its Overall
+SBP/DBP/mean MAE is `3.9018/2.1771/3.0394` mmHg for random disjoint windows
+and `4.8789/2.7101/3.7945` for chronological blocking. The prespecified
+32D reliability-gated profile gives `5.1591/2.8768/4.0179` and
+`5.5740/3.0540/4.3140`, respectively. No new profile passes the prospective
+upgrade gate; LoRA remains the accuracy reference.
+
+Within the new profiles, a dynamic personal correction helps, adding the
+current reliability gate slightly worsens both modes, and expanding the
+personal code to 64D helps but does not close the LoRA gap. These are
+single-seed observations, not repeat-seed confirmation or proof of mechanism.
+The next recommended work is to test PPG versus identity contributions and
+separate personal capacity from the location of personalization in the
+network. No new training was submitted during this publication task.
+
+The audit reread all 16 prediction tables, verified identical development
+keys/targets within each mode and recomputed all three scopes' MAE, R², ME,
+STD and error percentages. Metadata, profile mappings, predictions and
+diagnostics match their NAS copies; all three report directories match too.
+Checkpoint binary hashes were not rechecked during this publication audit.
+The held-out role remains sealed. The experiment uses 320 labelled training
+windows per known participant; it is not a new-user K-shot or exact official
+CalBased result.
+
+[Full report and next recommendations](RESULTS_SAME_SUBJECT_PERSONAL_PROFILES.md)
+and [aggregate evidence](../results/same_subject_personal_profiles/) are the
+authoritative record for this screen.
 
 ## Same-subject terminal combination screen completed
 
