@@ -2,6 +2,12 @@
 
 ## Current work — personal feature mechanisms
 
+An additional [LoRA + persistent residual continuation study](docs/PLAN_LORA_PRS_CONTINUATION.md)
+tests five settings under both split modes, using the same completed LoRA
+checkpoints and an explicit continuation control. The existing feature-screen
+jobs are retained. This is a prospective experiment, not a demonstrated upgrade;
+see [verified execution status](docs/STATUS.md).
+
 The [frozen-model diagnostic](docs/RESULTS_PERSONAL_MECHANISMS.md) is complete.
 LoRA depends on both correctly matched PPG windows and persistent personal
 state, not just the participant BP mean. Natural and cached predictions were

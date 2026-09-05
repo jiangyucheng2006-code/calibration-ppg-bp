@@ -298,6 +298,9 @@ def train_component(
     screen_id: str = SCREEN_ID,
     runner: str = "single_component_residual",
     allowed_split_modes: Sequence[str] = ("random_disjoint",),
+    initializer: Callable | None = None,
+    optimizer_factory: Callable | None = None,
+    training_penalty: Callable | None = None,
 ) -> dict[str, object]:
     """Train one residual candidate under an explicitly supplied registry.
 
@@ -386,6 +389,9 @@ def train_component(
     if args.require_cuda and device.type != "cuda":
         raise RuntimeError("CUDA was required but is unavailable")
     model = model_factory(spec, subject_count=len(subject_ids)).to(device)
+    initialization = None
+    if initializer is not None:
+        initialization = initializer(model, args, scaler, subject_indices)
     train_dataset = SameSubjectComponentDataset(
         filtered_train,
         args.store_root,
@@ -428,9 +434,9 @@ def train_component(
         shuffle=False,
         **loader_options,
     )
-    optimizer = torch.optim.AdamW(
-        model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay
-    )
+    optimizer = (optimizer_factory(model, args) if optimizer_factory is not None
+                 else torch.optim.AdamW(model.parameters(), lr=args.learning_rate,
+                                        weight_decay=args.weight_decay))
     objective = nn.HuberLoss(delta=args.huber_delta, reduction="none")
     best_score = float("inf")
     best_epoch = 0
@@ -439,6 +445,26 @@ def train_component(
     without_improvement = 0
     history: list[dict[str, object]] = []
     checkpoint_path = args.output / "best.pt"
+
+    def save_checkpoint(epoch, metrics):
+        torch.save({"protocol_id": PROTOCOL_ID, "screen_id": screen_id,
+                    "candidate": spec.name, "backbone": spec.backbone,
+                    "adapter": spec.adapter,
+                    "modules": list(getattr(spec, "modules", (spec.adapter,))),
+                    "model_state": model.state_dict(), "target_scaler": scaler,
+                    "epoch": epoch, "seed": args.seed, "metrics": metrics,
+                    "subject_to_index": subject_indices,
+                    "initialization": initialization}, checkpoint_path)
+
+    if initialization is not None:
+        # A warm-start continuation may legitimately retain its epoch-zero model.
+        best_predictions = predict(model, validation_loader, device, scaler)
+        best_metrics = participant_macro_views(best_predictions)
+        best_score = float(best_metrics["Overall"]["mean_mae"])
+        best_predictions.to_parquet(args.output / "initial_internal_validation_predictions.parquet", index=False)
+        save_json(args.output / "initialization.json", {**initialization, "metrics": best_metrics})
+        save_checkpoint(0, best_metrics)
+        print(json.dumps({"initial_epoch": 0, "internal_validation": best_metrics}), flush=True)
     for epoch in itertools.count(1):
         model.train()
         running_loss = 0.0
@@ -454,6 +480,8 @@ def train_component(
                     loss = (per_example * weights).sum() / weights.sum().clamp_min(1e-6)
                 else:
                     loss = per_example.mean()
+                if training_penalty is not None:
+                    loss = loss + training_penalty(model)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
             optimizer.step()
@@ -476,23 +504,7 @@ def train_component(
             best_predictions = predictions
             best_metrics = metrics
             without_improvement = 0
-            torch.save(
-                {
-                    "protocol_id": PROTOCOL_ID,
-                    "screen_id": screen_id,
-                    "candidate": spec.name,
-                    "backbone": spec.backbone,
-                    "adapter": spec.adapter,
-                    "modules": list(getattr(spec, "modules", (spec.adapter,))),
-                    "model_state": model.state_dict(),
-                    "target_scaler": scaler,
-                    "epoch": epoch,
-                    "seed": args.seed,
-                    "metrics": metrics,
-                    "subject_to_index": subject_indices,
-                },
-                checkpoint_path,
-            )
+            save_checkpoint(epoch, metrics)
         else:
             without_improvement += 1
         if without_improvement >= args.patience:
@@ -559,6 +571,9 @@ def train_component(
             ),
         },
         "parameter_counts": model_parameter_counts(model),
+        "initialization": initialization,
+        "stored_personal_parameter_count_per_subject": getattr(
+            spec, "stored_personal_parameters", getattr(spec, "participant_trainable_parameters", 0)),
         "best_epoch": best_epoch,
         "epochs_completed": len(history),
         "stop_reason": "early_stopping",
