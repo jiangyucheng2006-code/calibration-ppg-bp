@@ -2,6 +2,44 @@
 
 Last updated: 2026-09-06.
 
+## LoRA + PRS continuation: submitted, awaiting GPU checks
+
+- [Frozen plan](PLAN_LORA_PRS_CONTINUATION.md): five settings under two modes,
+  ten training jobs. This retains the original fitted LoRA and tests compact
+  personal correction; it is not a rerun of the historical support-relative
+  combinations and is not yet evidence of an improvement.
+- Source commit `d3515b342dc567a776764920bbb6e421fbeea519`; immutable snapshot
+  `code_snapshots/lora_prs_d3515b3` on the server. Archive SHA-256
+  `573153452c7dceee633d5a1c66f75a45caaf8276d1744481b02559c1a52d3472`.
+  Local/server hashes match; NAS archive is byte-identical.
+- Nine new focused CPU checks and the full repository CPU suite passed.
+  Bash syntax checks passed. Both original checkpoint hashes verified.
+  GPU checks are **queued, not yet passed**:1499(random, RTX5080),
+  1506(chronological, RTX5070Ti). They include unit tests and real train-role
+  checkpoint/PPG forward-backward checks. Training uses afterok dependencies.
+
+| Setting | Random job | Chronological job |
+|---|---:|---:|
+| LoRA continuation control | 1500 | 1507 |
+| LoRA + personal BP offsets | 1501 | 1508 |
+| LoRA + dynamic PRS | 1502 | 1509 |
+| LoRA + dynamic PRS with shrinkage | 1503 | 1510 |
+| Frozen LoRA + dynamic PRS | 1504 | 1511 |
+
+- Split reports1505/1512 wait for all five corresponding jobs; final report1513
+  waits for both reports. Each split emits Overall/MIMIC/VitalDB macro and
+  complete requested diagnostic tables. Final comparison checks gains against
+  both the initial model and the continued LoRA control.
+- Last live check at approximately2026-09-06 04:10CST: new smoke jobs pending
+  GPU availability, training/report jobs pending their success dependencies.
+  Earlier feature-study jobs1481/1490 were running on hpc-2; their remaining
+  jobs and source snapshot were not modified or canceled.
+- Submission manifest `lora_prs_20260905-200916.tsv` is in the work and NAS
+  `outputs/submission_manifests` directories, verified identical. Total new
+  scheduler entries15: two smoke + ten training + three reporting jobs.
+- No new-result or standards claim is available yet. Held-out data remains
+  sealed; no new subject exclusions, extra labels, or calibration budget changes.
+
 ## Personal feature mechanism study: diagnostics complete, new training submitted
 
 - Frozen diagnostic jobs1474–1477 completed0:0. All four reproduce original
