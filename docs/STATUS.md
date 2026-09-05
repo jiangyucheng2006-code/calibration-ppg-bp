@@ -19,14 +19,13 @@ Last updated: 2026-09-06.
 - Submitted training: random1480–1487, chronological1489–1496. Split reports
   1488/1497 depend on successful completion of all their training runs; final
   cross-split gate1498 depends on both reports. No new result is claimed yet.
-- At the post-submission check1480 is running and has completed its first full
-  epoch and all82,040 validation windows with finite metrics and empty stderr.
-  The other15 training jobs are pending cluster resources/reservations.
+- At the updated post-submission check1480 and1489 are running, one per GPU.
+  1480 has completed full epochs and all82,040 validation windows with finite
+  metrics and empty stderr. The other14 training jobs are pending resources/reservations.
   All3 reports show Dependency, as intended. This snapshot is not a live dashboard.
 - Random candidates request hpc-2 RTX5080; chronological candidates request
   hpc-2 RTX5070Ti. Matching hardware within each split avoids a candidate/GPU
-  confound. Both have passed smoke tests; this does not mean both cards have
-  been allocated simultaneously by Slurm.
+  confound. Both have passed smoke tests and now have one allocated training job.
 - Immutable training source commit `ef51b6d`, snapshot
   `/home/jiangyu.cheng/work/ppg_bp/code_snapshots/personal_feature_v1`.
   NAS source archive `personal_feature_ef51b6d.tar.gz`.
