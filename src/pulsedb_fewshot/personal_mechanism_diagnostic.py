@@ -101,7 +101,8 @@ def run(args) -> dict:
     states = (model.reference.lora_b,) if hasattr(model, "reference") else (model.subject_code, model.subject_bias)
     original = [module.weight.detach().clone() for module in states]
     summaries, diagnostics = [], []
-    conditions = ["natural", "ppg_permuted_1", "ppg_permuted_2", "personal_state_swapped", "personal_state_zero", "train_bp_mean", "train_bp_median"]
+    conditions = ["cached_identity", "natural", "ppg_permuted_1", "ppg_permuted_2", "personal_state_swapped", "personal_state_zero", "train_bp_mean", "train_bp_median"]
+    cache_max_difference = None
     try:
         with torch.inference_mode():
             for condition in conditions:
@@ -135,6 +136,12 @@ def run(args) -> dict:
                     prediction = torch.cat(outputs).numpy()
                     for module, weights in zip(states, original):
                         module.weight.copy_(weights)
+                if condition == "cached_identity":
+                    cache_difference = np.abs(prediction - cached["natural"].numpy())
+                    cache_max_difference = float(cache_difference.max())
+                    if cache_max_difference > 0.05 or cache_difference.mean() > 0.005:
+                        raise ValueError("cached-head identity reproduction failed")
+                    continue
                 frame = joined[["subject_uid", "event_id", "source", "target_sbp", "target_dbp"]].copy()
                 frame[["pred_sbp", "pred_dbp"]] = prediction
                 frame.to_parquet(args.output / f"{condition}_predictions.parquet", index=False)
@@ -157,6 +164,8 @@ def run(args) -> dict:
               "seed": args.seed, "heldout_test_accessed": False, "parameters_updated": False,
               "natural_max_absolute_difference": float(baseline_difference.max()),
               "natural_mean_absolute_difference": float(baseline_difference.mean()),
+              "cache_max_absolute_difference": cache_max_difference,
+              "gpu": torch.cuda.get_device_name(0),
               "source_checkpoint_sha256": metadata["checkpoint_sha256"], "conditions": conditions,
               "ppg_derangements_use_labels": False, "personal_swap_within_source": True,
               "anchor_preserved_during_personal_swap": True,
