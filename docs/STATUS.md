@@ -2,6 +2,39 @@
 
 Last updated: 2026-09-06.
 
+## Personal feature mechanism study: diagnostics complete, new training submitted
+
+- Frozen diagnostic jobs1474–1477 completed0:0. All four reproduce original
+  and cached-feature predictions exactly. [Formal result](RESULTS_PERSONAL_MECHANISMS.md)
+  includes Overall/MIMIC/VitalDB plus all requested diagnostic columns.
+- LoRA mean MAE natural / within-person PPG permutation / personal-state swap:
+  random3.0394 /10.6230,10.5665 /11.0013; chronological3.7945 /5.4063,5.3846 /10.2862.
+  Frozen sensitivity supports matched waveform and personal state dependence;
+  it is not a causal attribution or a retrained ablation.
+- Full repository CPU test suite passed; 12 new focused checks passed.
+  GPU smoke1478/1479 passed all nine checks on RTX5080/RTX5070Ti.
+- [Frozen candidate matrix](PLAN_PERSONAL_FEATURE_MECHANISMS.md): eight models
+  with unchanged data/label access, a paired rank4 LoRA and primary nonlinear
+  rank4 personal response, plus sharing/capacity/feature-form controls.
+- Submitted training: random1480–1487, chronological1489–1496. Split reports
+  1488/1497 depend on successful completion of all their training runs; final
+  cross-split gate1498 depends on both reports. No new result is claimed yet.
+- At the post-submission check1480 is running and has completed its first full
+  epoch and all82,040 validation windows with finite metrics and empty stderr.
+  The other15 training jobs are pending cluster resources/reservations.
+  All3 reports show Dependency, as intended. This snapshot is not a live dashboard.
+- Random candidates request hpc-2 RTX5080; chronological candidates request
+  hpc-2 RTX5070Ti. Matching hardware within each split avoids a candidate/GPU
+  confound. Both have passed smoke tests; this does not mean both cards have
+  been allocated simultaneously by Slurm.
+- Immutable training source commit `ef51b6d`, snapshot
+  `/home/jiangyu.cheng/work/ppg_bp/code_snapshots/personal_feature_v1`.
+  NAS source archive `personal_feature_ef51b6d.tar.gz`.
+  Private work/NAS manifest `personal_feature_20260905-165514.tsv` records all19 jobs.
+  The date is UTC; submission was on2026-09-06 local time.
+- Local skill now prioritizes persistent seen-user personalization and records
+  this workflow. Unseen K-shot remains separate; held-out access is still prohibited.
+
 ## Compact personal-profile screen completed
 
 All 16 training jobs (1398–1405, 1407–1414), split reports 1406/1415 and

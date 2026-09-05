@@ -1,0 +1,130 @@
+[
+  {
+    "job_id": 1474,
+    "status": "complete",
+    "candidate": "subject_lora_rank4",
+    "split_mode": "random_disjoint",
+    "seed": 20260906,
+    "heldout_test_accessed": false,
+    "parameters_updated": false,
+    "natural_max_absolute_difference": 0.0,
+    "natural_mean_absolute_difference": 0.0,
+    "cache_max_absolute_difference": 0.0,
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "source_checkpoint_sha256": "04c965346c8721a0bae8e74c8ec84f670dad8cdd145694dbff32e5a186fa92f2",
+    "conditions": [
+      "cached_identity",
+      "natural",
+      "ppg_permuted_1",
+      "ppg_permuted_2",
+      "personal_state_swapped",
+      "personal_state_zero",
+      "train_bp_mean",
+      "train_bp_median"
+    ],
+    "ppg_derangements_use_labels": false,
+    "personal_swap_within_source": true,
+    "anchor_preserved_during_personal_swap": true,
+    "interpretation": "Post-hoc frozen-model sensitivity; not equivalent to retrained ablations or held-out confirmation.",
+    "aggregate_sha256": {
+      "participant_macro.csv": "83e2616176100ec3d94f7495d7d5d10ec2f167f8effde3d1fbddfce3e134fb2e",
+      "pooled_diagnostics.csv": "2718e504c7f0ac53cc2befa7befc77beb8b7d21948880059d8609ed082559692"
+    }
+  },
+  {
+    "job_id": 1475,
+    "status": "complete",
+    "candidate": "personal_profile_code32_no_support",
+    "split_mode": "random_disjoint",
+    "seed": 20260906,
+    "heldout_test_accessed": false,
+    "parameters_updated": false,
+    "natural_max_absolute_difference": 0.0,
+    "natural_mean_absolute_difference": 0.0,
+    "cache_max_absolute_difference": 0.0,
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "source_checkpoint_sha256": "bdf706dd4b2d35749ad85fdf666dce1563226afec0abc29b6f55c9f4c2685d51",
+    "conditions": [
+      "cached_identity",
+      "natural",
+      "ppg_permuted_1",
+      "ppg_permuted_2",
+      "personal_state_swapped",
+      "personal_state_zero",
+      "train_bp_mean",
+      "train_bp_median"
+    ],
+    "ppg_derangements_use_labels": false,
+    "personal_swap_within_source": true,
+    "anchor_preserved_during_personal_swap": true,
+    "interpretation": "Post-hoc frozen-model sensitivity; not equivalent to retrained ablations or held-out confirmation.",
+    "aggregate_sha256": {
+      "participant_macro.csv": "6b767abc6df7916dc6df07664adafd96fff10651e7f89206cc68b815a64cf1db",
+      "pooled_diagnostics.csv": "cae1e1e96f340556db0637f1153b0375ef4a6800d511d26cd124469a0e66221b"
+    }
+  },
+  {
+    "job_id": 1476,
+    "status": "complete",
+    "candidate": "personal_profile_code32_no_support",
+    "split_mode": "chronological_blocked",
+    "seed": 20260906,
+    "heldout_test_accessed": false,
+    "parameters_updated": false,
+    "natural_max_absolute_difference": 0.0,
+    "natural_mean_absolute_difference": 0.0,
+    "cache_max_absolute_difference": 0.0,
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "source_checkpoint_sha256": "78bb988afca67fc9c7f9ec4a8bbfa88d3378a8e4659081e554f74d1eea340d3e",
+    "conditions": [
+      "cached_identity",
+      "natural",
+      "ppg_permuted_1",
+      "ppg_permuted_2",
+      "personal_state_swapped",
+      "personal_state_zero",
+      "train_bp_mean",
+      "train_bp_median"
+    ],
+    "ppg_derangements_use_labels": false,
+    "personal_swap_within_source": true,
+    "anchor_preserved_during_personal_swap": true,
+    "interpretation": "Post-hoc frozen-model sensitivity; not equivalent to retrained ablations or held-out confirmation.",
+    "aggregate_sha256": {
+      "participant_macro.csv": "2b6ae084007c9620bf307b9df0ee91c58006fc609f3836ca0a95105b8c4f76b4",
+      "pooled_diagnostics.csv": "3cd9ab748866a44da38016011475b63fa9b91d1ddcd37a23619caf772236da2a"
+    }
+  },
+  {
+    "job_id": 1477,
+    "status": "complete",
+    "candidate": "subject_lora_rank4",
+    "split_mode": "chronological_blocked",
+    "seed": 20260906,
+    "heldout_test_accessed": false,
+    "parameters_updated": false,
+    "natural_max_absolute_difference": 0.0,
+    "natural_mean_absolute_difference": 0.0,
+    "cache_max_absolute_difference": 0.0,
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "source_checkpoint_sha256": "225760ceea3c88ae486b6d5d147978e9c8a16781a9c481eccd9cae831c108f81",
+    "conditions": [
+      "cached_identity",
+      "natural",
+      "ppg_permuted_1",
+      "ppg_permuted_2",
+      "personal_state_swapped",
+      "personal_state_zero",
+      "train_bp_mean",
+      "train_bp_median"
+    ],
+    "ppg_derangements_use_labels": false,
+    "personal_swap_within_source": true,
+    "anchor_preserved_during_personal_swap": true,
+    "interpretation": "Post-hoc frozen-model sensitivity; not equivalent to retrained ablations or held-out confirmation.",
+    "aggregate_sha256": {
+      "participant_macro.csv": "a01c14920c1dd75d54eadcaedbb6bb0b186023cc69ab114050ef54817a9f3d9f",
+      "pooled_diagnostics.csv": "2851172c003831e8b9db7cbde0b92d838c285fb81f59bdb8768e37332fb28ea0"
+    }
+  }
+]

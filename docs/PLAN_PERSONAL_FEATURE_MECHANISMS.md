@@ -124,6 +124,14 @@ Primary sources checked on 2026-09-06:
 - [Kopiczko et al., VeRA](https://arxiv.org/abs/2310.11454): shared adaptation
   matrices with compact learned vectors; a relevant prior-art boundary for
   the proposed learned shared-direction personal coefficients.
+- [Houlsby et al., parameter-efficient adapters](https://arxiv.org/abs/1902.00751):
+  an established adapter-module family relevant to personal bottleneck networks.
+
+Retrieval provenance: targeted architecture lookup, not exhaustive retrieval;
+arXiv abstract/metadata pages accessed on 2026-09-06. The arXiv API query
+`id_list=2106.09685,1709.07871,2310.11454&max_results=3` returned3/3 records
+through the documented Atom parser. Houlsby was checked via its official arXiv
+page. This is not a full-text systematic novelty assessment of PPG-BP papers.
 
 The targeted source check is not an exhaustive PPG-BP novelty review. An
 accuracy improvement, if observed, would motivate a broader novelty search

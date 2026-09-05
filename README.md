@@ -1,5 +1,17 @@
 # Calibration PPG BP
 
+## Current work — personal feature mechanisms
+
+The [frozen-model diagnostic](docs/RESULTS_PERSONAL_MECHANISMS.md) is complete.
+LoRA depends on both correctly matched PPG windows and persistent personal
+state, not just the participant BP mean. Natural and cached predictions were
+reproduced exactly. Overall/MIMIC/VitalDB tables are available in the report.
+
+The [next finite experiment](docs/PLAN_PERSONAL_FEATURE_MECHANISMS.md) tests
+eight feature-personalization candidates under two seen-user split modes.
+Sixteen training jobs and three dependent reports have been submitted; these
+are new experiments, not completed improvements. See [live-check record](docs/STATUS.md).
+
 ## Latest completed experiment — 2026-09-06
 
 The [compact personal-profile result](docs/RESULTS_SAME_SUBJECT_PERSONAL_PROFILES.md)
@@ -16,12 +28,11 @@ AAMI/BHS numerical screens. This experiment uses persistent profiles learned
 from 320 labelled windows per seen participant. Held-out targets remain sealed.
 See [verified project status](docs/STATUS.md) for the experiment record.
 
-Research code for leakage-safe, event-level, few-shot personalization of
-photoplethysmography (PPG) blood-pressure models.
-
-The primary experiment asks whether a PPG-aware personalized neural model can
-outperform strong, simple calibration controls when each new participant
-provides only `K = 1, 2, 3, or 5` independent reference-BP events.
+Research code for photoplethysmography (PPG) blood-pressure personalization.
+The current track studies registered-user persistent personal state, with
+intentional participant overlap and disjoint windows across development roles.
+The original unseen-user `K = 1, 2, 3, or 5` reference-event experiments remain
+as a separate historical track; they are not the current training protocol.
 
 > This repository contains research code, tests, configurations, and Slurm
 > scripts. It does not contain PulseDB waveforms, participant data, trained
