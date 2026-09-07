@@ -17,12 +17,23 @@ Last updated: 2026-09-07.
 - Frozen diagnostics reproduce v1 full predictions first, then compare gaps,
   past-only references and time-stratum-matched reference selection. Four fixed
   E3 evaluations across both modes do not count as new neural fits.
-- Local technical checks: 142 personal-memory unit tests discovered;
-  109 pass and 33 explicitly skip because local PyTorch is absent. These skips
+- Local technical checks after recovery: 145 personal-memory unit tests discovered;
+  111 pass and 34 explicitly skip because local PyTorch is absent. These skips
   are not CUDA verification. Full server tests and actual GPU smoke are required
   before dependent work can proceed. GitHub's previous result commit CI passed.
-- Submission receipts and server validation will be added below only after
-  actual tool confirmation. No v2 result or promotion is currently claimed.
+- Initial snapshot 8ff89d0 was submitted as jobs1625–1635. Both smoke jobs
+  (1625/1627) failed before model fitting: one empty-tail diagnostic could not
+  be serialized to strict JSON, and two CPU tests exposed shared NumPy/Torch
+  storage. Fix df2fba9 preserves the scientific settings and adds regressions.
+  All nine dependent jobs were verified unstarted before cancellation. Failed
+  logs and the original immutable snapshot are preserved; no result is lost.
+- Recovery snapshot df2fba9 is hash-verified and submitted as jobs1636–1646.
+  At21:18CST, both smoke jobs1636/1638 are RUNNING and have passed all145
+  server unit tests; synthetic/real-data GPU checks are still in progress.
+  Remaining jobs wait on dependencies. See the
+  [dated execution receipt](PERSONAL_MEMORY_V2_EXECUTION.md) for exact jobs,
+  immutable code, failure recovery and output paths. No v2 result or promotion
+  is currently claimed.
 
 ## Latest completion — personal-memory report repaired and formal results
 
