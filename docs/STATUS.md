@@ -2,6 +2,28 @@
 
 Last updated: 2026-09-07.
 
+## Personal-memory v2 — implementation and technical validation
+
+- User authorized the three targeted routes; the finite matrix is in
+  [PLAN_PERSONAL_MEMORY_V2.md](PLAN_PERSONAL_MEMORY_V2.md). E1/E2 each have one
+  independent fit per mode. E3 is a fixed reliability diagnostic, not a trained
+  error gate. Encoder-level OOF gate learning remains deferred.
+- Original v1 caches, source LoRA, validation cohort and held-out sealing are
+  unchanged. E1 changes only train donors/weights with explicit physical-gap-v2
+  policy; old validation references and both-role alpha remain identical.
+- E2 learns an 8,192-parameter retrieval projection, retains the original
+  40-window train block and query alpha. Both neural candidates retain epoch0
+  and complete validation predictions; synthetic/real smoke is labelled as such.
+- Frozen diagnostics reproduce v1 full predictions first, then compare gaps,
+  past-only references and time-stratum-matched reference selection. Four fixed
+  E3 evaluations across both modes do not count as new neural fits.
+- Local technical checks: 142 personal-memory unit tests discovered;
+  109 pass and 33 explicitly skip because local PyTorch is absent. These skips
+  are not CUDA verification. Full server tests and actual GPU smoke are required
+  before dependent work can proceed. GitHub's previous result commit CI passed.
+- Submission receipts and server validation will be added below only after
+  actual tool confirmation. No v2 result or promotion is currently claimed.
+
 ## Latest completion — personal-memory report repaired and formal results
 
 - User authorized report recovery, formal result publication and a feasible

@@ -17,8 +17,12 @@ Overall/MIMIC/VitalDB MAE, R², ME, STD, threshold, AAMI-style and BHS tables.
 The [publication-oriented next plan](docs/PLAN_PERSONAL_MEMORY_PAPER.md)
 first separates waveform information from time proximity, then proposes
 retrieval-matched training, BP-state retrieval and reliability-aware fusion.
-These are finite **proposed** experiments, not submitted training or proven
-novel contributions. The current stronger LoRA remains the main reference.
+The authorized [v2 implementation plan](docs/PLAN_PERSONAL_MEMORY_V2.md)
+specifies four new fits (E1/E2 under both modes), frozen temporal controls,
+and fixed E3 reliability evaluation. The learned OOF error gate is deferred.
+See [execution status](docs/STATUS.md) for verified submission/completion;
+implemented code is not itself proof that a model ran or improved.
+The current stronger LoRA remains the main reference.
 
 Both recent screens are complete (2026-09-07):
 
