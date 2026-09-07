@@ -22,6 +22,19 @@ Last updated: 2026-09-07.
 
 ## Personal-memory screen submitted — 2026-09-07
 
+**Current replacement chain:** code9e7ff58, immutable
+`personal_memory_9e7ff58`; manifest`personal_memory_20260907-084550.tsv`.
+Smoke1607/1609 complete0:0 with87 passing tests each and real GPU optimization.
+Cache1608/1610 running; gate1611; training1612–1616 and1618–1622;
+reports1617/1623/final1624. The first export encountered only a documented
+float64-vs-source-float32 label representation mismatch (2 entries/mode).
+All source predictions replayed exactly. The check now uses the source loader's
+float32 representation with the original2e-5 bound; labels/protocol unchanged.
+Oldfailed1590/1592 artifacts retained, only14 superseded pending dependents
+1593–1606 canceled. Details and both immutable hashes are in the receipt.
+
+The following bullets record the first submitted chain, now superseded:
+
 - [Frozen executable plan](PLAN_PERSONAL_MEMORY_V1.md) and
   [submission/verification receipt](PERSONAL_MEMORY_EXECUTION_20260907.md).
 - Code4788e06 is public on `method/personal-feature-mechanisms`; immutable
