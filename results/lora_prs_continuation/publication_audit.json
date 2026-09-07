@@ -1,0 +1,52 @@
+{
+  "candidate_count": 5,
+  "split_count": 2,
+  "participant_macro_rows": 30,
+  "diagnostic_rows": 60,
+  "fixed_cohort_and_counts": true,
+  "split_final_consistency": true,
+  "paired_gate_recomputed": true,
+  "heldout_test_accessed": false,
+  "raw_prediction_recomputation": false,
+  "claim_limit": "Existing aggregate reports cross-checked; patient-level source predictions not downloaded.",
+  "checked_utc": "2026-09-07T08:24:34.640937+00:00",
+  "source_reports": [
+    {
+      "source_report": "lora-prs-continuation-v1_random_disjoint_report_seed20260907_job1505/participant_macro_summary.csv",
+      "sha256": "c2df675fbd084105c99fb57b3842e06bf493bfd01bb99f9cdbaa7badd73874d0",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "lora-prs-continuation-v1_random_disjoint_report_seed20260907_job1505/event_pooled_diagnostics_all_scopes.csv",
+      "sha256": "6d2ea814df1b1791e91a83354f7991c81673f47f0d5148330a08cbfe8fa9087f",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "lora-prs-continuation-v1_chronological_blocked_report_seed20260907_job1512/participant_macro_summary.csv",
+      "sha256": "b8ae2215f1162269a14036763dd9156d52f71a5c7ee06d0c14ad5faed146ce52",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "lora-prs-continuation-v1_chronological_blocked_report_seed20260907_job1512/event_pooled_diagnostics_all_scopes.csv",
+      "sha256": "39c73bdb20447736a1203f0f3f4b6c1c84b97df09906b877b555ac2a4ca2cdb7",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "lora-prs-continuation-v1_final_report_seed20260907_job1513/cross_split_comparison.csv",
+      "sha256": "5fe9e8d83c8695e9138bcbf44226cf5200c2404d5f9f01fdb499319775ee7dba",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "lora-prs-continuation-v1_final_report_seed20260907_job1513/promotion_gate.csv",
+      "sha256": "d96897f6b70aedcda141d2a6c670b642dadb04676a763ae53e9a161170be84e1",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "lora-prs-continuation-v1_final_report_seed20260907_job1513/selection.json",
+      "sha256": "1a7f7e09130258e718aa57231eb2f828b788eb25f990d26cfa38d04fca825cd1",
+      "work_nas_identical": true
+    }
+  ],
+  "selected_training_report_jobs_completed": true,
+  "public_data": "aggregate only; source absolute run paths reduced to run IDs"
+}

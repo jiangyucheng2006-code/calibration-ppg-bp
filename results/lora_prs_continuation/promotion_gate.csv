@@ -1,0 +1,6 @@
+candidate,passes_accuracy_gate,mean_across_modes
+lora_continue,False,3.296241044998169
+lora_prs_bias,False,3.299249529838562
+lora_prs_dynamic_shrink,False,3.302040457725525
+lora_prs_dynamic,False,3.303335189819336
+lora_prs_dynamic_frozen,False,3.32394540309906

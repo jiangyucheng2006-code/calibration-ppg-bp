@@ -1,24 +1,32 @@
 # Calibration PPG BP
 
-## Current work — personal feature mechanisms
+## Current work — registered-user personal memory
 
-An additional [LoRA + persistent residual continuation study](docs/PLAN_LORA_PRS_CONTINUATION.md)
-tests five settings under both split modes, using the same completed LoRA
-checkpoints and an explicit continuation control. The existing feature-screen
-jobs are retained. This is a prospective experiment, not a demonstrated upgrade;
-see [verified execution status](docs/STATUS.md).
+Both recent screens are complete (2026-09-07):
+
+- [Personal feature mechanisms: all 16 results](docs/RESULTS_PERSONAL_FEATURE_MECHANISMS.md).
+- [LoRA + PRS continuation: all 10 results](docs/RESULTS_LORA_PRS_CONTINUATION.md).
+
+The strongest result in these screens is **continued LoRA without PRS**:
+Overall mean MAE **2.8801 / 3.7124 mmHg**, random-disjoint / chronological-blocked.
+Neither alternative personal modules nor PRS exceed their matched LoRA control.
+The tables include independent Overall/MIMIC/VitalDB views, STD and qualified
+AAMI/BHS numerical screens; these are development results, not clinical validation.
+
+The next [personal-memory research plan](docs/PUBLICATION_RESEARCH_BLUEPRINT_20260907.md)
+asks whether lawful personal training measurements complement the strong LoRA
+parameters. It is a hypothesis, not a demonstrated upgrade or novelty claim.
+See [verified execution status](docs/STATUS.md) for actual job states.
 
 The [frozen-model diagnostic](docs/RESULTS_PERSONAL_MECHANISMS.md) is complete.
 LoRA depends on both correctly matched PPG windows and persistent personal
 state, not just the participant BP mean. Natural and cached predictions were
 reproduced exactly. Overall/MIMIC/VitalDB tables are available in the report.
 
-The [next finite experiment](docs/PLAN_PERSONAL_FEATURE_MECHANISMS.md) tests
-eight feature-personalization candidates under two seen-user split modes.
-Sixteen training jobs and three dependent reports have been submitted; these
-are new experiments, not completed improvements. See [live-check record](docs/STATUS.md).
+The [feature-mechanism plan](docs/PLAN_PERSONAL_FEATURE_MECHANISMS.md) is retained
+with its complete results, including the serial-loader recovery of one failed run.
 
-## Latest completed experiment — 2026-09-06
+## Earlier completed experiment — 2026-09-06
 
 The [compact personal-profile result](docs/RESULTS_SAME_SUBJECT_PERSONAL_PROFILES.md)
 is complete: eight candidates under each of two same-subject development

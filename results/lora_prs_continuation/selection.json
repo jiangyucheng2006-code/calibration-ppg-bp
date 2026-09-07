@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "screen_id": "lora-prs-continuation-v1",
+  "heldout_test_accessed": false,
+  "primary_candidate": "lora_prs_dynamic",
+  "reference": "lora_continue",
+  "seed": 20260907,
+  "eligible_candidates": [],
+  "recommendation": "retain LoRA",
+  "official_pulsedb_calbased_reproduction": false
+}

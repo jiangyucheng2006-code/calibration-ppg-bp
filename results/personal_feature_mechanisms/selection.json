@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "screen_id": "personal-feature-mechanisms-v1",
+  "heldout_test_accessed": false,
+  "primary_candidate": "subject_nonlinear_rank4",
+  "reference": "subject_lora_rank4",
+  "seed": 20260906,
+  "eligible_candidates": [],
+  "recommendation": "retain reference",
+  "official_pulsedb_calbased_reproduction": false
+}

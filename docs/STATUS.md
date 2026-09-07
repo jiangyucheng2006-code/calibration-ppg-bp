@@ -2,7 +2,44 @@
 
 Last updated: 2026-09-07.
 
-## Feature-screen recovery: serial-loader retry running
+## Latest verified completion and new authorized direction
+
+- Live Slurm check: prior queue empty. Feature screen has all16 successful
+  results (failed1486 replaced by1565); reports1497/1566/1567 complete0:0.
+  PRS screen has all10 results and reports1505/1512/1513 complete0:0.
+- [Feature final results](RESULTS_PERSONAL_FEATURE_MECHANISMS.md) and
+  [PRS final results](RESULTS_LORA_PRS_CONTINUATION.md) include all requested
+  Overall/MIMIC/VitalDB tables under both modes. Fourteen aggregate source
+  files were checked against byte-identical NAS copies. No patient rows are published.
+- Continued LoRA is strongest within the two latest screens: meanMAE
+  2.880098 random /3.712384 chronological. PRS has no positive structural
+  gain over matched continued LoRA; both old promotion selectors remain empty.
+- User authorized the Personal Memory–Augmented Blood Pressure Estimation
+  in Registered Users direction. Implementation/submission is in progress;
+  source checkpoints are the completed continued-LoRA jobs1500/1507.
+  No new result is claimed. The dated historical snapshots below are not
+  current running-job claims.
+
+## Publication-oriented research blueprint and memory probe
+
+- [Research question, candidate and paper outline](PUBLICATION_RESEARCH_BLUEPRINT_20260907.md).
+  This is a proposed research route, not a validated model or submission-ready paper.
+  Current strong LoRA remains the comparator; PRS continuation gains were not
+  structural gains over matched continued LoRA. Do not rename precedents as inventions.
+- Proposed finite first stage: train-only full personal-memory kNN BP/residual
+  diagnostics before a reference-conditioned relation network and support-distance
+  fusion. Previous fixed five-support attention is not full320 feature retrieval.
+  Literature contains related paired calibration and retrieval; no first/SOTA claim.
+- Added pure-NumPy `personal_memory_probe.py` and 36 passing synthetic tests.
+  Guard coverage: train-only memory, dev-only queries, canonical identities,
+  global exact ID/hash/interval conflicts, comparable causal timestamps, no query
+  labels, immutable arrays, explicit residual prediction provenance. These checks
+  do not certify upstream encoder/split lineage or real-data performance.
+- No real-memory inference, new neural training, server changes, test unsealing
+  or GitHub push in this planning turn. Prior job status below is a dated snapshot,
+  not a fresh live queue check. Both split modes and existing promotion rules remain.
+
+## Historical snapshot — feature-screen serial-loader recovery
 
 - User authorized repairing only the failed shared_bilinear64 random run and
   its blocked reports. [Recovery record](FEATURE_RECOVERY_20260907.md).

@@ -1,0 +1,9 @@
+candidate,passes_accuracy_gate,mean_across_modes
+subject_lora_rank4,False,3.423345208168029
+subject_nonlinear_rank4,False,3.467743992805481
+subject_lora_rank1,False,3.626033425331116
+shared_bilinear64,False,3.6140230894088745
+shared_bilinear32,False,3.74219810962677
+feature_affine32,False,3.937599658966065
+output_profile32,False,4.225741386413574
+shared_lora_rank4,False,6.1612770557403564

@@ -1,0 +1,52 @@
+{
+  "candidate_count": 8,
+  "split_count": 2,
+  "participant_macro_rows": 48,
+  "diagnostic_rows": 96,
+  "fixed_cohort_and_counts": true,
+  "split_final_consistency": true,
+  "paired_gate_recomputed": true,
+  "heldout_test_accessed": false,
+  "raw_prediction_recomputation": false,
+  "claim_limit": "Existing aggregate reports cross-checked; patient-level source predictions not downloaded.",
+  "checked_utc": "2026-09-07T08:24:27.609529+00:00",
+  "source_reports": [
+    {
+      "source_report": "personal-feature-mechanisms-v1_random_disjoint_report_seed20260906_job1566/participant_macro_summary.csv",
+      "sha256": "58aeb71a145efaebf064c9ce9d22a86d7355d56869ce75cb89fc56db2d6f208e",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "personal-feature-mechanisms-v1_random_disjoint_report_seed20260906_job1566/event_pooled_diagnostics_all_scopes.csv",
+      "sha256": "c7212adfa45e7ccc13fcf7487c8b3507482acefc3fe43b4ada3c9518f5286a56",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "personal-feature-mechanisms-v1_chronological_blocked_report_seed20260906_job1497/participant_macro_summary.csv",
+      "sha256": "4bd1cfd4f2d8de94586a502787c2ef2fde4ee55bc263e7682e02696290e98db9",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "personal-feature-mechanisms-v1_chronological_blocked_report_seed20260906_job1497/event_pooled_diagnostics_all_scopes.csv",
+      "sha256": "d62cd27c82489fb26673dd17acc616d44e723b450cea0f5c9859ad1a87a20b6e",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "personal-feature-mechanisms-v1_final_report_seed20260906_job1567/cross_split_comparison.csv",
+      "sha256": "18b24c65d5be7f4c48fd175474001a23e628756b8b922aec51d2c84e09ce7c27",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "personal-feature-mechanisms-v1_final_report_seed20260906_job1567/promotion_gate.csv",
+      "sha256": "9b4674543863da4fdde9441c2a13e54139ad09bdfa986fe416bf290de879e28d",
+      "work_nas_identical": true
+    },
+    {
+      "source_report": "personal-feature-mechanisms-v1_final_report_seed20260906_job1567/selection.json",
+      "sha256": "26f3e1898b80a07564c8ad52c2e3ec0abff57048cdc133fb3c450f9a6e230166",
+      "work_nas_identical": true
+    }
+  ],
+  "selected_training_report_jobs_completed": true,
+  "public_data": "aggregate only; source absolute run paths reduced to run IDs"
+}
