@@ -16,7 +16,11 @@ AAMI/BHS numerical screens; these are development results, not clinical validati
 The next [personal-memory research plan](docs/PUBLICATION_RESEARCH_BLUEPRINT_20260907.md)
 asks whether lawful personal training measurements complement the strong LoRA
 parameters. It is a hypothesis, not a demonstrated upgrade or novelty claim.
-See [verified execution status](docs/STATUS.md) for actual job states.
+The [finite executable experiment](docs/PLAN_PERSONAL_MEMORY_V1.md) is submitted;
+both real-data GPU checks passed and memory diagnostics are running. Its10
+conditional neural/control fits follow the diagnostic stage. See the
+[execution receipt](docs/PERSONAL_MEMORY_EXECUTION_20260907.md) and
+[verified status](docs/STATUS.md) for the dated job snapshot.
 
 The [frozen-model diagnostic](docs/RESULTS_PERSONAL_MECHANISMS.md) is complete.
 LoRA depends on both correctly matched PPG windows and persistent personal

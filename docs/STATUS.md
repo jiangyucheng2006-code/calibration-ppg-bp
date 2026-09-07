@@ -20,6 +20,28 @@ Last updated: 2026-09-07.
   No new result is claimed. The dated historical snapshots below are not
   current running-job claims.
 
+## Personal-memory screen submitted — 2026-09-07
+
+- [Frozen executable plan](PLAN_PERSONAL_MEMORY_V1.md) and
+  [submission/verification receipt](PERSONAL_MEMORY_EXECUTION_20260907.md).
+- Code4788e06 is public on `method/personal-feature-mechanisms`; immutable
+  source/archive hashes match local/server/NAS. Prior result commit37748e7
+  is public on the same branch; no extra branch or unfinished draft was created.
+- GPU smoke1589/1591 completed0:0: all85 focused tests pass on each device,
+  followed by four finite training steps on real train PPG. Original personal
+  source parameters are not updated by smoke. Both hpc-2 cards are used.
+- Cache/diagnostic1590/1592 are running. Global gate1593, training1594–1598
+  and1600–1604, reports1599/1605/final1606 wait on afterok dependencies.
+  Total18 jobs include10 conditional model fits. If no measured complementarity,
+  the neural jobs record a scientific skip; no silent new architecture expansion.
+- Personal memory uses lawful train-only references, actual source post-LoRA
+  features, global lineage audits, blocked train retrieval and causal same-clock
+  chronological retrieval. Fixed distance fusion uses no query BP or learned
+  validation-error gate. The encoder is supervised in-sample, not OOF.
+- Source budget remains320 labels/person; retrievedm5 is not K-shot. All40
+  validation windows remain, with base fallback where history is insufficient.
+  No held-out role was opened. New performance results remain pending.
+
 ## Publication-oriented research blueprint and memory probe
 
 - [Research question, candidate and paper outline](PUBLICATION_RESEARCH_BLUEPRINT_20260907.md).
