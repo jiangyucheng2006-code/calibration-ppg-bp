@@ -214,13 +214,13 @@ def assert_reproduction(expected, reproduced, *, atol=REPLAY_ATOL):
     return result
 
 
-def _frozen_inference(model, tensors, neighbors, std, *, batch_size):
+def _frozen_inference(model, tensors, neighbors, std, *, batch_size, include_reliability=True):
     """GPU feature-only inference; no validation target tensor is accepted."""
     import torch
     from .personal_memory_models import reference_prediction
-    outputs = {name: [] for name in ("fixed_blend", "trained_blend",
-                                     "E3_zero_reliability", "E3_trained_reliability")}
-    diagnostics = {name: defaultdict(list) for name in ("E3_zero_reliability", "E3_trained_reliability")}
+    reliability_names = ("E3_zero_reliability", "E3_trained_reliability") if include_reliability else ()
+    outputs = {name: [] for name in ("fixed_blend", "trained_blend", *reliability_names)}
+    diagnostics = {name: defaultdict(list) for name in reliability_names}
     model.eval()
     with torch.no_grad():
         for start in range(0, len(neighbors["valid"]), batch_size):
@@ -242,8 +242,8 @@ def _frozen_inference(model, tensors, neighbors, std, *, batch_size):
                 raise FloatingPointError("nonfinite frozen predictions")
             outputs["fixed_blend"].append(fixed.cpu().numpy())
             outputs["trained_blend"].append(trained.cpu().numpy())
-            for name, local in (("E3_zero_reliability", references),
-                                ("E3_trained_reliability", references + delta * std)):
+            for name in reliability_names:
+                local = references if name == "E3_zero_reliability" else references + delta * std
                 pred, extra = fixed_reliability(base.cpu().numpy(), local.cpu().numpy(),
                     weights.cpu().numpy(), legal.cpu().numpy(), alpha.cpu().numpy(), std.cpu().numpy())
                 outputs[name].append(pred)
@@ -490,12 +490,10 @@ def run_diagnostics(args):
             for role in ("train", "validation"):
                 neighbors[role]["support_weight"] = frozen_distance_alpha(
                     neighbors[role]["nearest_distance"], neighbors[role]["valid"], frozen_q95)
-            predictions, _ = _frozen_inference(model, tensors, neighbors["validation"], std, batch_size=batch_size)
+            predictions, _ = _frozen_inference(model, tensors, neighbors["validation"], std,
+                                              batch_size=batch_size, include_reliability=False)
         # Only two predeclared E3 settings, both at the original main gap zero.
         predictions = dict(predictions)
-        if condition != "gap0":
-            predictions.pop("E3_zero_reliability")
-            predictions.pop("E3_trained_reliability")
         old_probes = diagnostic_predictions(arrays["train_bp"], arrays["train_base"], arrays["validation_base"],
                                             neighbors["validation"])
         predictions.update({"D0_frozen_lora": old_probes["D0"], "feature_knn": old_probes["D1"],
