@@ -1,6 +1,45 @@
 # Verified project status
 
-Last updated: 2026-09-06.
+Last updated: 2026-09-07.
+
+## Feature-screen recovery: serial-loader retry running
+
+- User authorized repairing only the failed shared_bilinear64 random run and
+  its blocked reports. [Recovery record](FEATURE_RECOVERY_20260907.md).
+- Recovery source `a8cdba40bb0806accbe4fe2d49c27d04bce0ae69`; operational snapshot
+  `feature_recovery_a8cdba4`, archive SHA256
+  `bd64fb88064abaed2cc1dc7fd447ca9111f581affac8c1f937d216f4e23327f1`.
+  Actual model/trainer imports still use the original immutable
+  `personal_feature_v1`, source-tree hash
+  `daa12286d09a90c7cd529e8991b0f6c7b3f8be4d672ea45ed7e0543940b49965`.
+- GPU smoke1564 COMPLETED0:0 on RTX5080: real train samples match serial
+  collation, four finite training steps, exact checkpoint reload. Smoke
+  weights are not used for the retry; held-out roles remain sealed.
+- Retry1565 RUNNING at10:01CST on hpc-2. Same model/seed20260906/batch64/data/
+  optimizer/early stopping, restarted from epoch zero; only workers4→0.
+  No bitwise replay claim. Original1486 checkpoint/logs are retained.
+- New random report1566 waits afterok1565 and uses seven completed original
+  runs plus retry1565. New final1567 waits afterok1566 and reuses completed
+  chronological report1497. Obsolete pending reports1488/1498 were canceled
+  only after replacement dependencies were verified. No other jobs canceled.
+- Manifest `feature_recovery_20260907-020009.tsv` archived identically to NAS.
+  No new architecture candidates submitted: one smoke, one retry, two reports.
+
+## Completed LoRA + PRS continuation and interpretation
+
+- PRS jobs1499–1513 all COMPLETED0:0. Overall meanMAE random/chronological:
+  continuedLoRA2.880098/3.712384; bias2.885003/3.713496;
+  dynamic2.893681/3.712990; shrink2.891248/3.712833;
+  frozen2.908674/3.739217. Final eligible_candidates=[]; noPRS upgrade selected.
+- ContinuedLoRA gains0.159347/0.082083 versus the starting model. An old-start
+  comparison alone must not attribute this improvement to the PRS module.
+- The separate mechanism study remains the main feature-personalization
+  question; PRS was an auxiliary output-correction test. Correct PPG and
+  personal state are supported by diagnostics, not a unique physiological
+  explanation. Shared/personal capacity is a confound to quantify; nonlinear
+  rank4 did not outperform linear rank4. No automatic additional model sweep.
+- Full internal-validation source views remain Overall/MIMIC/VitalDB. All
+  statements are single-seed development findings; no held-out access.
 
 ## LoRA + PRS continuation: submitted, awaiting GPU checks
 
