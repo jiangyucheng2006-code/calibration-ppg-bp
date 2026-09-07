@@ -31,6 +31,10 @@ superseded jobs1593–1606 were canceled after checking their ownership/state.
   `personal_memory_20260907-084550.tsv`.
 - New smoke1607/1609 completed0:0, all87 focused tests pass on both GPUs,
   followed by the real-data four-step check. Cache1608/1610 are running.
+- Full replacement exports passed in117.7/116.6s:738,360 raw-window hashes
+  verified per mode and all82,040 reference predictions replayed exactly,
+  max/mean difference0. Both jobs have moved on to audited neighbour preparation
+  and diagnostic scoring; the completed export is not yet a neural training result.
 
 | Active stage/candidate | Random | Chronological |
 |---|---:|---:|

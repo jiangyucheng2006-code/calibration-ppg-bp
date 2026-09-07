@@ -32,6 +32,9 @@ All source predictions replayed exactly. The check now uses the source loader's
 float32 representation with the original2e-5 bound; labels/protocol unchanged.
 Oldfailed1590/1592 artifacts retained, only14 superseded pending dependents
 1593–1606 canceled. Details and both immutable hashes are in the receipt.
+Replacement full exports now pass:738,360 raw-window hashes per mode checked,
+all82,040 source predictions reproduced exactly, maximum and mean difference0.
+Neighbour preparation/diagnostic scoring is the current phase.
 
 The following bullets record the first submitted chain, now superseded:
 
