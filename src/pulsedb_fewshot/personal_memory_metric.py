@@ -281,7 +281,11 @@ def _tensors(arrays, layout, device):
                                 dtype=torch.long if key.endswith("indices") else torch.float32)
             for key, value in arrays.items() if key not in {"validation_bp", "train_weights", "train_support"}}
     for key in ("bank_order", "query_order", "validation_legal", "temporal_pool", "eligible_train"):
-        data[key] = torch.as_tensor(layout[key], device=device, dtype=torch.bool if key == "validation_legal" else torch.long)
+        # CPU as_tensor shares NumPy storage by default. Each execution owns
+        # its masks/pools: a fallback diagnostic must not mutate the audited
+        # layout or contaminate another inference/test invocation.
+        data[key] = torch.as_tensor(np.array(layout[key], copy=True), device=device,
+                                    dtype=torch.bool if key == "validation_legal" else torch.long)
     return data
 
 

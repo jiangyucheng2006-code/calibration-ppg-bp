@@ -1,5 +1,6 @@
 """E1 single-intervention contracts; synthetic data only."""
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -8,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from pulsedb_fewshot.personal_memory_matched import (
-    CANDIDATE, load_matched_cache, parser, rematch_training, synthetic_cache, train, training_contract,
+    CANDIDATE, finite_metrics, load_matched_cache, parser, rematch_training, synthetic_cache, train, training_contract,
 )
 from pulsedb_fewshot.personal_memory_prepare import prepare_neighbors
 
@@ -41,6 +42,23 @@ def fixture(mode="random_disjoint"):
 
 
 class MatchedDonorTests(unittest.TestCase):
+    def test_empty_retained_group_is_null_not_nan(self):
+        source = {"MIMIC": {"sbp_mae": 3., "dbp_mae": 2., "mean_mae": 2.5,
+            "retained_70_n_participants": 0, "retained_70_mean_mae": float("nan")}}
+        result = finite_metrics(source)
+        self.assertIsNone(result["MIMIC"]["retained_70_mean_mae"])
+        self.assertEqual(result["MIMIC"]["mean_mae"], 2.5)
+        self.assertTrue(np.isnan(source["MIMIC"]["retained_70_mean_mae"]))
+        json.dumps(result, allow_nan=False)
+
+    def test_nonfinite_primary_or_nonempty_diagnostic_still_fails(self):
+        for key, count in (("sbp_mae", 0), ("retained_70_mean_mae", 1)):
+            source = {"Overall": {"sbp_mae": 3., "mean_mae": 2.5,
+                "retained_70_n_participants": count, "retained_70_mean_mae": 1.}}
+            source["Overall"][key] = float("nan")
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                finite_metrics(source)
+
     def test_real_smoke_exact_four_steps_without_synthetic_bypass(self):
         args = parser().parse_args(["--output", "unused", "--smoke-check"])
         self.assertTrue(training_contract(args))
@@ -150,6 +168,9 @@ class MatchedTrainingTests(unittest.TestCase):
                     self.assertEqual(run["internal_validation_windows"], 4)
                     self.assertEqual(set(run["metrics"]), {"Overall", "MIMIC", "VitalDB"})
                     self.assertFalse(run["heldout_test_accessed"])
+                    self.assertIsNone(run["metrics"]["MIMIC"]["retained_70_mean_mae"])
+                    self.assertIsNone(run["initial_metrics"]["VitalDB"]["retained_70_mean_mae"])
+                    json.dumps(run, allow_nan=False)
                     self.assertTrue(run["fixed_v1_validation_references_preserved"])
                     self.assertTrue(run["fixed_v1_alpha_preserved"])
                     self.assertTrue((args.output / "initial_internal_validation_predictions.parquet").is_file())

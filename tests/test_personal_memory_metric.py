@@ -138,6 +138,17 @@ class PersonalMemoryMetricTests(unittest.TestCase):
         self.assertTrue((indices[q] == -1).all())
         self.assertTrue((weights[q] == 0).all())
 
+    def test_tensor_layout_storage_is_independent_per_execution(self):
+        first, second = self.tensors(), self.tensors()
+        for key in ("bank_order", "query_order", "validation_legal", "temporal_pool", "eligible_train"):
+            expected = self.layout[key].copy()
+            original = first[key].reshape(-1)[0].item()
+            first[key].reshape(-1)[0] = not original if key == "validation_legal" else original + 1
+            np.testing.assert_array_equal(self.layout[key], expected)
+            np.testing.assert_array_equal(second[key].cpu().numpy(), expected)
+            third = self.tensors()
+            np.testing.assert_array_equal(third[key].cpu().numpy(), expected)
+
     def test_batched_retrieval_consistent_and_five_distinct(self):
         tensors = self.tensors()
         model = BPStateProjection()

@@ -30,6 +30,23 @@ def save_json(path, value):
     Path(path).write_text(json.dumps(value, indent=2, allow_nan=False) + "\n", encoding="utf-8")
 
 
+def finite_metrics(views):
+    """Represent only an undefined empty retained-tail diagnostic as null.
+
+    One-person synthetic source scopes have no retained 70% after removing
+    ceil(30% * N). This diagnostic is undefined, not a failed prediction.
+    Non-finite primary metrics, losses, and nonempty-group values still fail.
+    """
+    result = {scope: dict(metrics) for scope, metrics in views.items()}
+    for metrics in result.values():
+        value = metrics.get("retained_70_mean_mae")
+        if (metrics.get("retained_70_n_participants") == 0 and
+                isinstance(value, (float, np.floating)) and np.isnan(value)):
+            metrics["retained_70_mean_mae"] = None
+    json.dumps(result, allow_nan=False)
+    return result
+
+
 def array_sha256(value):
     return hashlib.sha256(np.ascontiguousarray(value).tobytes()).hexdigest()
 
@@ -161,7 +178,7 @@ def train(args):
     model = PersonalMemoryRelation().to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
     best_prediction = predict(model, tensors, metadata["validation"], std, args.validation_batch_size)
-    initial_metrics = participant_macro_views(best_prediction)
+    initial_metrics = finite_metrics(participant_macro_views(best_prediction))
     best_metrics = initial_metrics
     best_score = float(best_metrics["Overall"]["mean_mae"])
     best_epoch = epoch = stale = steps = examples = 0
@@ -206,7 +223,7 @@ def train(args):
             seen += size
         examples += seen
         prediction = predict(model, tensors, metadata["validation"], std, args.validation_batch_size)
-        metrics = participant_macro_views(prediction)
+        metrics = finite_metrics(participant_macro_views(prediction))
         score = float(metrics["Overall"]["mean_mae"])
         if score < best_trained_score:
             best_trained_score, best_trained_epoch = score, epoch
