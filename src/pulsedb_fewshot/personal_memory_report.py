@@ -148,7 +148,7 @@ def mode_report(cache: Path, runs: list[Path], output: Path, split_mode: str):
         pooled.append(pooled_diagnostics(prediction, candidate))
     macro = pd.DataFrame(macro_rows)
     diagnostics = pd.concat(pooled, ignore_index=True)
-    reference_rows = macro.loc[macro.candidate.isin((FROZEN, CONTROL)) & macro.view.eq("Overall")]
+    reference_rows = macro.loc[macro.candidate.isin((FROZEN, CONTROL)) & macro["view"].eq("Overall")]
     selected_reference = reference_rows.sort_values(["mean_mae", "candidate"], kind="mergesort").iloc[0].candidate
     reference = macro.loc[macro.candidate.eq(selected_reference), ["view", "mean_mae"]].rename(columns={"mean_mae": "reference_mean_mae"})
     comparison = macro.merge(reference, on="view", validate="many_to_one")
@@ -196,14 +196,15 @@ def combined_report(reports: list[Path], output: Path):
         if not frame.split_mode.eq(mode).all() or frame.duplicated(["candidate", "view"]).any():
             raise ValueError("comparison scope mismatch")
         expected = {FROZEN} if selection["status"] == "skipped_no_complementarity" else {FROZEN, CONTROL, *NEURAL}
-        if set(frame.candidate) != expected or len(frame) != 3 * len(expected) or set(frame.view) != set(EXPECTED_COUNTS):
+        if set(frame.candidate) != expected or len(frame) != 3 * len(expected) or set(frame["view"]) != set(EXPECTED_COUNTS):
             raise ValueError("incomplete candidate matrix in mode report")
         for _, row in frame.iterrows():
-            if (int(row.n_participants), int(row.n_events)) != EXPECTED_COUNTS[row.view]:
+            # Series.view is a method in pandas 2.x, not this report's scope.
+            if (int(row["n_participants"]), int(row["n_events"])) != EXPECTED_COUNTS[row["view"]]:
                 raise ValueError("source cohort changed")
         references = frame.loc[frame.candidate.eq(selection["reference"])].set_index("view")
         for _, row in frame.iterrows():
-            np.testing.assert_allclose(row.gain_mmhg, references.loc[row.view, "mean_mae"] - row.mean_mae, rtol=0, atol=1e-6)
+            np.testing.assert_allclose(row["gain_mmhg"], references.loc[row["view"], "mean_mae"] - row["mean_mae"], rtol=0, atol=1e-6)
         frames.append(frame)
     if len({value["gate_manifest_sha256"] for value in selections.values()}) != 1:
         raise ValueError("mode reports have different global scientific gates")
@@ -216,8 +217,8 @@ def combined_report(reports: list[Path], output: Path):
     if not skipped:
         for candidate in NEURAL:
             data = combined.loc[combined.candidate.eq(candidate)]
-            overall = data.loc[data.view.eq("Overall")]
-            sources = data.loc[~data.view.eq("Overall")]
+            overall = data.loc[data["view"].eq("Overall")]
+            sources = data.loc[~data["view"].eq("Overall")]
             passed = len(overall) == 2 and len(sources) == 4 and overall.gain_mmhg.ge(.15).all() and sources.gain_mmhg.gt(0).all()
             rows.append({"candidate": candidate, "passes_accuracy_gate": bool(passed),
                          "mean_across_modes": float(overall.mean_mae.mean())})
