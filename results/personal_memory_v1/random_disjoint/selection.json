@@ -1,0 +1,53 @@
+{
+  "status": "complete",
+  "screen_id": "personal-memory-v1",
+  "split_mode": "random_disjoint",
+  "seed": 20260907,
+  "heldout_test_accessed": false,
+  "official_pulsedb_calbased_reproduction": false,
+  "reference": "lora_continued_control",
+  "gate_manifest_sha256": "d9d0fc071a5b6a8e3fd813aec88707710a03b1840da595a9eafb76b6924d52e1",
+  "cache_manifest_sha256": "8ef13c0604d44cc029ffb8178c4228daa4212b10854560df54a6b04258220f72",
+  "source_checkpoint_sha256": "64041f60e654f5ee48979a3898a444c690ceb58a617ed968ac9c435daef045ff",
+  "runs": [
+    {
+      "candidate": "lora_continued_control",
+      "status": "complete",
+      "run_id": "personal-memory-v1_20260907-084550_random_disjoint_lora_continued_control",
+      "run_manifest_sha256": "e58176127b6be80d7f1888759cb0bf8cccc53453d50327f92e232ca3da6fdc43",
+      "checkpoint_sha256": "47c90a3efa582af092b8ffe007d960edb2e1eb7a8f971b1d5ccfe363e2077785"
+    },
+    {
+      "candidate": "pair_single",
+      "status": "complete",
+      "run_id": "personal-memory-v1_20260907-084550_random_disjoint_pair_single",
+      "run_manifest_sha256": "06d8b132ec15e221add2c7493e4004cca351c7128aad6e02a4d13465fc1a36b2",
+      "checkpoint_sha256": "366125c36394735be450e3beb0b3ecd35c29ab56e7e43705d91406a89755c292"
+    },
+    {
+      "candidate": "pair_uniform",
+      "status": "complete",
+      "run_id": "personal-memory-v1_20260907-084550_random_disjoint_pair_uniform",
+      "run_manifest_sha256": "14e8db610abea72ca245e845b9dc3298aadc914094b9545b5e8951bc21e60168",
+      "checkpoint_sha256": "e593417e768361cfdd5b6d98dde780f4dd4b91d27c1aa9f00a21e1d78df04c4f"
+    },
+    {
+      "candidate": "pair_retrieved",
+      "status": "complete",
+      "run_id": "personal-memory-v1_20260907-084550_random_disjoint_pair_retrieved",
+      "run_manifest_sha256": "92382130b2e42b3156ba5dd8e034d841c992e91a36c91814227e9f947688fba5",
+      "checkpoint_sha256": "8b3c4fada4866dd2076eb993a9ef0b621077e3ebb194416dc26e2e673f0e7b91"
+    },
+    {
+      "candidate": "pair_distance_blend",
+      "status": "complete",
+      "run_id": "personal-memory-v1_20260907-084550_random_disjoint_pair_distance_blend",
+      "run_manifest_sha256": "b8a8fb017dd71128827ccfba41cfaf6a18283a64d9eb2526719e5d4076923919",
+      "checkpoint_sha256": "7153b13e0e165eead6ed196caf6bb3e00001646e1009a8cd2b09a4689620fa6f"
+    }
+  ],
+  "complete_query_coverage": true,
+  "selection_role": "internal_validation",
+  "decision": "await joint two-mode gate",
+  "standard_claim": "retrospective numerical screens only, not clinical certification"
+}

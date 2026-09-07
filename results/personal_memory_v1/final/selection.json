@@ -1,0 +1,16 @@
+{
+  "status": "complete",
+  "screen_id": "personal-memory-v1",
+  "seed": 20260907,
+  "heldout_test_accessed": false,
+  "official_pulsedb_calbased_reproduction": false,
+  "eligible_candidates": [],
+  "references": {
+    "random_disjoint": "lora_continued_control",
+    "chronological_blocked": "D0_frozen_lora"
+  },
+  "gate_manifest_sha256": "d9d0fc071a5b6a8e3fd813aec88707710a03b1840da595a9eafb76b6924d52e1",
+  "recommendation": "retain stronger paired LoRA reference",
+  "selection_is_development_only": true,
+  "hypothesis_validation_not_publication_guarantee": true
+}

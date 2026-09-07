@@ -1,0 +1,5 @@
+candidate,passes_accuracy_gate,mean_across_modes
+pair_single,False,3.5018914937973022
+pair_uniform,False,3.478685140609741
+pair_retrieved,False,3.196920394897461
+pair_distance_blend,False,3.15233063697815

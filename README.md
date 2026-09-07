@@ -2,6 +2,24 @@
 
 ## Current work — registered-user personal memory
 
+The [complete personal-memory results](docs/RESULTS_PERSONAL_MEMORY_V1.md)
+are now available: all ten model fits completed, and the final aggregate
+report was repaired without retraining or changing predictions.
+
+The memory/LoRA blend is best among the six main settings: Overall
+participant-macro mean MAE **2.6475 / 3.6571 mmHg** (random / chronological),
+versus paired LoRA **2.8764 / 3.7124**. It does **not** pass the prespecified
+joint upgrade rule. Random selects epoch0 (fixed retrieval/fusion, not a
+learned relation gain); a nearest-time training-BP diagnostic is stronger
+in that mode. The report explains these limits and includes all requested
+Overall/MIMIC/VitalDB MAE, R², ME, STD, threshold, AAMI-style and BHS tables.
+
+The [publication-oriented next plan](docs/PLAN_PERSONAL_MEMORY_PAPER.md)
+first separates waveform information from time proximity, then proposes
+retrieval-matched training, BP-state retrieval and reliability-aware fusion.
+These are finite **proposed** experiments, not submitted training or proven
+novel contributions. The current stronger LoRA remains the main reference.
+
 Both recent screens are complete (2026-09-07):
 
 - [Personal feature mechanisms: all 16 results](docs/RESULTS_PERSONAL_FEATURE_MECHANISMS.md).
@@ -13,12 +31,11 @@ Neither alternative personal modules nor PRS exceed their matched LoRA control.
 The tables include independent Overall/MIMIC/VitalDB views, STD and qualified
 AAMI/BHS numerical screens; these are development results, not clinical validation.
 
-The next [personal-memory research plan](docs/PUBLICATION_RESEARCH_BLUEPRINT_20260907.md)
+The original [personal-memory research blueprint](docs/PUBLICATION_RESEARCH_BLUEPRINT_20260907.md)
 asks whether lawful personal training measurements complement the strong LoRA
 parameters. It is a hypothesis, not a demonstrated upgrade or novelty claim.
-The [finite executable experiment](docs/PLAN_PERSONAL_MEMORY_V1.md) is submitted;
-both real-data GPU checks passed and memory diagnostics are running. Its10
-conditional neural/control fits follow the diagnostic stage. See the
+The [finite executable experiment](docs/PLAN_PERSONAL_MEMORY_V1.md) is complete;
+both real-data GPU checks passed and all10 neural/control fits ran. See the
 [execution receipt](docs/PERSONAL_MEMORY_EXECUTION_20260907.md) and
 [verified status](docs/STATUS.md) for the dated job snapshot.
 
@@ -57,7 +74,7 @@ as a separate historical track; they are not the current training protocol.
 > checkpoints, or clinical software. The project is not a validated medical
 > device and makes no clinical-use claim.
 
-## Study design
+## Original unseen-user study design — separate historical track
 
 - Dataset role: PulseDB v2 for population/meta-training, meta-validation, and a
   quarantined internal meta-test.

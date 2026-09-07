@@ -1,0 +1,70 @@
+{
+  "status": "pass",
+  "screen_id": "personal-memory-v1",
+  "settings_per_mode": 6,
+  "completed_model_fits": 10,
+  "participant_macro_rows": 36,
+  "pooled_diagnostic_rows": 72,
+  "fixed_full_cohort_checked": true,
+  "metric_and_qualified_standard_consistency_checked": true,
+  "paired_reference_and_joint_gate_recomputed": true,
+  "references": {
+    "random_disjoint": "lora_continued_control",
+    "chronological_blocked": "D0_frozen_lora"
+  },
+  "eligible_candidates": [],
+  "heldout_test_accessed": false,
+  "raw_prediction_recomputation": false,
+  "scope": "Aggregate-only cross-check of completed server reports; no private predictions or signals read.",
+  "checked_utc": "2026-09-07T12:35:32.138105+00:00",
+  "source_aggregate_files": [
+    {
+      "relative_path": "random_disjoint/participant_macro_summary.csv",
+      "sha256": "c53d601b9bf929d9a4213e0733336312e015b9b25cc5a1fc199c4c9f083c6c4d"
+    },
+    {
+      "relative_path": "random_disjoint/event_pooled_diagnostics_all_scopes.csv",
+      "sha256": "f1694e8afe61a95b91cb09ac98397bbfd98aa8c45930bfffb9d1dbed1a0ced1f"
+    },
+    {
+      "relative_path": "random_disjoint/comparison_vs_reference.csv",
+      "sha256": "a14372367b3f560de37d02975b30e4178c578355347128edd0259682c8011ffb"
+    },
+    {
+      "relative_path": "random_disjoint/selection.json",
+      "sha256": "5d6853f89f593ff047216a4d3abfce85fb1431dc520c748087bb2ab12bc4fd9e"
+    },
+    {
+      "relative_path": "chronological_blocked/participant_macro_summary.csv",
+      "sha256": "51ebc6014a449be21ff27a19eb6c4295e4d9b47081960cd84cf224576ac5d36e"
+    },
+    {
+      "relative_path": "chronological_blocked/event_pooled_diagnostics_all_scopes.csv",
+      "sha256": "d970dfac5e336949e829fb4b68a115b20691179b85bc52917bd83753ac63d3a1"
+    },
+    {
+      "relative_path": "chronological_blocked/comparison_vs_reference.csv",
+      "sha256": "05cee8775fbcc2ee3ecabe910ff1ef95cc7970e5082af6472d74319a074ebc57"
+    },
+    {
+      "relative_path": "chronological_blocked/selection.json",
+      "sha256": "0033992ae5fd280e869869ab9bc9fc9b41cf5b2c85af3263b21338503d03cee9"
+    },
+    {
+      "relative_path": "final/cross_split_comparison.csv",
+      "sha256": "72bc86e6df2f83f109cb65909e75d3f6e26a801497b01f65aadccf10d3cdf02a"
+    },
+    {
+      "relative_path": "final/promotion_gate.csv",
+      "sha256": "68ee1992b02fb0718f63fbbf088fcecdb286a1f0ba8051e8f3e77768e89344be"
+    },
+    {
+      "relative_path": "final/selection.json",
+      "sha256": "cabed871c7ecbddcff9b8dd48c6eb59cb6ca27de63dc5dac2360ed6780da6cbd"
+    },
+    {
+      "relative_path": "execution_evidence.json",
+      "sha256": "79f27a5c66b0cd39c7dfbcaf205c2e8b1cc61c2153c01bbb402404750936ce66"
+    }
+  ]
+}

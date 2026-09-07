@@ -2,6 +2,87 @@
 
 Last updated: 2026-09-07.
 
+## Latest completion — personal-memory report repaired and formal results
+
+- User authorized report recovery, formal result publication and a feasible
+  next-paper plan. No new model training or held-out evaluation was requested
+  or performed in this task.
+- Report repair commit20a381462312a48d3138b2ab5f835d2f6493eea2 changes explicit
+  scope-column access, not predictions, metrics or promotion rules. Eight
+  regressions passed locally (pandas3.0.1) and on the server (pandas2.3.3).
+- Final aggregate recovery completed at12:26UTC (20:26CST). The original
+  failed job1624 and all training outputs remain preserved. New final outputs
+  and the immutable report-code archive match NAS copies byte for byte.
+  No GPU allocation or model rerun was needed for this small aggregate task.
+- The final selector is now complete, with eligible_candidates=[]; random
+  uses continuedLoRA, chronological uses frozenLoRA (only floating precision
+  separates it from continuedLoRA). Main-reference status is unchanged.
+- [Complete formal results](RESULTS_PERSONAL_MEMORY_V1.md) include36 macro
+  and72 pooled diagnostic rows. Offline publisher adds11 passing regressions,
+  same-cohort/standard-label/paired-reference checks and input hashes.
+  [Public aggregates](../results/personal_memory_v1/) exclude patient data.
+  All11 original aggregate input files are byte-identical across local,
+  server work and NAS copies. The report and next plan are linked from README
+  on the existing method/personal-feature-mechanisms branch.
+- [Next-paper plan](PLAN_PERSONAL_MEMORY_PAPER.md) records observed effects,
+  nearest-time competing explanation, finite diagnostic/E1–E3 proposals,
+  provenance-safe calibration/gating, confirmatory evidence and literature
+  boundaries. It does not change the frozen protocol or submit experiments.
+- The sections below are historical snapshots, not current pending-job claims.
+
+## Latest live inspection — personal-memory results, 20:06 CST
+
+This section supersedes the running/pending snapshots below. Status-only
+inspection: no new training, code repair or GitHub push was performed.
+
+- All ten model fits completed successfully; no scientific skips. The queue
+  is empty. Two per-mode reports completed. The final combined report failed
+  on a pandas column/attribute collision (`row.view`); predictions and mode
+  reports are intact. Repairing the report does not require retraining.
+- Overall participant-macro mean MAE (mmHg):
+
+| Candidate | Random-disjoint | Chronological-blocked |
+|---|---:|---:|
+| Continued LoRA control | 2.8764 | 3.7124 |
+| Single reference relation | 3.0375 | 3.9663 |
+| Uniform reference relation | 3.1895 | 3.7679 |
+| Retrieved reference relation | 2.6973 | 3.6965 |
+| Distance-weighted memory + LoRA | **2.6475** | **3.6571** |
+
+- The numerical leader's source-stratified participant-macro results:
+
+| Mode | Source | SBP MAE | DBP MAE | Mean MAE | Mean improvement versus continued control |
+|---|---|---:|---:|---:|---:|
+| Random | MIMIC | 3.7702 | 2.0847 | 2.9275 | 0.2132 |
+| Random | VitalDB | 3.0243 | 1.7265 | 2.3754 | 0.2441 |
+| Chronological | MIMIC | 4.4284 | 2.4207 | 3.4245 | 0.0528 |
+| Chronological | VitalDB | 4.9641 | 2.8024 | 3.8832 | 0.0577 |
+
+- Overall gains are 0.2289 and 0.0552 mmHg. Manual comparison fails the
+  frozen requirement of >=0.15 in both modes. The combined selector itself
+  did not finish. This is a numerical lead, not a promoted main model.
+- Genuine fits: LoRA controls took57m34s/30m57s; small relation fits took
+  38s–2m12s. They reuse frozen256D features and optimize65,730 parameters
+  with batch256. Random retrieved/blend trained8epochs but selected epoch0:
+  their reported improvement is train-reference BP interpolation/fixed fusion,
+  not a learned relation-network benefit. Chronological blend selected epoch1
+  after9epochs; mean MAE fell from initial3.796670 to3.657139.
+- Simple random memory retrieval deteriorated from2.6973 to3.1590 when
+  references within60s were excluded; the frozen LoRA baseline is2.8801.
+  This flags temporal proximity as an important explanation, not automatic
+  prohibited leakage. This diagnostic did not test the full blended model.
+- Both mode reports include Overall/MIMIC/VitalDB macro summaries and the
+  requested pooled MAE/R2/ME/STD/threshold/AAMI/BHS columns. Best blend meets
+  the retrospective AAMI-style numerical screen throughout; BHS is A except
+  chronological VitalDB SBP (B). These are not clinical validation claims.
+- All2051 participants/82,040 validation windows remain per mode. Personal
+  training budget320 labels; registered-user internal development only.
+  Held-out roles remain sealed. No independent-seed uncertainty yet.
+- Six selected aggregate report/selection files match their NAS copies byte
+  for byte. Local complete per-mode aggregates are saved under the ignored
+  `local_archive/personal_memory_status_20260907/` directory. Public results
+  have not been updated by this inspection.
+
 ## Latest verified completion and new authorized direction
 
 - Live Slurm check: prior queue empty. Feature screen has all16 successful
