@@ -1,5 +1,60 @@
 # Official CalBased execution receipt — 2026-09-08
 
+## Authorized exact-membership continuation — verified 23:41 CST
+
+The user explicitly chose to retain all official rows and source-native content
+duplicates, not delete/reassign them or add a deduplicated result subset. The
+dated [plan amendment](PLAN_OFFICIAL_CALBASED_20260908.md) records this decision.
+All six methods, external official 360/40, internal 320/40, seed and folds stay
+unchanged. No old analogue or unseen-user experiment is modified.
+
+Runtime revision: `8592a1bf68be1dc6628e41c26123f65556afba28`.
+Immutable snapshot: `~/work/ppg_bp/code/official_calbased_8592a1b`.
+All 317 source/test/script/plan Git blobs were checked against this commit.
+Deployment delta SHA-256:
+`7310ca0a45e97dbc0f9b1aebff500a31ae5ea6c43d4fae692159889e1794ee30`.
+
+- Smoke 1700 COMPLETED 0:0 in 23 seconds: **111 tests, zero skips**, plus
+  RTX5080 forward/backward. Original shared preparation regressions: 30/30 pass.
+- CPU recovery 1701 COMPLETED 0:0 in 3:21. All 64 completed shards were copied
+  into a new store, file-hashed and rehashed per window; no raw recopy. Original
+  official Info checksums and all selected membership keys were reverified.
+- Post-prepare audit passed all five real-cohort stages: inner, OOF0/1/2 and
+  final bank/test inputs. Counts: **2,506 people, 902,160 TRAIN, 100,240 TEST**.
+  No official target rows were accessed. Its elapsed time was 115.52 seconds.
+- Old failed store and raw masters are unchanged. The new ready store is
+  `~/work/ppg_bp/data/processed/pulsedb-official-calbased-v1_20260908-234500`.
+  Its manifest pins the old failed manifest and verified private duplicate audit.
+- Only the audited hash/identity pairs are allowed as content exceptions.
+  Index overlap, changed waveforms, arbitrary copies, target-input leakage and
+  altered official membership remain rejected. All final results must disclose
+  source duplicates and the lack of strict content-independent internal/OOF splits.
+
+Batch: `~/work/ppg_bp/outputs/official-calbased-v1_20260908-234500`.
+The suffix is an identifier; prechecks actually started about 23:36 CST.
+Submission receipt is byte-identical to its NAS counterpart.
+
+| Stage / method | Job(s) | Status at verification |
+|---|---:|---|
+| Inner LoRA | 1702 | RUNNING, RTX5080; run.json written; 801,920 fit rows |
+| Encoder OOF0 | 1703 | RUNNING, RTX5070Ti; run.json written; 534,480 fit rows |
+| Encoder OOF1 / OOF2 | 1704 / 1705 | PENDING dependency |
+| Inner fixed / v1 / E1 / scalar trust / BP-specific trust | 1706–1710 | PENDING dependency |
+| Final LoRA | 1711 | PENDING dependency |
+| Final fixed-memory blend | 1712 | PENDING dependency |
+| Final v1 relation | 1713 | PENDING dependency |
+| Final E1 relation | 1714 | PENDING dependency |
+| Final scalar trust | 1715 | PENDING dependency |
+| Final BP-specific trust | 1716 | PENDING dependency |
+| One-way frozen evaluation, Overall/MIMIC/VitalDB | 1717 | PENDING dependency |
+
+Both active fits use all 2,506 registered people and declare the new content
+policy, scratch initialization and no official test-target access. No complete
+epoch or accuracy result is claimed by this receipt. At most the two hpc-2 GPUs
+are used; hpc-1 is untouched. No recurring test-feedback loop or additional
+candidate matrix was submitted. Local Skill and status were updated; no GitHub
+push was performed in this continuation.
+
 ## Latest inspection — 23:18 CST: preparation failure, source duplicates verified
 
 | Stage | Job(s) | Final observed state |

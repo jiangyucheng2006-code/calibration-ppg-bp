@@ -2,6 +2,40 @@
 
 Last updated: 2026-09-08.
 
+## Official CalBased — exact membership retained; formal fitting active, 23:41 CST
+
+The user explicitly chose to **retain all official rows, including source-native
+duplicates**, without a custom deduplicated split or duplicate-excluded score.
+The six methods, 360/40 official budgets and existing inner assignments remain
+unchanged. This supersedes the earlier pending-decision status below.
+
+- Runtime `8592a1bf68be`: all 317 source/test/script/plan Git blobs verified on
+  the immutable server snapshot. The exception is pinned to the independently
+  source-verified duplicate audit, not a blanket bypass. New copies, repeated
+  row IDs, invalid official membership and target-access violations still fail.
+- Smoke 1700 COMPLETED 0:0: 111 tests, no skips, real RTX5080 forward/backward.
+  The original shared memory-preparation suite also passed all 30 tests.
+- CPU recovery 1701 COMPLETED 0:0 in 3:21. All 64 PPG shards have been copied,
+  file- and window-rehashed; exact official membership verification passed.
+  Inner, all three OOF and final full-cohort runtime/memory audits passed.
+  The old failed store and all raw masters are unchanged. No full raw recopy.
+- New store: `~/work/ppg_bp/data/processed/pulsedb-official-calbased-v1_20260908-234500`.
+  The suffix is a run identifier, not a claim about the exact submission time.
+  No new official model scores yet. The finite chain 1702–1717 was submitted
+  after both preparation and smoke succeeded. 1702 is actively fitting inner
+  LoRA on RTX5080 (801,920 fit windows); 1703 fits OOF0 on RTX5070Ti (534,480
+  fit windows). Both cover 2,506 people and record test-target access as false.
+  1704–1717 are PENDING Dependency. [Stage receipt](OFFICIAL_CALBASED_EXECUTION_20260908.md).
+- Reports will explicitly disclose 35 cross-official duplicate test windows
+  and the unchanged internal/OOF source copies. They are index-disjoint, not
+  strictly content-independent. All test targets remain sealed until scoring.
+
+Batch: `~/work/ppg_bp/outputs/official-calbased-v1_20260908-234500`.
+Its `submission.tsv` is byte-identical to the NAS archive. Work-area logs are
+`~/work/ppg_bp/logs/official_calbased_<jobid>.log`. No new methods, repeated
+seed screens or test-feedback optimization were added. This server-side finite
+chain does not require the desktop to remain connected.
+
 ## Official CalBased — source duplicates confirmed, 23:18 CST
 
 **The batch failed during preparation; none of the six formal models trained.**
