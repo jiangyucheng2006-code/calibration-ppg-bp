@@ -1,6 +1,19 @@
 # Personal memory v2: execution record
 
-Verified at 2026-09-07 21:18 CST. This is an execution receipt, not a result.
+Latest verification: 2026-09-08 12:35 CST. All11 jobs completed with exit0:0;
+the user's queue is empty. The four fits completed normally by early stopping.
+No new jobs were submitted during this result inspection. See
+[the complete result report](RESULTS_PERSONAL_MEMORY_V2.md).
+
+| Fit | Job | Selected / completed epochs | Elapsed |
+|---|---:|---:|---|
+| E1 random | 1640 | 0 / 8 | 00:04:25 |
+| E2 random | 1641 | 0 / 8 | 00:03:56 |
+| E1 chronological | 1643 | 8 / 16 | 00:03:45 |
+| E2 chronological | 1644 | 3 / 11 | 00:03:02 |
+
+The sections below retain the original submission snapshot verified at
+2026-09-07 21:18 CST; statements that smoke was running are historical.
 
 ## Scientific scope
 

@@ -1,0 +1,205 @@
+{
+  "status": "pass",
+  "screen_id": "personal-memory-v2",
+  "seed": 20260907,
+  "validated_input_files": {
+    "random_disjoint_report/selection.json": {
+      "sha256": "0d64fc9f44698d0c76fd774def13e24dbcaf4aa46f02b66507c8229cbe108da8",
+      "bytes": 2233
+    },
+    "random_disjoint_report/participant_macro_summary.csv": {
+      "sha256": "ca64bc80b26c4197643893445315059843b1bfdd84f9a42e2d9afc57195fde92",
+      "bytes": 2666
+    },
+    "random_disjoint_report/event_pooled_diagnostics_all_scopes.csv": {
+      "sha256": "2aa556927471f1effa046a292ceb9c3d69facd8d23f8c4253a0459e03534368d",
+      "bytes": 8706
+    },
+    "random_disjoint_report/comparison_vs_reference.csv": {
+      "sha256": "5dabf518bacbea315753c48de0cf46e3b69c05bd80a920f46758f6a100f4e703",
+      "bytes": 5841
+    },
+    "random_disjoint_diagnostics/summary.json": {
+      "sha256": "22067989b6aeec700dd13f466dc58228f6ed88d77f8b6569f3989d23d1cdfd13",
+      "bytes": 139029
+    },
+    "random_disjoint_diagnostics/metrics.csv": {
+      "sha256": "a1f20df28e3ab277c98199c997670063bfd4d5e56d2c4c4a2f898f402b94aa7d",
+      "bytes": 48542
+    },
+    "random_disjoint_diagnostics/pooled_diagnostics.csv": {
+      "sha256": "1579eb169c328ba21fa2eb0f57ae649eec58c30e0798b02e21368b0cf0355602",
+      "bytes": 50068
+    },
+    "random_disjoint_diagnostics/subgroup_diagnostics.csv": {
+      "sha256": "0c258c37915d44a49c8ed6b2a507b88950ba8ad04e36eb6215ab306cb6c0dc37",
+      "bytes": 147638
+    },
+    "random_disjoint_e1/run.json": {
+      "sha256": "c1a49bba635ba8d6828f1e9971603b2210922ae66af652848fa4c7ebebbf2e61",
+      "bytes": 12534
+    },
+    "random_disjoint_e1/history.json": {
+      "sha256": "60453e148195384d9f9f455c208c665232d3ee075451c3635626f9b0e2fb97e8",
+      "bytes": 21689
+    },
+    "random_disjoint_e1/metrics.json": {
+      "sha256": "8dc267abfb1f4c34cb5149bc521bbc245f19778532d8d523e66db199a257ac5a",
+      "bytes": 2161
+    },
+    "random_disjoint_e1/reference_mismatch.json": {
+      "sha256": "9ff205e7863859c8eff920ff99ec952c53a9bdcb58ace94623c008e864b1b522",
+      "bytes": 2479
+    },
+    "random_disjoint_e2/run.json": {
+      "sha256": "4536b939783cef6d09df8f2cb6ab817b483bc7835fb7bc2b165965fa5d6e8594",
+      "bytes": 12497
+    },
+    "random_disjoint_e2/history.json": {
+      "sha256": "69a8126907347fbb50d91ebad08920666cfb08f12bc8d5fc7f2fb6a9d698271a",
+      "bytes": 21266
+    },
+    "random_disjoint_e2/metrics.json": {
+      "sha256": "f922d9e3f8b511bf71e4884929b665b2acb887c7bfc9179358d347eca65a0195",
+      "bytes": 2165
+    },
+    "chronological_blocked_report/selection.json": {
+      "sha256": "113e5810f102202ad283b7a458af136078b32574d591f584dea3ec9f0f35d04a",
+      "bytes": 2249
+    },
+    "chronological_blocked_report/participant_macro_summary.csv": {
+      "sha256": "f838bdc08a8fdb581a25d83c76e0af93a36e78d00179639462a6cfb684d1f5f4",
+      "bytes": 2797
+    },
+    "chronological_blocked_report/event_pooled_diagnostics_all_scopes.csv": {
+      "sha256": "450cffaf0ec80e3907e0d98411fb4ca7857e2d93169018385e33e10e8d4c5ec8",
+      "bytes": 8674
+    },
+    "chronological_blocked_report/comparison_vs_reference.csv": {
+      "sha256": "16f77d9bd0c1dffd014134048b322a20bffe57709df66a47be6ae8375f7f7023",
+      "bytes": 5995
+    },
+    "chronological_blocked_diagnostics/summary.json": {
+      "sha256": "13b65956f6a03a0bb01cf139230a2b530fab73aa984e0a3889a855899e34c901",
+      "bytes": 73895
+    },
+    "chronological_blocked_diagnostics/metrics.csv": {
+      "sha256": "f8d6866199fe2198f9615fa8669702b9926323af26f135b66d80c3a1bc176d46",
+      "bytes": 25134
+    },
+    "chronological_blocked_diagnostics/pooled_diagnostics.csv": {
+      "sha256": "28aa78224bc8ae1b15b616d68507bd6c2b2d2e3dd9d1098662ab58772013d865",
+      "bytes": 25535
+    },
+    "chronological_blocked_diagnostics/subgroup_diagnostics.csv": {
+      "sha256": "0c5b73b206486a33909b471c206a12f4f3e875c7e0cc9b61492e2a50f6ce64a6",
+      "bytes": 75530
+    },
+    "chronological_blocked_e1/run.json": {
+      "sha256": "3bf592c24c195cd8025e92a57080a3f47c25f6bc9970cf9729786fbb44ce9ef1",
+      "bytes": 12594
+    },
+    "chronological_blocked_e1/history.json": {
+      "sha256": "1a15ac74cedb1fbf89975143b07fbcea85f1e15e9b88724f9b9a3bfcf1391cd3",
+      "bytes": 43251
+    },
+    "chronological_blocked_e1/metrics.json": {
+      "sha256": "c2c8f6ab9a82fec4008cf6140705ff57a29e4cc93806fc86d2823a9408d82bb5",
+      "bytes": 2154
+    },
+    "chronological_blocked_e1/reference_mismatch.json": {
+      "sha256": "f2218573ea06f00ffb09cfef84a07d6a4f7d79104580488fb55ecd21552a256d",
+      "bytes": 2519
+    },
+    "chronological_blocked_e2/run.json": {
+      "sha256": "21412c9d2ea822b3a585cc3f7884575abe88f82fe20e82b403ecb533e9990cca",
+      "bytes": 12469
+    },
+    "chronological_blocked_e2/history.json": {
+      "sha256": "74077bfd59b39d31816f43ffd8d2ca02668f1c171ccaa98fc432d3efde98a44f",
+      "bytes": 29145
+    },
+    "chronological_blocked_e2/metrics.json": {
+      "sha256": "817d67511377225c1a1f7dbb678c906f1e70fa2e339b2f085d44b8190d8b46e3",
+      "bytes": 2151
+    },
+    "both_final/selection.json": {
+      "sha256": "fce27025ce6c661aeeaae8b843dd15dbaf2688abec41c242832249ac810b9733",
+      "bytes": 350
+    },
+    "both_final/cross_split_comparison.csv": {
+      "sha256": "c731c207dea09266622c0d20afbe84f7b8a91508b990e39ccac73ac848adba41",
+      "bytes": 11413
+    },
+    "both_final/promotion_gate.csv": {
+      "sha256": "94179fabb8814f513851f1038deafb0caea7e5ccaa9e5c1ae537316c33abf65f",
+      "bytes": 358
+    }
+  },
+  "code_contract_sha256": {
+    "scripts/publish_personal_memory_v2_results.py": "650c0de26f608dac68a721be3d7719f92aabcdd47b06a3e34aa31df7ffd35dd4",
+    "src/pulsedb_fewshot/personal_memory_v2_report.py": "5672180c75093fab933ded29dde25dec4c7e8434829f3698dd39759d60f449c0",
+    "src/pulsedb_fewshot/personal_memory_report.py": "43e9d55da45ef0dfbf59dd77fc32c800cb740e4f045334da90be873bc4aa739b",
+    "src/pulsedb_fewshot/personal_memory_control.py": "4b2a87225947b54e03f18f1b48ba7f0359dda14d40e943a0c014a40559ce42e8",
+    "src/pulsedb_fewshot/personal_memory_diagnostics.py": "9166b64f271048951cb2933ad7fee244d1fede8a35dbcf7831130e2673c81a6d",
+    "src/pulsedb_fewshot/personal_memory_matched.py": "532352fc87842e841042166e5939f7b066d17b421359af39a0ee03d21e448942",
+    "src/pulsedb_fewshot/personal_memory_metric.py": "9ef33e246f36427998ba6f0779615f2f3bf036e13cda16c7189ed9e5f668610e",
+    "docs/PLAN_PERSONAL_MEMORY_V2.md": "75a21c0a93cca5c240e7e655207d137d8e89722cad44b811abb8f44031771b81"
+  },
+  "source_training_tree_sha256": "a9cbe06041990fdb26f0651063656554c7a2bd50af453908931bf54f4f1e80ae",
+  "recorded_lineage": {
+    "random_disjoint": {
+      "cache_manifest_sha256": "8ef13c0604d44cc029ffb8178c4228daa4212b10854560df54a6b04258220f72",
+      "source_checkpoint_sha256": "64041f60e654f5ee48979a3898a444c690ceb58a617ed968ac9c435daef045ff",
+      "v1_replay_max_absolute_error_mmhg": 0.0,
+      "diagnostics_runtime_seconds": 864.8699545380659
+    },
+    "chronological_blocked": {
+      "cache_manifest_sha256": "7567a4aa894f6a5c231e6b7a306d916c3e87868175b17a74fc46a0f63916c1c6",
+      "source_checkpoint_sha256": "5d0ed8afb19bbdf8f69316de7be24cad4fc904ccd95a16dd3f9c8a88d26cfdd2",
+      "v1_replay_max_absolute_error_mmhg": 0.0,
+      "diagnostics_runtime_seconds": 224.9034922257997
+    }
+  },
+  "rows": {
+    "participant_macro_summary.csv": 48,
+    "event_pooled_diagnostics_all_scopes.csv": 96,
+    "comparison_vs_reference.csv": 48,
+    "promotion_gate.csv": 4,
+    "training_summary.csv": 12,
+    "diagnostic_participant_macro.csv": 201,
+    "diagnostic_pooled.csv": 402,
+    "subgroup_diagnostics.csv": 1206,
+    "temporal_diagnostics.csv": 18
+  },
+  "references": {
+    "random_disjoint": "lora_continued_control",
+    "chronological_blocked": "D0_frozen_lora"
+  },
+  "eligible_by_historical_LoRA_gate": [],
+  "automatically_promoted": false,
+  "heldout_test_accessed": false,
+  "learned_E3_gate_trained": false,
+  "validation_level": "aggregate-only recorded-contract and hash cross-check",
+  "raw_prediction_recomputation": false,
+  "checkpoint_bytes_read": false,
+  "continued_LoRA_raw_run_rechecked": false,
+  "metadata_notes": [
+    "Chronological E1/E2 arguments.split_mode records the random_disjoint CLI default. Production retrieval uses cache manifest split_mode; that argument is only used for synthetic smoke cache creation.",
+    "Frozen temporal matching uses seed 20260908, while trainable fits use 20260907."
+  ],
+  "limits": "Original server reports recomputed frozen predictions. This publisher does not repeat that computation; continued-LoRA lineage is checked only through report records. Single-seed internal development is not clinical validation.",
+  "oracle_tail_outputs_excluded": true,
+  "output_sha256": {
+    "participant_macro_summary.csv": "6ca78bb879ce528b451c84942842c8aaa33eceaf82229e08dbba3d4adcf7fb86",
+    "event_pooled_diagnostics_all_scopes.csv": "9fa3b9820e1d9e117e1d60e75c4fb42a07fcd80c510390730dac0fe77817f967",
+    "comparison_vs_reference.csv": "c731c207dea09266622c0d20afbe84f7b8a91508b990e39ccac73ac848adba41",
+    "promotion_gate.csv": "94179fabb8814f513851f1038deafb0caea7e5ccaa9e5c1ae537316c33abf65f",
+    "training_summary.csv": "ae460f8fbfe2ccdea4d5c6a9c044211e63be050670863b8bfbeb1c896e6e5ef4",
+    "diagnostic_participant_macro.csv": "87990546b4499943010cd5f638cdd1f4f7215a53a2c67cb812f9401bc406aeee",
+    "diagnostic_pooled.csv": "f3fd8486d0f346dc9c1a257365e321adfba81cf6ee90c4813cb85950b36ce921",
+    "subgroup_diagnostics.csv": "0dafadc5fbcfcb9090c25d6fd8078d5d2f4ba80d6fecd0be764d49f7220005f9",
+    "temporal_diagnostics.csv": "91218e12213a11836685dcbfa6639177fad7ddc2d450d3ceb433446d68f1b3ac",
+    "RESULT_TABLES.md": "1b5f8c3293514f48ce198913b97ae36dbd7dd0eaa8bb2f803d69eb1b90331c5c"
+  }
+}

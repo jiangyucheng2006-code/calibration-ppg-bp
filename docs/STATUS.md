@@ -1,8 +1,37 @@
 # Verified project status
 
-Last updated: 2026-09-07.
+Last updated: 2026-09-08.
 
-## Personal-memory v2 — implementation and technical validation
+## Personal-memory v2 — all jobs complete; no eligible upgrade
+
+- Live inspection at12:35CST: own queue empty. Jobs1636–1646 all COMPLETED
+  with exit0:0, including both full GPU smokes, two frozen diagnostic jobs,
+  four fits, two per-mode reports and final selection. No recovery is needed.
+- E1 meanMAE random/chronological2.6475227/3.6334262; E2 2.7125509/3.7881403;
+  E3 on selectedv1 relation2.6381435/3.6447506. E1random and E2random both
+  select epoch0. Fourfits stopped normally after8 non-improving epochs.
+- E1chronological adds0.0237124 over v1 but only0.0789577 over pairedLoRA.
+  E3 adds0.0093792/0.0123879 over v1. All four candidates fail the historical
+  both-mode>=0.15 gate; pairedLoRA remains the reference. No automatic promotion.
+- v1 randomblend worsens2.6475→2.9664/3.3023 with60/300s reference exclusions;
+  chrono3.6571→3.6756/3.7850. NewE1/E2 and gap-dependentE3 were not evaluated
+  in these controls. Broad time-stratum matching is not exact time matching.
+- E3 worsens DBP MAE in >20mmHg absolute train-median-deviation subgroups by
+  0.2221random/0.1116chronological versus v1. This is not an adjacent-time-change
+  measurement, and the target-defined subgroup is scoring-only.
+- All33 aggregate inputs checked byte-identical between serverwork/NAS;
+  local transferred archiveSHA3bda883d4c305e3ab76ec8cf1f1ce5c9ad843ec780588c5d57961308ec5fb0d6.
+  Public deliverable is aggregate-only; private predictions/checkpoints stay server-side.
+- Publisher20tests and existingcomparison8tests pass locally with no skips;
+  repeated publication is byte-identical. Generated48primary/96pooledrows,
+  plus training/time/subgroup diagnostics. Metadata warning about unused
+  synthetic CLI split-mode defaults is disclosed; real mode comes from cache.
+- [Formal results and conclusion](RESULTS_PERSONAL_MEMORY_V2.md),
+  [full requested tables](../results/personal_memory_v2/RESULT_TABLES.md), and
+  [execution receipt](PERSONAL_MEMORY_V2_EXECUTION.md) supersede pending snapshots
+  below. No new training or held-out evaluation was performed in this task.
+
+## Historical v2 submission — implementation and technical validation
 
 - User authorized the three targeted routes; the finite matrix is in
   [PLAN_PERSONAL_MEMORY_V2.md](PLAN_PERSONAL_MEMORY_V2.md). E1/E2 each have one

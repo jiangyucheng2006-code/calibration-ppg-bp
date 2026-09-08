@@ -2,6 +2,23 @@
 
 ## Current work — registered-user personal memory
 
+The [personal-memory v2 results](docs/RESULTS_PERSONAL_MEMORY_V2.md) are complete
+(2026-09-08): all11 jobs and four new fits succeeded. E1 reaches Overall mean
+MAE **2.6475 / 3.6334 mmHg**, and fixed E3 refinement reaches **2.6381 / 3.6448**
+(random / chronological). No candidate passes the prespecified joint upgrade
+rule. E1 random selects its untrained epoch0; E2 does not outperform the old
+blend; E3 adds only **0.0094 / 0.0124** improvement over v1 and worsens the
+large-DBP-deviation subgroup. LoRA remains the primary reference.
+
+[All requested v2 tables](results/personal_memory_v2/RESULT_TABLES.md) report
+Overall/MIMIC/VitalDB separately, with STD and qualified AAMI/BHS fields.
+Time-gap controls expose substantial dependence on nearby references; these
+controls were applied to v1, not to new E1/E2. No new tasks or held-out access
+were performed for this publication. See the
+[current status](docs/STATUS.md) and [execution record](docs/PERSONAL_MEMORY_V2_EXECUTION.md).
+
+### Previous v1 screen — historical comparison
+
 The [complete personal-memory results](docs/RESULTS_PERSONAL_MEMORY_V1.md)
 are now available: all ten model fits completed, and the final aggregate
 report was repaired without retraining or changing predictions.

@@ -1,0 +1,5 @@
+candidate,passes_historical_LoRA_upgrade_gate,beats_fixed_blend_in_both_modes,beats_trained_v1_blend_in_both_modes,mean_across_modes
+E1_matched_relation,False,False,False,3.140474438667298
+E2_bp_state_metric,False,False,False,3.2503455877304077
+E3_zero_reliability,False,True,False,3.1968304334633744
+E3_trained_reliability,False,True,True,3.141447049700855

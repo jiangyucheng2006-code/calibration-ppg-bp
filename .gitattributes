@@ -6,3 +6,4 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.csv text eol=lf
+results/personal_memory_v2/*.json text eol=lf
