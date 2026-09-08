@@ -13,6 +13,34 @@ and historical promotion decisions remain unchanged.
 
 Protocol identifier: `pulsedb-official-calbased-v1`.
 
+### Authorized source-duplicate policy, 2026-09-08
+
+The user explicitly requests preserving the official assignments including
+their source-native duplicate signals. No row is dropped, reassigned or replaced;
+all 902,160 TRAIN and 100,240 TEST rows, exact 360/40 budgets, six methods and
+the existing seed/inner assignments remain unchanged. A deduplicated test subset
+is not substituted or added to this run.
+
+Policy ID: `official-source-duplicates-retained-20260908`. The private source
+audit is pinned by SHA-256
+`ed3ce6fbc707ce4c4c635c9cf32a0dd25abb144ed4d54892947f6242376193ac`.
+Only its 154 verified duplicate pairs are exempted from exact-content rejection:
+35 cross official TRAIN/TEST, 117 within TRAIN and two within TEST, all MIMIC.
+There are 35 affected TEST rows. The original float64 PPG_F, PPG_Raw and T arrays
+and original Info identities/indices were verified before this decision, without
+test BP. New duplicates, repeated row IDs, invalid official membership, changed
+waveforms, positive same-record interval overlap and target-access violations
+are not permitted by this exception. Old experiment defaults remain strict.
+
+The unchanged inner assignments have 23 duplicate groups across fitting and
+validation, and 82 across encoder-fit folds. Consequently, internal validation
+and OOF are **index-disjoint but not strictly content-disjoint**: exclusion of
+an exact row does not exclude its source copy. State this limitation for trust
+training and checkpoint selection rather than claiming fully independent OOF.
+The final full official report must include this disclosure. It is an exact
+membership benchmark, not proof of leakage-free waveform generalization or
+clinical validity. No official TEST row labels enter fitting or adaptation.
+
 The official cohort overlaps participants previously protected or used in other
 project experiments. New models therefore cannot be presented as independently
 validated unseen-user models. Fresh initialization prevents old checkpoint-label

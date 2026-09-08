@@ -192,6 +192,11 @@ def run(args):
         "test_based_model_selection": False, "training_feedback_generated": False,
         "synthetic_smoke": args.smoke, "candidates": receipts,
         "started_utc": datetime.now(timezone.utc).isoformat()}
+    contract = json.loads((args.store_root / "manifest.json").read_text(encoding="utf-8"))
+    report.update(content_policy=contract.get("content_policy", "strict_content_disjoint"),
+                  content_claim_limit=contract.get("content_claim_limit", "strict content checks"),
+                  cross_role_exact_ppg_hashes=contract.get("cross_role_exact_ppg_hashes", 0),
+                  no_test_rows_removed=True)
     save_json(args.output / "evaluation_receipt.json", report)
     try:
         # Optional torch dependency enters through existing shared metric helpers.
@@ -219,6 +224,11 @@ def run(args):
             "Exact official same-subject randomized membership; 360 labelled training windows and 40 test windows per person.",
             "Participant-macro MAE is primary. Pooled AAMI/BHS fields are retrospective numerical screens, not clinical device certification.",
             "All methods and predictions were frozen before the test labels were joined. No candidate is promoted or selected by this scorer.", ""]
+        if contract.get("content_policy"):
+            lines += ["## Source-duplicate disclosure", "",
+                      contract["content_claim_limit"],
+                      "35 official test windows repeat selected training PPG content. These and all other official members are retained; no deduplicated subset is substituted.",
+                      "The predeclared inner splits are unchanged; their known content duplicates are retained and internal/OOF scores must not be described as strictly content-independent.", ""]
         for scope in ("Overall", "MIMIC", "VitalDB"):
             lines += [f"## {scope}", "", "### Participant-macro MAE (mmHg)", "",
                       "| Setting | SBP MAE | DBP MAE | Mean MAE | Subjects | Windows |",

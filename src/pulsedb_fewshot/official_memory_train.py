@@ -23,8 +23,9 @@ import time
 import numpy as np
 import pandas as pd
 
-from .personal_memory_prepare import audit_metadata, prepare_neighbors, macro_metrics
+from .personal_memory_prepare import prepare_neighbors, macro_metrics
 from .official_time_policy import TIME_BOUNDARY_POLICY, sample_span_audit
+from .official_content_policy import POLICY, POLICY_COLUMNS, audit_official_metadata, exceptions_for_rows
 
 
 PROTOCOL = "pulsedb-official-calbased-v1"
@@ -97,6 +98,10 @@ def load_role(root: Path, expected_role: str, *, synthetic=False, allow_test_inp
     forbidden = {"bp", "sbp", "dbp", "SegSBP", "SegDBP", "ABP"}
     if any(c in forbidden or str(c).lower().startswith(("target_", "abp", "segsbp", "segdbp")) for c in frame):
         raise ValueError("canonical metadata must not contain BP targets")
+    if any(k in frame for k in POLICY_COLUMNS):
+        if manifest.get("content_policy") != POLICY:
+            raise ValueError("cache has an undeclared content policy")
+        exceptions_for_rows(frame[list(POLICY_COLUMNS)].drop_duplicates().to_dict("records"))
     features = np.load(root / "features.npy", mmap_mode="r", allow_pickle=False)
     base = np.load(root / "base_bp.npy", mmap_mode="r", allow_pickle=False)
     bp = None if input_only else np.load(root / "bp.npy", mmap_mode="r", allow_pickle=False)
@@ -135,6 +140,7 @@ def canonical_rows(frame, role):
             not np.allclose(frame.end_s - frame.start_s + frame.sample_interval_s,
                             frame.duration_s, rtol=0, atol=1e-4)):
         raise ValueError("cache recorded sample span disagrees with duration or sampling")
+    columns += [k for k in POLICY_COLUMNS if k in frame]
     rows = frame[columns].to_dict("records")
     for row in rows:
         row["window_uid"] = row["event_id"]
@@ -145,7 +151,7 @@ def canonical_rows(frame, role):
 def audit_roles(bank, query, *, expected_counts=None):
     bank_rows = canonical_rows(bank["metadata"], "train")
     query_rows = canonical_rows(query["metadata"], "internal_validation")
-    audit = audit_metadata(bank_rows, query_rows)
+    audit = audit_official_metadata(bank_rows, query_rows)
     time_audit = sample_span_audit(pd.concat([
         bank["metadata"].assign(audit_role="train"),
         query["metadata"].assign(audit_role="query")]), "audit_role",
@@ -169,13 +175,15 @@ def audit_roles(bank, query, *, expected_counts=None):
 
 def prepare_pair(bank, query, *, matched=False, expected_counts=None):
     audit, bank_rows, query_rows = audit_roles(bank, query, expected_counts=expected_counts)
+    # Complete specialized lineage validation above, including pinned source
+    # exceptions, replaces only the redundant strict audit inside retrieval.
     result = prepare_neighbors(bank["features"], query["features"], bank_rows, query_rows,
-                               mode="random_disjoint", k=5, block_size=40)
+                               mode="random_disjoint", k=5, block_size=40, audit=False)
     if matched:
         # Only training donor indices/weights change. The v1 fixed alpha and
         # all validation donors stay exactly equal to the paired v1 comparator.
         fresh = prepare_neighbors(bank["features"], query["features"], bank_rows, query_rows,
-                                  mode="random_disjoint", k=5, block_size=1)
+                                  mode="random_disjoint", k=5, block_size=1, audit=False)
         result["train"]["knn_indices"] = fresh["train"]["knn_indices"]
         result["train"]["knn_weights"] = fresh["train"]["knn_weights"]
         result["train"]["valid"] = fresh["train"]["valid"]

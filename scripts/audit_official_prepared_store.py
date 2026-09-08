@@ -23,7 +23,7 @@ from pulsedb_fewshot.official_calbased_train import (
     load_test_inputs, select_stage, sha256,
 )
 from pulsedb_fewshot.official_memory_train import canonical_rows
-from pulsedb_fewshot.personal_memory_prepare import audit_metadata
+from pulsedb_fewshot.official_content_policy import audit_official_metadata
 from pulsedb_fewshot.official_time_policy import TIME_BOUNDARY_POLICY
 
 
@@ -37,7 +37,7 @@ def audit_memory_pair(bank: pd.DataFrame, query: pd.DataFrame, *, stage: str) ->
     query_meta = canonical_metadata(query, "validation")
     bank_rows = canonical_rows(bank_meta, "train")
     query_rows = canonical_rows(query_meta, "internal_validation")
-    result = audit_metadata(bank_rows, query_rows)
+    result = audit_official_metadata(bank_rows, query_rows)
     if set(bank_meta.subject_uid) != set(query_meta.subject_uid):
         raise ValueError(f"{stage}: registered people differ between bank and query")
     result.update(stage=stage, time_boundary_policy=TIME_BOUNDARY_POLICY,

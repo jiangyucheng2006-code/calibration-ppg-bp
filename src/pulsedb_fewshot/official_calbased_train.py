@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 
 from .official_time_policy import TIME_BOUNDARY_POLICY, sample_span_audit
+from .official_content_policy import (POLICY, POLICY_COLUMNS, AUDIT_SHA256, CLAIM_LIMIT,
+                                     assert_allowed_duplicates, approved_groups)
 
 try:  # Contract-only tests can run without the optional training dependency.
     import torch
@@ -96,7 +98,7 @@ def validate_training_frame(frame: pd.DataFrame, *, smoke: bool = False) -> pd.D
         raise ValueError("official cohort requires 2506 people with 320/40 inner train/validation")
     # A repeated participant is intentional; exact data reuse across roles is not.
     if f.groupby("ppg_content_sha256").inner_role.nunique().gt(1).any():
-        raise ValueError("PPG content crosses inner roles")
+        assert_allowed_duplicates(f, error="PPG content crosses inner roles")
     assert_cross_role_intervals(f, "inner_role")
     return f
 
@@ -117,7 +119,20 @@ def load_store(root: Path, *, smoke: bool = False):
         raise ValueError("official store requires the recorded sample-span time contract")
     # Deliberately do not enumerate/open test files or raw subject MAT files.
     path = root / "train_manifest.parquet"
-    frame = validate_training_frame(pd.read_parquet(path), smoke=smoke)
+    raw_frame = pd.read_parquet(path)
+    if manifest.get("content_policy"):
+        if manifest["content_policy"] != POLICY or manifest.get("duplicate_audit_sha256") != AUDIT_SHA256:
+            raise ValueError("unknown official store content policy")
+        if not set(POLICY_COLUMNS) <= set(raw_frame):
+            raise ValueError("official policy metadata missing")
+        audit_path = root / "official_duplicate_audit.json"
+        approved_groups(str(audit_path))
+        if (not raw_frame.official_content_policy.eq(POLICY).all()
+                or not raw_frame.official_duplicate_audit_path.eq(str(audit_path)).all()):
+            raise ValueError("official policy metadata disagrees with store")
+    elif any(k in raw_frame for k in POLICY_COLUMNS):
+        raise ValueError("undeclared official content exception")
+    frame = validate_training_frame(raw_frame, smoke=smoke)
     declared = manifest.get("train_manifest_sha256")
     if declared is not None and declared != sha256(path):
         raise ValueError("official training manifest hash changed")
@@ -148,7 +163,7 @@ def select_stage(frame: pd.DataFrame, stage: str, fold: int | None = None):
     fit = inner.loc[~inner.inner_fold.eq(fold)].copy()
     overlap = set(held.ppg_content_sha256) & set(fit.ppg_content_sha256)
     if overlap:
-        raise ValueError("OOF held fold reuses fit waveform content")
+        assert_allowed_duplicates(pd.concat([fit, held]), error="OOF held fold reuses fit waveform content")
     combined = pd.concat([fit.assign(fit_role="source_fit"), held.assign(fit_role="excluded_fold")])
     assert_cross_role_intervals(combined, "fit_role")
     return fit, {"source_fit": fit, "excluded_fold": held, "outer_validation": validation}
@@ -177,6 +192,9 @@ def canonical_metadata(frame: pd.DataFrame, role: str) -> pd.DataFrame:
         "waveform_sha256": frame.ppg_content_sha256.astype(str), "role": role})
     if role in {"source_fit", "excluded_fold", "outer_validation"}:
         out["oof_role"] = role
+    for name in POLICY_COLUMNS:
+        if name in frame:
+            out[name] = frame[name].astype(str)
     # Labels live in a separate file, not in prediction inputs/identity metadata.
     return out.reset_index(drop=True)
 
@@ -335,8 +353,10 @@ def load_test_inputs(root: Path, train: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("official CalBased test subjects must match training")
     if not frame.groupby("subject_uid").size().eq(40).all():
         raise ValueError("official CalBased test requires exactly 40 inputs per subject")
-    if set(frame.segment_uid) & set(train.segment_uid) or set(frame.ppg_content_sha256) & set(train.ppg_content_sha256):
+    if set(frame.segment_uid) & set(train.segment_uid):
         raise ValueError("official test input overlaps official training data")
+    if set(frame.ppg_content_sha256) & set(train.ppg_content_sha256):
+        assert_allowed_duplicates(pd.concat([train, frame]), error="official test input overlaps official training data")
     combined = pd.concat([train.assign(access_role="train"), frame.assign(access_role="test_inputs")])
     assert_cross_role_intervals(combined, "access_role")
     for name in frame.waveform_file.astype(str).unique():
@@ -366,7 +386,7 @@ def run(args):
     if args.smoke:
         torch.set_num_threads(1)
     args.store_root = args.store_root.resolve()
-    _, frame = load_store(args.store_root, smoke=args.smoke)
+    store_manifest, frame = load_store(args.store_root, smoke=args.smoke)
     fit, exports = select_stage(frame, args.stage, args.fold)
     manifest_hash = sha256(args.store_root / "manifest.json")
     fixed_epochs, selection = resolve_fixed_epochs(args, manifest_hash)
@@ -393,6 +413,8 @@ def run(args):
     started = time.monotonic()
     report = {"protocol_id": PROTOCOL_ID, "stage": args.stage, "status": "running", "candidate": "lora",
         "time_boundary_policy": TIME_BOUNDARY_POLICY,
+        "content_policy": store_manifest.get("content_policy", "strict_content_disjoint"),
+        "content_claim_limit": store_manifest.get("content_claim_limit", "strict content checks"),
         "seed": args.seed, "effective_seed": seed, "fold": args.fold, "synthetic": args.smoke,
         "started_utc": datetime.now(timezone.utc).isoformat(), "slurm_job_id": os.getenv("SLURM_JOB_ID"),
         "device": args.device, "gpu": torch.cuda.get_device_name(0) if args.device == "cuda" else None,
@@ -472,6 +494,7 @@ def run(args):
         provenance = {key: report[key] for key in ("protocol_id", "stage", "fold", "seed", "effective_seed",
             "encoder_protocol", "encoder_fit_event_ids_sha256", "excluded_event_ids_sha256", "checkpoint_sha256",
             "store_manifest_sha256", "official_test_targets_accessed", "old_checkpoint_used")}
+        provenance.update(content_policy=report["content_policy"], content_claim_limit=report["content_claim_limit"])
         provenance.update(target_scaler=scaler, fitted_personal_rows=len(fit),
                           bp_units="mmHg", official_test_accessed=report["official_test_inputs_accessed"],
                           official_contract_sha256=manifest_hash,

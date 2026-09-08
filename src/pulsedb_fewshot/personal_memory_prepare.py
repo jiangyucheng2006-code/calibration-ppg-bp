@@ -36,12 +36,13 @@ def _json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, allow_nan=False), encoding="utf-8")
 
 
-def audit_metadata(train: list[dict], validation: list[dict]) -> dict:
+def audit_metadata(train: list[dict], validation: list[dict], *, approved_content_groups=None) -> dict:
     """Audit globally before person filtering; clocks are explicit half-open axes."""
     if not train or not validation:
         raise ValueError("both permitted roles require nonempty metadata")
     sets = {}
     sources, recording_axes, recordings = {}, {}, defaultdict(list)
+    content_members = defaultdict(list)
     for rows, role in ((train, "train"), (validation, "internal_validation")):
         keys = {name: set() for name in ("event_id", "window_uid", "waveform_sha256")}
         for row in rows:
@@ -62,8 +63,10 @@ def audit_metadata(train: list[dict], validation: list[dict]) -> dict:
                 raise ValueError("finite positive half-open interval required")
             for name, seen in keys.items():
                 if row[name] in seen:
-                    raise ValueError(f"duplicate {name} within role")
+                    if name != "waveform_sha256" or approved_content_groups is None:
+                        raise ValueError(f"duplicate {name} within role")
                 seen.add(row[name])
+            content_members[row["waveform_sha256"]].append(row["event_id"])
             person = row["subject_uid"]
             if person in sources and sources[person] != row["source"]:
                 raise ValueError("canonical subject has conflicting sources")
@@ -76,7 +79,15 @@ def audit_metadata(train: list[dict], validation: list[dict]) -> dict:
         sets[role] = keys
     for name in sets["train"]:
         if sets["train"][name] & sets["internal_validation"][name]:
-            raise ValueError(f"global cross-role {name} overlap")
+            if name != "waveform_sha256" or approved_content_groups is None:
+                raise ValueError(f"global cross-role {name} overlap")
+    retained_content_groups = 0
+    if approved_content_groups is not None:
+        for content, members in content_members.items():
+            if len(members) > 1:
+                if len(members) != len(set(members)) or not set(members) <= approved_content_groups.get(content, frozenset()):
+                    raise ValueError("unapproved duplicate waveform hash/identity pair")
+                retained_content_groups += 1
     # This is intentionally not grouped by subject: a mislabelled subject must
     # not hide reuse of the same physical recording interval across roles.
     for rows in recordings.values():
@@ -90,7 +101,9 @@ def audit_metadata(train: list[dict], validation: list[dict]) -> dict:
     if not {r["subject_uid"] for r in validation} <= train_people:
         raise ValueError("validation includes unregistered subjects")
     return {"n_train": len(train), "n_validation": len(validation),
-            "n_participants": len(train_people), "cross_role_lineage": "pass"}
+            "n_participants": len(train_people),
+            "cross_role_lineage": "pass_with_verified_source_duplicates" if retained_content_groups else "pass",
+            "retained_content_duplicate_groups": retained_content_groups}
 
 
 def _groups(rows: list[dict]) -> dict[str, np.ndarray]:
