@@ -19,8 +19,13 @@ Last updated: 2026-09-08.
   forward/backward passed. Five additional rawMAT-to-store integration tests
   also passed on the server. The final source adds eight freezer contract tests,
   passed locally; the submitted snapshot will re-run the complete suite.
-- Official training/evaluation jobs are not yet claimed running in this entry;
-  exact submission receipt will be added after scheduler acknowledgement.
+- Verified submission at approximately14:05CST: immutable code0872d0f,
+  batchofficial-calbased-v1_20260908-140300, jobs1651–1667 submitted. Final
+  snapshot smoke1651 COMPLETEDexit0:0; all78tests passed,0skips,8.72seconds,
+  plus RTX5080forward/backward. Data preparation1648 remainsRUNNING with
+  officialtrain800k/902160 identities decoded at the last inspected log.
+  Training1652–1666 and evaluator1667 arePENDING(Dependency), not yet fitted.
+  [Full stage receipt](OFFICIAL_CALBASED_EXECUTION_20260908.md).
 - All new weights start fresh; previous protected-cohort overlap is documented,
   not portrayed as new unseen-user evidence. Official test BP does not enter
   fitting or personal memory. Six frozen predictions will be scored once by a
