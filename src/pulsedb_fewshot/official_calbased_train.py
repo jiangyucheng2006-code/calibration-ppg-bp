@@ -21,6 +21,8 @@ import time
 import numpy as np
 import pandas as pd
 
+from .official_time_policy import TIME_BOUNDARY_POLICY, sample_span_audit
+
 try:  # Contract-only tests can run without the optional training dependency.
     import torch
     from torch.utils.data import Dataset
@@ -85,7 +87,7 @@ def validate_training_frame(frame: pd.DataFrame, *, smoke: bool = False) -> pd.D
         raise ValueError("official PPG must contain 125 Hz samples")
     if not np.allclose(f.end_time_s + f.sample_interval_s,
                        f.start_time_s + f.duration_s, rtol=0, atol=1e-4):
-        raise ValueError("inconsistent half-open physiological interval")
+        raise ValueError("inconsistent sample-span duration and sample interval")
     counts = f.groupby(["subject_uid", "inner_role"]).size().unstack(fill_value=0)
     if (counts == 0).any().any():
         raise ValueError("every registered subject needs both inner roles")
@@ -100,15 +102,8 @@ def validate_training_frame(frame: pd.DataFrame, *, smoke: bool = False) -> pd.D
 
 
 def assert_cross_role_intervals(frame: pd.DataFrame, role: str) -> None:
-    for _, group in frame.groupby(["source", "subject_uid", "record_id"], sort=False):
-        end_by_role = {}
-        ordered = group.sort_values(["start_time_s", "segment_uid"], kind="mergesort")
-        for row in ordered.itertuples(index=False):
-            label = getattr(row, role)
-            if any(label != other and row.start_time_s < end - 1e-5
-                   for other, end in end_by_role.items()):
-                raise ValueError("physiological interval crosses model fitting boundary")
-            end_by_role[label] = max(end_by_role.get(label, -np.inf), row.start_time_s + row.duration_s)
+    if sample_span_audit(frame, role)["cross_role_overlap_pairs"]:
+        raise ValueError("physiological interval crosses model fitting boundary")
 
 
 def load_store(root: Path, *, smoke: bool = False):
@@ -118,6 +113,8 @@ def load_store(root: Path, *, smoke: bool = False):
         raise ValueError("official store is not approved/ready")
     if smoke != bool(manifest.get("synthetic", False)):
         raise ValueError("smoke requires synthetic store; real stores require formal validation")
+    if not smoke and manifest.get("time_boundary_policy") != TIME_BOUNDARY_POLICY:
+        raise ValueError("official store requires the recorded sample-span time contract")
     # Deliberately do not enumerate/open test files or raw subject MAT files.
     path = root / "train_manifest.parquet"
     frame = validate_training_frame(pd.read_parquet(path), smoke=smoke)
@@ -173,7 +170,10 @@ def canonical_metadata(frame: pd.DataFrame, role: str) -> pd.DataFrame:
         "event_id": frame.segment_uid.astype(str), "window_uid": frame.segment_uid.astype(str),
         "source": frame.source.astype(str), "recording_uid": recording,
         "time_axis_uid": recording, "start_s": frame.start_time_s.astype(float),
-        "end_s": frame.start_time_s.astype(float) + frame.duration_s.astype(float),
+        "end_s": frame.end_time_s.astype(float),
+        "duration_s": frame.duration_s.astype(float),
+        "sample_interval_s": frame.sample_interval_s.astype(float),
+        "time_boundary_policy": TIME_BOUNDARY_POLICY,
         "waveform_sha256": frame.ppg_content_sha256.astype(str), "role": role})
     if role in {"source_fit", "excluded_fold", "outer_validation"}:
         out["oof_role"] = role
@@ -315,6 +315,7 @@ def export_cache(model, frame, role, args, scaler, anchors, mapping, provenance)
     if has_labels:
         np.save(root / "bp.npy", frame[["sbp", "dbp"]].to_numpy(dtype=np.float32))
     payload = dict(provenance, role=role, rows=len(frame), feature_dim=256,
+                   time_boundary_policy=TIME_BOUNDARY_POLICY,
                    labels_present=has_labels, target_units="mmHg", status="complete")
     payload["files"] = {p.name: sha256(p) for p in sorted(root.iterdir()) if p.is_file()}
     save_json(root / "provenance.json", payload)
@@ -391,6 +392,7 @@ def run(args):
     excluded = exports.get("excluded_fold", pd.DataFrame({"segment_uid": []}))
     started = time.monotonic()
     report = {"protocol_id": PROTOCOL_ID, "stage": args.stage, "status": "running", "candidate": "lora",
+        "time_boundary_policy": TIME_BOUNDARY_POLICY,
         "seed": args.seed, "effective_seed": seed, "fold": args.fold, "synthetic": args.smoke,
         "started_utc": datetime.now(timezone.utc).isoformat(), "slurm_job_id": os.getenv("SLURM_JOB_ID"),
         "device": args.device, "gpu": torch.cuda.get_device_name(0) if args.device == "cuda" else None,

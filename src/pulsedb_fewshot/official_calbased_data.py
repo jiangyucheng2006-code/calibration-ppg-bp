@@ -19,11 +19,17 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
+from .official_time_policy import TIME_BOUNDARY_POLICY, sample_span_audit
+
 PROTOCOL_ID = "pulsedb-official-calbased-v1"
 OFFICIAL_COUNTS = {"MIMIC": 1213, "VitalDB": 1293}
 INFO_SHA1 = {
     "Train_Info.mat": "c785192a7a860a71e4006e97ac0fd9e7c4b83697",
     "CalBased_Test_Info.mat": "0887f79e4618b19ff0be9ab0190f2a389432a108",
+}
+MEMBERSHIP_CACHE_SHA256 = {
+    "Train_Info_membership.parquet": "9fee5cf48e975ae565ee7150a1ffdb6c8400ba68c4929be70117cecaa771c151",
+    "CalBased_Test_Info_membership.parquet": "5127409ca9727239ee04427f2229747c73ec17bc256f8a3906671bc7839f808f",
 }
 
 
@@ -96,6 +102,40 @@ def read_official_membership(path, role):
     return pd.DataFrame(rows, columns=["source", "file_subject", "segment_row", "official_subject_name", "official_role"])
 
 
+def read_verified_membership_cache(path, role):
+    """Reuse the hash-pinned identity-only decode, never an arbitrary cache.
+
+    The caller must also verify the original Info file identity. These hashes
+    identify the independently decoded 2026-09-08 tables from those exact files.
+    """
+    expected_role = {"Train_Info_membership.parquet": "official_train",
+                     "CalBased_Test_Info_membership.parquet": "official_test"}
+    if expected_role.get(path.name) != role or path.name not in MEMBERSHIP_CACHE_SHA256:
+        raise ValueError("membership cache name/role mismatch")
+    if digest_file(path) != MEMBERSHIP_CACHE_SHA256[path.name]:
+        raise ValueError("membership cache hash mismatch; preserve and inspect")
+    frame = pd.read_parquet(path)
+    required = {"official_subject", "matlab_subj_segidx", "raw_subject_id", "source"}
+    if set(frame) != required:
+        raise ValueError("membership cache is not the expected identity-only schema")
+    mapping = {name: parse_subject_name(name) for name in frame.official_subject.unique()}
+    sources = frame.official_subject.map(lambda name: mapping[name][0])
+    subjects = frame.official_subject.map(lambda name: mapping[name][1])
+    # Cache source labels may be directory names; identity uses the official
+    # suffix and must agree with both redundant cached identity fields.
+    source_alias = {"PulseDB_MIMIC": "MIMIC", "PulseDB_Vital": "VitalDB",
+                    "MIMIC": "MIMIC", "VitalDB": "VitalDB"}
+    if not sources.eq(frame.source.map(source_alias)).all() or not subjects.eq(frame.raw_subject_id).all():
+        raise ValueError("membership cache redundant identities disagree")
+    indices = pd.to_numeric(frame.matlab_subj_segidx, errors="raise")
+    if not (np.isfinite(indices) & (indices >= 1) & indices.eq(np.floor(indices))).all():
+        raise ValueError("invalid one-based cached membership index")
+    return pd.DataFrame({"source": sources, "file_subject": subjects,
+                         "segment_row": indices.astype(np.int64) - 1,
+                         "official_subject_name": frame.official_subject,
+                         "official_role": role})
+
+
 def validate_memberships(train, test, expected_counts=OFFICIAL_COUNTS, train_count=360, test_count=40):
     keys = ["source", "file_subject", "segment_row"]
     for frame, count in ((train, train_count), (test, test_count)):
@@ -145,17 +185,8 @@ def join_index(membership, metadata):
 
 
 def interval_conflicts(frame):
-    """Count distinct-record-clock physical overlaps, including different IDs."""
-    count = 0
-    for _, group in frame.groupby(["source", "subject_uid", "record_id"], sort=False):
-        ordered = group.sort_values("start_time_s")
-        active = []
-        for row in ordered.itertuples():
-            start, end = float(row.start_time_s), float(row.start_time_s + row.duration_s)
-            active = [(b, role) for b, role in active if b > start + 1e-6]
-            count += sum(role != row.official_role for _, role in active)
-            active.append((end, row.official_role))
-    return count
+    """Reject positive recorded-sample-span overlap, not boundary touching."""
+    return sample_span_audit(frame, "official_role")["cross_role_overlap_pairs"]
 
 
 def _read_raw_ppg(f, row):
@@ -184,6 +215,8 @@ def materialize_shard(args):
                 wave = _read_raw_ppg(f, row)
                 arrays[int(row.waveform_row)] = wave
                 hashes[row.Index] = hashlib.sha256(wave.tobytes()).hexdigest()
+        print(json.dumps({"phase": "materialize_subject", "shard": plan_path.stem,
+                          "rows": len(group), "subject": group.subject_uid.iloc[0]}), flush=True)
     arrays.flush()
     del arrays
     frame["ppg_content_sha256"] = hashes
@@ -197,6 +230,7 @@ def prepare(args):
         raise FileExistsError("output already exists; preserve failed runs and use a new directory")
     args.output.mkdir(parents=True)
     report = {"status": "preparing", "protocol_id": PROTOCOL_ID, "official_test_targets_accessed": False,
+              "time_boundary_policy": TIME_BOUNDARY_POLICY,
               "seed": args.seed, "legacy_models_reused": False, "input_files": {},
               "source_index_sha256": digest_file(args.segment_index),
               "legacy_subject_map_sha256": digest_file(args.legacy_subjects),
@@ -212,7 +246,15 @@ def prepare(args):
         if sha1 != INFO_SHA1[path.name]:
             raise ValueError(f"official file identity differs: {path.name}")
         report["input_files"][path.name] = {"sha1": sha1, "sha256": digest_file(path), "bytes": path.stat().st_size}
-        members[role] = read_official_membership(path, role)
+        cache = path.with_name(f"{path.stem}_membership.parquet")
+        if args.use_verified_membership_cache:
+            members[role] = read_verified_membership_cache(cache, role)
+            report["input_files"][path.name]["membership_cache_sha256"] = digest_file(cache)
+        else:
+            members[role] = read_official_membership(path, role)
+        save_json(args.output / "manifest.json", report)
+        print(json.dumps({"phase": "official_membership_verified", "role": role,
+                          "rows": len(members[role]), "used_cache": args.use_verified_membership_cache}), flush=True)
     validate_memberships(members["official_train"], members["official_test"])
 
     # Load metadata only here. The target predicate below returns only TRAIN
@@ -226,6 +268,32 @@ def prepare(args):
     meta["file_subject"] = meta.raw_file.map(lambda p: Path(p).stem)
     tables = {role: join_index(frame, meta) for role, frame in members.items()}
     del meta
+    all_meta = pd.concat(list(tables.values()), ignore_index=True)
+    report["official_time_audit"] = sample_span_audit(all_meta, "official_role")
+    save_json(args.output / "manifest.json", report)
+    if report["official_time_audit"]["cross_role_overlap_pairs"]:
+        raise ValueError("official assignment contains positive recorded-sample-span overlap across roles")
+    del all_meta
+    tables["official_train"] = assign_inner_roles(tables["official_train"], args.seed)
+    tables["official_test"]["inner_role"] = "official_test"
+    tables["official_test"]["inner_fold"] = -1
+    report["inner_time_audit"] = sample_span_audit(tables["official_train"], "inner_role")
+    inner_fit = tables["official_train"].loc[lambda f: f.inner_role.eq("train")]
+    report["oof_time_audit"] = sample_span_audit(inner_fit, "inner_fold")
+    save_json(args.output / "manifest.json", report)
+    if any(report[name]["cross_role_overlap_pairs"] for name in ("inner_time_audit", "oof_time_audit")):
+        raise ValueError("positive sample-span overlap crosses inner/OOF fitting boundaries")
+    print(json.dumps({"phase": "time_audits_pass", "official": report["official_time_audit"],
+                      "inner": report["inner_time_audit"], "oof": report["oof_time_audit"]}), flush=True)
+    if args.preflight_only:
+        report.update(status="metadata_ready", train_rows=len(tables["official_train"]),
+                      test_rows=len(tables["official_test"]), subjects=2506,
+                      train_membership_sha256=id_digest(tables["official_train"].segment_uid),
+                      test_membership_sha256=id_digest(tables["official_test"].segment_uid),
+                      elapsed_seconds=time.monotonic() - started)
+        save_json(args.output / "manifest.json", report)
+        print("OFFICIAL_METADATA_PREFLIGHT=pass", flush=True)
+        return report
     # Query precisely the allowed official training row IDs before reading BP.
     fit_ids = tables["official_train"].segment_uid.astype(str).tolist()
     targets = pd.read_parquet(args.segment_index, columns=["segment_uid", "sbp", "dbp"],
@@ -235,9 +303,6 @@ def prepare(args):
     if not np.isfinite(targets[["sbp", "dbp"]].to_numpy(dtype=float)).all():
         raise ValueError("nonfinite training BP")
     tables["official_train"] = tables["official_train"].merge(targets, on="segment_uid", validate="one_to_one")
-    all_meta = pd.concat([f.drop(columns=["sbp", "dbp"], errors="ignore") for f in tables.values()], ignore_index=True)
-    if interval_conflicts(all_meta):
-        raise ValueError("official assignment contains overlapping physical intervals across roles")
     # The raw files are addressed only under the explicitly supplied hot roots.
     for frame in tables.values():
         frame["raw_file"] = [str((args.mimic_root if s == "MIMIC" else args.vital_root) / f"{p}.mat")
@@ -245,9 +310,9 @@ def prepare(args):
         if not np.allclose(frame.duration_s, 10, atol=1e-4) or not frame.n_samples.eq(1250).all():
             raise ValueError("official window schema does not match 10s/125Hz")
         frame["protocol_id"] = PROTOCOL_ID
-    tables["official_train"] = assign_inner_roles(tables["official_train"], args.seed)
-    tables["official_test"]["inner_role"] = "official_test"
-    tables["official_test"]["inner_fold"] = -1
+        missing_raw = [path for path in frame.raw_file.unique() if not Path(path).is_file()]
+        if missing_raw:
+            raise FileNotFoundError(f"required hot raw files missing ({len(missing_raw)}); staging must complete first")
     if args.legacy_subjects is not None:
         legacy = pd.read_csv(args.legacy_subjects, usecols=["subject_uid", "split"])
         if legacy.subject_uid.duplicated().any():
@@ -277,6 +342,7 @@ def prepare(args):
         for future in as_completed([pool.submit(materialize_shard, task) for task in tasks]):
             record = future.result()
             report["arrays"].append(record)
+            save_json(args.output / "manifest.json", report)
             print(json.dumps({"phase": "materialize", **record}), flush=True)
     train = pd.concat([pd.read_parquet(p) for p in plans["official_train"]], ignore_index=True)
     test = pd.concat([pd.read_parquet(p) for p in plans["official_test"]], ignore_index=True)
@@ -285,6 +351,13 @@ def prepare(args):
     if cross_duplicates:
         save_json(args.output / "manifest.json", report)
         raise ValueError("exact official membership includes duplicate PPG across train/test; requires an explicit documented decision")
+    report["within_role_duplicate_ppg_rows"] = {
+        "official_train": int(train.ppg_content_sha256.duplicated().sum()),
+        "official_test": int(test.ppg_content_sha256.duplicated().sum()),
+    }
+    save_json(args.output / "manifest.json", report)
+    if any(report["within_role_duplicate_ppg_rows"].values()):
+        raise ValueError("duplicate PPG within official role would fail downstream memory audit; inspect without silent row removal")
     # Keep identical train windows in one inner role/fold rather than training
     # on exact copies of internal validation or OOF queries.
     combined_groups = train.groupby("ppg_content_sha256").agg(roles=("inner_role", "nunique"), folds=("inner_fold", "nunique"))
@@ -317,6 +390,9 @@ def main():
     p.add_argument("--seed", type=int, default=20260908)
     p.add_argument("--workers", type=int, default=2)
     p.add_argument("--shards", type=int, default=32)
+    p.add_argument("--use-verified-membership-cache", action="store_true")
+    p.add_argument("--preflight-only", action="store_true",
+                   help="audit exact official/inner/OOF time boundaries without BP or raw signal reads")
     args = p.parse_args()
     if args.workers < 1 or args.shards < 1:
         p.error("positive workers/shards required")

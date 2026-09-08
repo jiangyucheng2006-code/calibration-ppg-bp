@@ -65,6 +65,27 @@ class OfficialContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "physiological interval"):
             official.validate_training_frame(frame, smoke=True)
 
+    def test_actual_touching_boundary_does_not_add_one_sample(self):
+        frame = fixture_frame()
+        frame.loc[0, ["start_time_s", "end_time_s"]] = [16380.016, 16390.008]
+        frame.loc[9, ["start_time_s", "end_time_s"]] = [16390.008, 16400.]
+        accepted = official.validate_training_frame(frame, smoke=True)
+        metadata = official.canonical_metadata(accepted, "train")
+        self.assertEqual(metadata.loc[0, "end_s"], metadata.loc[9, "start_s"])
+        self.assertTrue(metadata.time_boundary_policy.eq(official.TIME_BOUNDARY_POLICY).all())
+
+    def test_real_one_sample_overlap_still_fails(self):
+        frame = fixture_frame()
+        frame.loc[9, ["start_time_s", "end_time_s"]] = [9.984, 19.976]
+        with self.assertRaisesRegex(ValueError, "physiological interval"):
+            official.validate_training_frame(frame, smoke=True)
+
+    def test_oof_exact_touching_span_allowed(self):
+        frame = fixture_frame()
+        frame.loc[1, ["start_time_s", "end_time_s"]] = [9.992, 19.984]
+        fit, exports = official.select_stage(frame, "oof", 0)
+        self.assertFalse(set(fit.segment_uid) & set(exports["excluded_fold"].segment_uid))
+
     def test_invalid_float_row_rejected(self):
         frame = fixture_frame().astype({"waveform_row": float})
         frame.loc[0, "waveform_row"] = .5
@@ -119,7 +140,8 @@ class OfficialContractTests(unittest.TestCase):
         metadata = official.canonical_metadata(frame, "excluded_fold")
         self.assertFalse({"sbp", "dbp", "target_sbp", "target_dbp"} & set(metadata))
         self.assertTrue(metadata.oof_role.eq("excluded_fold").all())
-        self.assertTrue(np.allclose(metadata.end_s - metadata.start_s, 10.))
+        self.assertTrue(np.allclose(metadata.end_s - metadata.start_s, 9.992))
+        self.assertTrue(np.allclose(metadata.duration_s, 10.))
 
     def test_identity_hash_contract(self):
         expected = hashlib.sha256(b"a\nb\n").hexdigest()
@@ -145,6 +167,13 @@ class OfficialContractTests(unittest.TestCase):
             official.save_json(root / "manifest.json", {"protocol_id": official.PROTOCOL_ID, "status": "ready"})
             with self.assertRaisesRegex(ValueError, "smoke requires"):
                 official.load_store(root, smoke=True)
+
+    def test_real_store_requires_declared_sample_span_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            official.save_json(root / "manifest.json", {"protocol_id": official.PROTOCOL_ID, "status": "ready"})
+            with self.assertRaisesRegex(ValueError, "sample-span time contract"):
+                official.load_store(root)
 
     def test_path_escape_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

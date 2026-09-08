@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 
 from .personal_memory_prepare import audit_metadata, prepare_neighbors, macro_metrics
+from .official_time_policy import TIME_BOUNDARY_POLICY, sample_span_audit
 
 
 PROTOCOL = "pulsedb-official-calbased-v1"
@@ -61,6 +62,8 @@ def load_role(root: Path, expected_role: str, *, synthetic=False, allow_test_inp
     manifest = json.loads((root / "provenance.json").read_text(encoding="utf-8"))
     if manifest.get("protocol_id") != PROTOCOL:
         raise ValueError("wrong official cache protocol")
+    if manifest.get("time_boundary_policy") != TIME_BOUNDARY_POLICY:
+        raise ValueError("official cache requires the recorded sample-span time contract")
     if manifest.get("official_test_accessed") is not False and not allow_test_inputs:
         raise ValueError("official test access must explicitly be false")
     if allow_test_inputs and (manifest.get("stage") != "final" or manifest.get("official_test_targets_accessed") is not False):
@@ -114,6 +117,9 @@ def canonical_rows(frame, role):
     """Map identical role semantics to the shared *pure lineage audit* API.
 
     This does not invoke or disable any old experiment/protocol/count checker.
+    end_s is the actual last sample, never start_s + nominal 10-s duration.
+    The shared audit/retrieval's 1e-7 endpoint comparator then implements the
+    same positive-span-overlap rule without modifying the old protocol.
     All source windows become train, all excluded/evaluation windows become
     internal_validation for interval/hash auditing, without changing membership.
     """
@@ -121,6 +127,14 @@ def canonical_rows(frame, role):
                "start_s", "end_s", "waveform_sha256"]
     if any(name not in frame for name in columns):
         raise ValueError("missing canonical cache lineage")
+    time_fields = {"time_boundary_policy", "sample_interval_s", "duration_s"}
+    if not time_fields <= set(frame) or not frame.time_boundary_policy.eq(TIME_BOUNDARY_POLICY).all():
+        raise ValueError("cache lineage requires the recorded sample-span time contract")
+    if (not np.allclose(frame.sample_interval_s, .008, rtol=0, atol=1e-6) or
+            not np.allclose(frame.duration_s, 10., rtol=0, atol=1e-4) or
+            not np.allclose(frame.end_s - frame.start_s + frame.sample_interval_s,
+                            frame.duration_s, rtol=0, atol=1e-4)):
+        raise ValueError("cache recorded sample span disagrees with duration or sampling")
     rows = frame[columns].to_dict("records")
     for row in rows:
         row["window_uid"] = row["event_id"]
@@ -132,6 +146,12 @@ def audit_roles(bank, query, *, expected_counts=None):
     bank_rows = canonical_rows(bank["metadata"], "train")
     query_rows = canonical_rows(query["metadata"], "internal_validation")
     audit = audit_metadata(bank_rows, query_rows)
+    time_audit = sample_span_audit(pd.concat([
+        bank["metadata"].assign(audit_role="train"),
+        query["metadata"].assign(audit_role="query")]), "audit_role",
+        group_cols=("source", "recording_uid"), start_col="start_s",
+        end_col="end_s", id_col="event_id")
+    audit.update(time_audit)
     if set(bank["metadata"].subject_uid) != set(query["metadata"].subject_uid):
         raise ValueError("all official registered participants must have both roles")
     if bank["manifest"]["checkpoint_sha256"] != query["manifest"]["checkpoint_sha256"]:
@@ -242,7 +262,8 @@ def audit_crossfit(folds, outer_train):
         reference = outer_train["metadata"].set_index("event_id")
         for cache in (fit, held):
             rows = cache["metadata"].set_index("event_id")
-            for key in ("subject_uid", "source", "recording_uid", "time_axis_uid", "start_s", "end_s", "waveform_sha256"):
+            for key in ("subject_uid", "source", "recording_uid", "time_axis_uid", "start_s", "end_s",
+                        "duration_s", "sample_interval_s", "time_boundary_policy", "waveform_sha256"):
                 if not rows[key].equals(reference.loc[rows.index, key]):
                     raise ValueError(f"OOF lineage differs from outer training: {key}")
             lookup = pd.Series(np.arange(len(outer_train["metadata"])), index=outer_train["metadata"].event_id)

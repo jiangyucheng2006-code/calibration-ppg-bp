@@ -16,6 +16,7 @@ from pulsedb_fewshot.official_memory_train import (
     PROTOCOL, CACHE_FILES, TRUST_FEATURE_NAMES, event_digest, sha256_file,
     load_role, audit_roles, audit_crossfit, prepare_pair, memory_inputs, training_std,
 )
+from pulsedb_fewshot.official_time_policy import TIME_BOUNDARY_POLICY
 
 
 def cache_fixture(n_train=48, n_val=3):
@@ -28,13 +29,16 @@ def cache_fixture(n_train=48, n_val=3):
                 uid = f"{source}-{role}-{j}"
                 rows.append({"subject_uid": source + "person", "event_id": uid, "source": source,
                              "recording_uid": source + "record", "time_axis_uid": source + "clock",
-                             "start_s": float(shift + j * 20), "end_s": float(shift + j * 20 + 10),
+                             "start_s": float(shift + j * 20), "end_s": float(shift + j * 20 + 9.992),
+                             "duration_s": 10., "sample_interval_s": .008,
+                             "time_boundary_policy": TIME_BOUNDARY_POLICY,
                              "waveform_sha256": hashlib.sha256(uid.encode()).hexdigest(), "role": role})
         features = rng.normal(size=(len(rows), 256)).astype(np.float32)
         bp = (np.array([125., 75.]) + rng.normal(size=(len(rows), 2)) * 8).astype(np.float32)
         caches.append({"metadata": pd.DataFrame(rows), "features": features,
                        "base": bp + np.array([3., -2.], dtype=np.float32), "bp": bp,
                        "manifest": {"protocol_id": PROTOCOL, "official_test_accessed": False,
+                                    "time_boundary_policy": TIME_BOUNDARY_POLICY,
                                     "checkpoint_sha256": "a" * 64, "synthetic_smoke": True,
                                     "official_contract_sha256": "c" * 64,
                                     "bp_units": "mmHg", "fit_transforms_on_source_fit_only": True}})
@@ -111,8 +115,38 @@ class OfficialCacheTests(unittest.TestCase):
 
     def test_global_physiological_overlap_is_caught(self):
         bank, val = cache_fixture()
-        val["metadata"].loc[0, ["start_s", "end_s"]] = [5., 15.]
+        val["metadata"].loc[0, ["start_s", "end_s"]] = [5., 14.992]
         with self.assertRaisesRegex(ValueError, "physiological interval"):
+            audit_roles(bank, val)
+
+    def test_touching_samples_survive_cache_audit_and_retrieval(self):
+        bank, val = cache_fixture()
+        val["metadata"].loc[0, ["start_s", "end_s"]] = [9.992, 19.984]
+        # Make the touching bank window the best cosine neighbour. It is not
+        # an overlapping 10-s window, nor the same event or waveform content.
+        val["features"][0] = bank["features"][0]
+        result, audit = prepare_pair(bank, val)
+        self.assertEqual(audit["time_boundary_policy"], TIME_BOUNDARY_POLICY)
+        self.assertEqual(audit["cross_role_touching_pairs"], 1)
+        self.assertEqual(audit["cross_role_overlap_pairs"], 0)
+        self.assertEqual(result["validation"]["knn_indices"][0, 0], 0)
+
+    def test_one_sample_overlap_not_relabelled_as_touching(self):
+        bank, val = cache_fixture()
+        val["metadata"].loc[0, ["start_s", "end_s"]] = [9.984, 19.976]
+        with self.assertRaisesRegex(ValueError, "physiological interval"):
+            prepare_pair(bank, val)
+
+    def test_old_extended_endpoint_cache_rejected(self):
+        bank, val = cache_fixture()
+        val["metadata"].loc[0, "end_s"] += .008
+        with self.assertRaisesRegex(ValueError, "recorded sample span disagrees"):
+            audit_roles(bank, val)
+
+    def test_undeclared_cache_time_policy_rejected(self):
+        bank, val = cache_fixture()
+        val["metadata"] = val["metadata"].drop(columns="time_boundary_policy")
+        with self.assertRaisesRegex(ValueError, "sample-span time contract"):
             audit_roles(bank, val)
 
     def test_official_counts_not_assumed(self):

@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import h5py
 import numpy as np
@@ -9,6 +10,7 @@ import pandas as pd
 from pulsedb_fewshot.official_calbased_data import (
     assign_inner_roles, interval_conflicts, join_index, parse_subject_name,
     read_official_membership, validate_memberships,
+    read_verified_membership_cache, MEMBERSHIP_CACHE_SHA256,
 )
 
 
@@ -59,10 +61,50 @@ class OfficialMembershipTests(unittest.TestCase):
     def test_interval_boundary_and_overlap(self):
         frame = pd.DataFrame({"source": ["s"] * 3, "subject_uid": ["a"] * 3, "record_id": ["r"] * 3,
                               "start_time_s": [0., 10., 20.], "duration_s": [10.] * 3,
+                              "end_time_s": [9.992, 19.992, 29.992],
+                              "segment_uid": ["s0", "s1", "s2"],
                               "official_role": ["official_train", "official_test", "official_train"]})
         self.assertEqual(interval_conflicts(frame), 0)
         frame.loc[1, "start_time_s"] = 9
         self.assertEqual(interval_conflicts(frame), 1)
+
+    def test_observed_boundary_touch_does_not_add_one_sample_to_end(self):
+        frame = pd.DataFrame({"source": ["MIMIC"] * 2, "subject_uid": ["p056440"] * 2,
+                              "record_id": ["r"] * 2, "segment_uid": ["a", "b"],
+                              "start_time_s": [16380.016, 16390.008],
+                              "end_time_s": [16390.008, 16400.], "duration_s": [10., 10.],
+                              "official_role": ["official_train", "official_test"]})
+        self.assertEqual(interval_conflicts(frame), 0)
+        frame.loc[1, "start_time_s"] -= .008
+        self.assertEqual(interval_conflicts(frame), 1)
+
+    def test_verified_membership_cache_identity_and_conversion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "Train_Info_membership.parquet"
+            frame = pd.DataFrame({"official_subject": ["p000160_0", "p000160_0"],
+                                  "matlab_subj_segidx": [1, 3], "raw_subject_id": ["p000160"] * 2,
+                                  "source": ["PulseDB_MIMIC"] * 2})
+            frame.to_parquet(path)
+            with mock.patch("pulsedb_fewshot.official_calbased_data.digest_file",
+                            return_value=MEMBERSHIP_CACHE_SHA256[path.name]):
+                result = read_verified_membership_cache(path, "official_train")
+                self.assertEqual(result.segment_row.tolist(), [0, 2])
+                self.assertEqual(result.source.tolist(), ["MIMIC", "MIMIC"])
+                with self.assertRaisesRegex(ValueError, "name/role"):
+                    read_verified_membership_cache(path, "official_test")
+                frame["raw_subject_id"] = "p999999"
+                frame.to_parquet(path)
+                with self.assertRaisesRegex(ValueError, "identities disagree"):
+                    read_verified_membership_cache(path, "official_train")
+
+    def test_unpinned_membership_cache_is_rejected_before_parquet_read(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "Train_Info_membership.parquet"
+            path.write_bytes(b"tampered cache")
+            with mock.patch("pulsedb_fewshot.official_calbased_data.pd.read_parquet") as read:
+                with self.assertRaisesRegex(ValueError, "cache hash mismatch"):
+                    read_verified_membership_cache(path, "official_train")
+                read.assert_not_called()
 
 
 if __name__ == "__main__":

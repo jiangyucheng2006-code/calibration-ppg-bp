@@ -2,6 +2,30 @@
 
 Last updated: 2026-09-08.
 
+## Official CalBased — superseding status at 14:55 CST: preparation failed
+
+- Live scheduler inspection: own queue empty. Preparation1648 FAILEDexit1:0
+  after27minutes, at14:13:59CST. Smoke1651 succeeded, but1652–1667 were all
+  automaticallyCANCELLED with zero elapsed time and no start timestamp.
+  **No formal model in this official batch began fitting; there are no scores.**
+- The failure is the new physical-interval check, not participant overlap.
+  Metadata-only reproduction finds exactly4 cross-role pairs (1MIMIC/3VitalDB),
+  all0.008seconds under the new end-plus-sampling-interval definition. Their
+  recorded last/first timestamps touch, with no positive recorded sample-span
+  overlap. Old audits treated this case as touching rather than positive overlap.
+- Raw T/PPG_Raw checks of all four pairs confirm1250samples, equal boundary
+  timestamps, unequal boundaryPPG values and unequal complete arrays. This is
+  evidence for a timestamp-boundary contract mismatch, not proof of duplicate
+  ten-second data or proof of unrestricted physical independence.
+- Another preflight gap: the chosen work raw directories contain only5MIMIC
+  and5Vital files. Required checked files remain in the NAS raw master but were
+  not staged to those work paths. Both boundary semantics and work staging need
+  addressing before resubmission; turning off the check alone is insufficient.
+- This inspection changed no training code, official membership or server jobs,
+  and read no official test BP. Old prepared manifest still says preparing;
+  scheduler FAILED and traceback are authoritative. Historical submission status
+  below is retained as a dated observation, not the current state.
+
 ## Official CalBased — data preparation and verified implementation
 
 - The user authorized a separate exact-official benchmark, not another custom

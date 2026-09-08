@@ -1,5 +1,25 @@
 # Official CalBased execution receipt — 2026-09-08
 
+## Superseding inspection, 14:55 CST
+
+Preparation1648 failed at14:13:59CST (exit1:0,27minutes). Its invalid-dependency
+cascade automatically cancelled1652–1667 before any fit started. Smoke1651
+remainsCOMPLETED. There are **zero newly trained official models or results**.
+
+The exact checker reproduces4 timestamp-boundary conflicts, each0.008seconds,
+affecting1MIMIC and3VitalDB participants. The new right edge is last sample time
+plusdt, whereas the old audit separately counted touching last/first timestamps.
+Raw T and PPG_Raw confirm equal boundary timestamps but unequal boundary values
+and unequal whole arrays. No test BP was read during this diagnosis.
+
+The specified work raw paths also contain only the original10pilotMAT files;
+checked full-cohort files remain on NAS. A repair must handle both the boundary
+contract consistently and stage required data to the hot workspace. No code or
+partition changes, recovery submission or publication occurred in this status
+inspection. The table below preserves the earlier14:05 submission snapshot.
+
+## Original submission snapshot
+
 Status inspected approximately14:05CST: submitted, awaiting completion of data
 preparation. No new official benchmark scores are available or implied.
 

@@ -125,6 +125,40 @@ whole-pipeline seeds and temporal/external confirmation remain later work.
 
 ## Execution and resource limits
 
+### Recovery amendment, 2026-09-08
+
+The six methods, optimizer budgets, official membership and internal split seed
+remain unchanged. The initial preparation failed before any formal GPU fit.
+Its logs and immutable code snapshot are retained, not overwritten.
+
+The recovered implementation uses `recorded-sample-span-v1`: the right endpoint
+is the recorded last sample `T[-1]` (`end_time_s`), not `T[-1] + dt`. Four original
+cross-role pairs have identical end/start timestamps and unequal PPG boundary
+values and whole raw arrays. These are recorded as touching boundaries, not
+claimed to prove physiological independence. Positive recorded-span overlap
+above `1e-7` s still fails, including an actual one-sample overlap. Preparation,
+inner/OOF training and memory-cache/retrieval metadata share this contract.
+Historical protocol code and historical results are not reinterpreted.
+
+The original Info file hashes are checked on every preparation. Independently
+decoded identity-only membership caches may be reused only with hard-pinned
+SHA-256 identities, the official name/index conversion, redundant identity
+agreement and the exact 2506-person 360/40 count checks. No test BP is read by
+the metadata preflight, copying step or PPG materializer.
+
+Only the required 2506 raw MAT files are copied from the NAS master to work:
+495,585,295,746 bytes in total (approximately 461.55 GiB). The original ten hot
+pilot files are checked and reused where applicable. Copying is single-stream,
+checks raw-file hashes against the full-cohort audit, read-back verifies the
+new file and installs it without overwriting an existing target. NAS originals
+remain unchanged. The official processed signal arrays contain only the
+selected 1,002,400 windows (approximately 5.01 GB of float32 PPG).
+
+CPU-only hot staging and metadata preflight precede full materialization. A
+post-materialization audit exercises all inner/OOF/final metadata consumers
+before GPU fitting. Exact content duplicates within or across official roles
+remain explicit failures requiring inspection, never silent exclusions.
+
 Use only hpc-2's RTX 5080 and RTX 5070 Ti, at most two allocated GPUs at once.
 Data preparation is a two-CPU Slurm job with no GPU. Hot training inputs,
 environment, logs and outputs remain under `~/work/ppg_bp`; durable artifacts
