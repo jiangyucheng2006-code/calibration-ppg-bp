@@ -2,6 +2,38 @@
 
 Last updated: 2026-09-08.
 
+## Official CalBased — recovery submitted, 15:24 CST
+
+The same six methods have been resubmitted after an authorized preparation
+repair. **Data staging is running; formal GPU fitting has not started.**
+This supersedes, but does not erase, the failed-batch inspection below.
+
+- Runtime revision: `d20264a14ee5`; immutable server code snapshot
+  `~/work/ppg_bp/code/official_calbased_d20264a`. All 313 tracked runtime,
+  test, script and plan files matched the local Git object hashes.
+- Smoke1673 COMPLETED0:0: **103 tests, zero skips**, plus actual RTX5080
+  forward/backward. Metadata preflight1675 COMPLETED0:0 in82seconds.
+- Full official, inner and OOF timestamp checks passed: zero positive
+  recorded-sample-span overlaps; respectively4,7,1 touching pairs reported.
+  Official membership and internal split seed are unchanged. This is not a
+  blanket waiver of overlap or content-duplicate checks.
+- Hot staging1674 RUNNING. At15:24CST,102/2506 files,23.69GiB of461.55GiB
+  verified. Required NAS files all exist; sufficient hot storage is available.
+  Originals remain read-only. Scheduler allocation is2CPU/8GB, **no GPU**.
+- Materialization1676 waits for1674 and1675, then runs full content checks and
+  the actual training/memory metadata-consumer audit before releasing GPU fits.
+- Inner/OOF stages1677–1685 and final candidates1686–1691 are PENDINGDependency.
+  Frozen six-method evaluation1692 follows; only that stage reads official
+  test BP. Overall/MIMIC/VitalDB tables remain prespecified.
+- Batch: `~/work/ppg_bp/outputs/official-calbased-v1_20260908-152000`.
+  Its `submission.tsv` is byte-identical to the NAS archive. The detailed
+  [recovery receipt](OFFICIAL_CALBASED_EXECUTION_20260908.md) lists every stage.
+  No new scores, model improvement or completed training are claimed.
+
+The finite chain runs server-side after the desktop disconnects. It does not
+launch new experiments from test feedback. No GitHub push was performed during
+this recovery; this page and the local Skill continuity record were updated.
+
 ## Official CalBased — superseding status at 14:55 CST: preparation failed
 
 - Live scheduler inspection: own queue empty. Preparation1648 FAILEDexit1:0
