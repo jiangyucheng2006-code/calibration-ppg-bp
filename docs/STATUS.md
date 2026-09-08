@@ -2,6 +2,39 @@
 
 Last updated: 2026-09-08.
 
+## Official CalBased — source duplicates confirmed, 23:18 CST
+
+**The batch failed during preparation; none of the six formal models trained.**
+This supersedes the 15:24 submission snapshot below. Own queue is empty.
+
+- Smoke 1673 and metadata preflight 1675 completed. Hot staging 1674 also
+  completed: all 2,506 required MAT files / 461.55 GiB were copied and verified.
+  No repeat download or full raw copy is needed.
+- Materialization 1676 failed with exit 1:0 after 17:36 at 17:10:18 CST.
+  Jobs 1677–1692 were automatically cancelled before starting. All 64 signal
+  shards exist, but the processed store is correctly marked `failed`, not ready.
+- Full-cohort float32 content checks found 35 train–test duplicate groups,
+  affecting 35 / 100,240 test windows (0.0349%), all MIMIC and four test people.
+  Across both roles there are 154 duplicate pairs: 117 within TRAIN, two
+  within TEST and 35 cross-role. All 308 implicated original Info name/index
+  entries were independently rechecked directly against the original MAT Info.
+- Raw-source verification confirms **all 154 pairs have exactly equal original
+  float64 PPG_F, PPG_Raw and T arrays**, despite different record IDs. Five pairs
+  also cross subject IDs; one of those is cross-role. Prepared arrays match
+  source arrays. This is not a float32 rounding or shard-row indexing error.
+- Of the within-TRAIN duplicate groups, 23 cross internal train/validation and
+  82 cross encoder-fit folds. Simply bypassing the first checker would leave
+  additional affected consumers and biased internal selection.
+- No test BP was accessed. No model scores, resumed fitting, data deletion,
+  protocol change or GitHub publication occurred in this inspection.
+
+The [execution receipt](OFFICIAL_CALBASED_EXECUTION_20260908.md) records the
+diagnostic command and evidence. Before resubmission, an explicit protocol
+decision is needed: preserve exact official membership with a disclosed
+duplicate audit and duplicate-excluded sensitivity report, or adopt a named
+deduplicated derivative. Internal split/crossfit duplicates also need grouped
+handling. Neither alternative has been authorized or implemented by this check.
+
 ## Official CalBased — recovery submitted, 15:24 CST
 
 The same six methods have been resubmitted after an authorized preparation

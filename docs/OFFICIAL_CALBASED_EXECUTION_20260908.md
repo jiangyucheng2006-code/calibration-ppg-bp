@@ -1,5 +1,91 @@
 # Official CalBased execution receipt — 2026-09-08
 
+## Latest inspection — 23:18 CST: preparation failure, source duplicates verified
+
+| Stage | Job(s) | Final observed state |
+|---|---:|---|
+| Snapshot/GPU smoke | 1673 | COMPLETED 0:0, 18 seconds |
+| Verified hot staging | 1674 | COMPLETED 0:0, 1:33:17 |
+| Metadata preflight | 1675 | COMPLETED 0:0, 1:22 |
+| Signal materialization/content gate | 1676 | FAILED 1:0, 17:36 |
+| Internal fits, OOF encoders, six final candidates and evaluator | 1677–1692 | CANCELLED, never started, elapsed zero |
+
+Materialization ended at 17:10:18 CST (09:10:18 UTC). Its exception is:
+
+```text
+exact official membership includes duplicate PPG across train/test; requires an explicit documented decision
+```
+
+All 2,506 required raw MAT files / 461.5498 GiB are now staged and verified;
+the earlier hot-storage and boundary-policy repairs succeeded. All 64 planned
+PPG shards were written. The processed manifest correctly records `failed`;
+the final ready-store manifests and post-prepare audit were not produced.
+Do not mark the store ready or rerun full copying merely to clear this failure.
+
+### New evidence, not inferred from subject overlap
+
+The diagnostic uses only identity/index metadata, PPG_F, PPG_Raw, T, and
+prepared PPG arrays. It does not access BP/ABP or update any model/state.
+
+| Exact-content grouping | Duplicate pairs | Relevant issue |
+|---|---:|---|
+| Official TRAIN versus TEST | 35 | 35 test windows, all MIMIC, four test people |
+| Within official TRAIN | 117 | 23 cross inner fit/validation; 82 cross fit folds |
+| Within official TEST | 2 | Repeated observations, not training-label access |
+| All selected data | 154 | 308 rows across five people; all MIMIC |
+
+All 154 pairs are identical in original float64 filtered PPG, original raw PPG,
+and full T arrays; all have different record IDs. Five pairs cross subject IDs,
+including one train–test pair. The 35 cross-role test rows represent 0.0349% of
+the 100,240 official test windows. This small overall fraction does not establish
+that performance impact is negligible for each affected person.
+
+All 269 implicated official-TRAIN and 39 implicated official-TEST identity/index
+entries were checked directly in the original Info MAT files and agreed with
+the SHA-256-pinned identity-only caches. All implicated prepared arrays were
+compared against their source arrays. Thus the observed duplicates are not
+explained by float32 conversion, duplicate official indices or a wrong shard row.
+Why the original records contain these copies remains unknown.
+
+Reproducible diagnostic:
+
+```bash
+python scripts/audit_official_duplicate_content.py \
+  --store /home/jiangyu.cheng/work/ppg_bp/data/processed/pulsedb-official-calbased-v1_20260908-152000 \
+  --info-root /home/jiangyu.cheng/work/ppg_bp/data/manifests/official_info_20260908 \
+  --report /path/to/a/new/private_audit_report.json
+```
+
+Executed diagnostic script SHA-256:
+`8adedd06ac272af5b1b0f686b83bec00fd66e73754975c6bd525c26260b1849d`.
+The verified private receipt is
+`~/work/ppg_bp/data/manifests/official_content_duplicates_20260908.json`;
+its NAS counterpart was copied and byte-compared successfully. Identifiers and
+raw arrays must not be copied into public results.
+
+### Decision boundary
+
+There are no new official results to rank or summarize. No training gates were
+disabled and no new chain was submitted. Exact official membership and strict
+cross-role waveform uniqueness cannot both hold for these source files.
+
+Proposed choices, **not yet implemented or approved**:
+
+1. Preserve official 360/40 membership, explicitly disclose the duplicate
+   content, retain the full benchmark report and separately report sensitivity
+   excluding the identified train–test duplicate query rows. Group duplicate
+   training content during internal validation/crossfit to prevent those
+   internal roles sharing the same signal. Any necessary internal count change
+   must be documented. Do not label the full benchmark strictly content-disjoint.
+2. Create a separately named deduplicated derivative, remove duplicate training
+   exposure and group internal roles, and disclose any changed per-person
+   training counts. Do not label this the exact original 360/40 benchmark.
+
+This inspection changed only diagnostic code and status records. Original data,
+failed artifacts, model candidates, test-label sealing, training budgets and
+frozen scientific decisions remain unchanged. No GitHub push was requested or
+performed in this turn.
+
 ## Recovery submission, verified at 15:24 CST
 
 User authorized repairing preparation and resubmitting the **same six methods**.
