@@ -1,6 +1,17 @@
 # Calibration PPG BP
 
-## Current work — registered-user personal memory
+## Current work — exact official CalBased comparison
+
+The [six-method official CalBased plan](docs/PLAN_OFFICIAL_CALBASED_20260908.md)
+starts a separate, explicitly authorized benchmark: exact official assignments,
+2,506 people, 360 training and 40 test windows/person. Compare fresh persistent
+LoRA, fixed memory, v1 relation, E1, scalar trust and BP-specific trust. Internal
+selection stays inside the official training set; final predictions are frozen
+before a separate scorer joins test labels. No official result is available yet.
+See [verified execution status](docs/STATUS.md). Historical experiments are not
+overwritten, and this benchmark does not establish unseen-user independence.
+
+## Completed previous work — registered-user personal memory
 
 The [personal-memory v2 results](docs/RESULTS_PERSONAL_MEMORY_V2.md) are complete
 (2026-09-08): all11 jobs and four new fits succeeded. E1 reaches Overall mean

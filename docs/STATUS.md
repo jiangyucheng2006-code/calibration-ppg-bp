@@ -2,6 +2,30 @@
 
 Last updated: 2026-09-08.
 
+## Official CalBased — data preparation and verified implementation
+
+- The user authorized a separate exact-official benchmark, not another custom
+  same-subject random split. Both official Info files are downloaded and their
+  public SHA-1 and NAS/work SHA-256 verified. Identity-only audits confirm
+  2,506 people, 902,160 train and 100,240 test windows, exactly360/40 perperson.
+- Six methods and their fitting/evaluation boundaries are predeclared in
+  [the executable plan](PLAN_OFFICIAL_CALBASED_20260908.md). Four retained
+  methods plus two prospective learned-trust variants; no result is presumed.
+- Job1647 failed before reading data because a minimal code package omitted
+  package imports. Corrected job1648 is running on hpc-2 with2CPU/16GB and no
+  GPU. Its six data-contract tests passed. The failure and corrected snapshot
+  are retained rather than hidden.
+- Server smoke1649 completed all65 collected tests with no skips; real RTX5080
+  forward/backward passed. Five additional rawMAT-to-store integration tests
+  also passed on the server. The final source adds eight freezer contract tests,
+  passed locally; the submitted snapshot will re-run the complete suite.
+- Official training/evaluation jobs are not yet claimed running in this entry;
+  exact submission receipt will be added after scheduler acknowledgement.
+- All new weights start fresh; previous protected-cohort overlap is documented,
+  not portrayed as new unseen-user evidence. Official test BP does not enter
+  fitting or personal memory. Six frozen predictions will be scored once by a
+  separate evaluator, producing Overall/MIMIC/VitalDB tables.
+
 ## Personal-memory v2 — all jobs complete; no eligible upgrade
 
 - Live inspection at12:35CST: own queue empty. Jobs1636–1646 all COMPLETED
