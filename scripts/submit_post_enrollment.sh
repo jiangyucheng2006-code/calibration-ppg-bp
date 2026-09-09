@@ -9,13 +9,17 @@ ppg_tag="${PPG_BATCH_TAG:?batch tag required}"
 [[ "$ppg_tag" =~ ^[0-9]{8}-[0-9]{6}$ ]]
 ppg_work=/home/jiangyu.cheng/work/ppg_bp
 ppg_nas=/home/jiangyu.cheng/nas/ppg_bp
-ppg_root="$ppg_work/outputs/post-enrollment-30-v1_$ppg_tag"
+ppg_protocol="${PPG_ENROLLMENT_PROTOCOL:-post-enrollment-30-v1}"
+[[ "$ppg_protocol" == post-enrollment-30-v1 || "$ppg_protocol" == post-enrollment-200-v1 ]]
+export PPG_ENROLLMENT_PROTOCOL="$ppg_protocol"
+ppg_root="$ppg_work/outputs/${ppg_protocol}_$ppg_tag"
 ppg_store="${PPG_OFFICIAL_STORE:?source store required}"
 ppg_smoke="${PPG_SMOKE_JOB:?completed smoke job required}"
 [[ "$ppg_smoke" =~ ^[0-9]+$ ]]
 [[ "$(sacct -n -X -j "$ppg_smoke" --format=State --parsable2 | tr -d ' ')" == COMPLETED ]]
 [[ "$(sacct -n -X -j "$ppg_smoke" --format=ExitCode --parsable2 | tr -d ' ')" == 0:0 ]]
 test -d "$ppg_root/smoke"
+PYTHONPATH="$ppg_code/src" "$ppg_work/envs/train/bin/python" -c 'import json,sys; from pathlib import Path; from pulsedb_fewshot.training import source_tree_sha256; r=json.loads(Path(sys.argv[1]).read_text()); assert r["status"]=="pass" and r["gpu_test_passed"] is True; assert r["protocol_id"]==sys.argv[2] and r["snapshot"]==sys.argv[3] and r["source_store"]==sys.argv[4] and r["slurm_job_id"]==sys.argv[5]; assert r["source_tree_sha256"]==source_tree_sha256(Path(sys.argv[3]))' "$ppg_root/smoke/receipt.json" "$ppg_protocol" "$ppg_code" "$ppg_store" "$ppg_smoke"
 test ! -e "$ppg_root/submission.tsv"
 ppg_gres="$(sinfo -N -h -n hpc-2 -o %G)"
 [[ "$ppg_gres" == *gpu:rtx_5080:1* && "$ppg_gres" == *gpu:rtx_5070_ti:1* ]]
@@ -39,8 +43,8 @@ prepare="$(submit prepare "$ppg_smoke" none 02:00:00)"
 inner="$(submit population_inner "$prepare" rtx_5080 72:00:00)"
 final="$(submit population_final "$inner" rtx_5080 72:00:00)"
 benchmark="$(submit population_benchmark "$final" rtx_5080 03:00:00)"
-p0="$(submit personal_0 "$benchmark" rtx_5080 12:00:00)"
-p1="$(submit personal_1 "$benchmark" rtx_5070_ti 12:00:00)"
+p0="$(submit personal_0 "$benchmark" rtx_5080 24:00:00)"
+p1="$(submit personal_1 "$benchmark" rtx_5070_ti 24:00:00)"
 evaluate="$(submit evaluate "$p0:$p1" none 02:00:00)"
 printf 'FINAL_EVALUATOR=%s\n' "$evaluate"
 cat "$ppg_manifest"

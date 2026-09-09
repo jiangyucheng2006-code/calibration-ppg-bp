@@ -12,7 +12,7 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 
-from pulsedb_fewshot.post_enrollment_protocol import select_people, audit_split, SEED
+from pulsedb_fewshot.post_enrollment_protocol import select_people, audit_split, SEED, PROTOCOL, EXPANDED_PROTOCOL
 
 
 def frames(people=8):
@@ -89,6 +89,22 @@ class ProtocolTests(unittest.TestCase):
         train, test, _ = frames()
         with self.assertRaisesRegex(ValueError, "30 of 2506"):
             audit_split(train, test, select_people(train, per_source=1))
+        with self.assertRaisesRegex(ValueError, "200 of 2506"):
+            audit_split(train, test, select_people(train, per_source=1), protocol_id=EXPANDED_PROTOCOL)
+
+    def test_expanded_selection_keeps_exactly_100_per_source(self):
+        identities = pd.DataFrame([
+            {"source": source, "subject_uid": f"{source}:{i:05d}"}
+            for source, size in (("MIMIC", 1213), ("VitalDB", 1293)) for i in range(size)])
+        selected = select_people(identities, per_source=100)
+        self.assertEqual(len(selected), 200)
+        self.assertEqual(identities.loc[identities.subject_uid.isin(selected)].groupby("source").size().to_dict(), {"MIMIC": 100, "VitalDB": 100})
+        self.assertEqual(selected, select_people(identities.sample(frac=1, random_state=8), per_source=100))
+
+    def test_unknown_protocol_is_not_a_leakage_bypass(self):
+        train, test, _ = frames()
+        with self.assertRaisesRegex(ValueError, "unknown enrollment protocol"):
+            audit_split(train, test, select_people(train, per_source=1), synthetic=True, protocol_id="anything")
 
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "torch optional on local contract-only runtime")
@@ -149,6 +165,12 @@ class ModelTests(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec("torch") and importlib.util.find_spec("pyarrow"), "full server dependencies required")
 class PipelineSmoke(unittest.TestCase):
     def test_end_to_end_registration_freezing_and_scoring(self):
+        self.exercise_pipeline(PROTOCOL)
+
+    def test_expanded_ablations_freezing_and_scoring(self):
+        self.exercise_pipeline(EXPANDED_PROTOCOL)
+
+    def exercise_pipeline(self, protocol_id):
         import torch
         from pulsedb_fewshot import post_enrollment_protocol as protocol
         from pulsedb_fewshot import post_enrollment_population as population
@@ -165,8 +187,14 @@ class PipelineSmoke(unittest.TestCase):
             test.to_parquet(store / "test_inputs.parquet", index=False)
             np.save(store / "ppg.npy", waves)
             save_json(store / "manifest.json", {"protocol_id": protocol.SOURCE_PROTOCOL, "status": "ready", "synthetic": True})
-            prepared = protocol.prepare(store, root / "partitions", synthetic=True)
+            prepared = protocol.prepare(store, root / "partitions", synthetic=True, protocol_id=protocol_id)
             plan = root / "partitions" / "plan.json"
+            if protocol_id == EXPANDED_PROTOCOL:
+                tampered = dict(prepared, methods=list(protocol.METHODS))
+                changed_plan = root / "changed_plan.json"
+                save_json(changed_plan, tampered)
+                with self.assertRaisesRegex(ValueError, "candidate configuration changed"):
+                    protocol.load_plan(changed_plan, synthetic=True)
             args = population.parser().parse_args(["--plan", str(plan), "--output", str(root / "inner"),
                 "--stage", "inner", "--device", "cpu", "--synthetic", "--epochs", "1", "--workers", "0"])
             seen_reads = []
@@ -197,6 +225,9 @@ class PipelineSmoke(unittest.TestCase):
                 self.assertEqual(report["status"], "complete")
                 self.assertFalse(report["test_targets_accessed"])
                 self.assertTrue(all(v["reload_equivalence"] for v in report["profiles"].values()))
+                self.assertEqual(len(report["prediction_files"]), len(prepared["methods"]))
+                if protocol_id == EXPANDED_PROTOCOL:
+                    self.assertTrue(all(v["all_ablation_reload_equivalence"] for v in report["profiles"].values()))
             labels = test[["subject_uid", "segment_uid", "source"]].copy()
             labels["sbp"], labels["dbp"] = 125., 75.
             index = root / "full_index.parquet"
@@ -206,9 +237,17 @@ class PipelineSmoke(unittest.TestCase):
                 "--full-index", str(index), "--output", str(root / "score"), "--device", "cpu", "--synthetic"])
             evaluate.enrollment_score(ea)
             receipt = json.loads((root / "score" / "evaluation_receipt.json").read_text())
-            self.assertEqual(receipt["subjects"], 2)
-            self.assertEqual(receipt["windows"], 16)
-            self.assertTrue(receipt["all_four_methods_frozen_before_targets"])
+            self.assertEqual(receipt["subjects"], len(prepared["selected_subjects"]))
+            self.assertEqual(receipt["windows"], len(prepared["selected_subjects"]) * 8)
+            self.assertTrue(receipt["all_methods_frozen_before_targets"])
+            self.assertEqual(receipt["method_count"], len(prepared["methods"]))
+            if protocol_id == PROTOCOL:
+                self.assertTrue(receipt["all_four_methods_frozen_before_targets"])
+            else:
+                intervals = pd.read_csv(root / "score" / "paired_participant_intervals.csv")
+                self.assertEqual(len(intervals), 8 * 3 * 3)
+                self.assertEqual(intervals.primary_contrast.sum(), 1)
+                self.assertTrue(intervals.loc[intervals.Scope.eq("Overall"), "participants"].eq(4).all())
             # Corrupting a profile or a prediction invalidates evaluation rather
             # than allowing a silent re-score of altered model outputs.
             bad = runs[0] / "new_person_lora_predictions.parquet"

@@ -11,11 +11,12 @@ import torch
 
 from .official_calbased_train import _loader, _predict, save_json, sha256, event_ids_sha256
 from .official_calbased_evaluate import validate_predictions, read_exact_targets
-from .post_enrollment_protocol import PROTOCOL, METHODS, partition
+from .post_enrollment_protocol import PROTOCOL, EXPANDED_PROTOCOL, partition
+from .post_enrollment_ablations import paired_stratified_interval
 from .post_enrollment_population import check_device, load_population
 
 
-def write_tables(output, targets, predictions, audit, *, title):
+def write_tables(output, targets, predictions, audit, *, title, protocol_id=PROTOCOL):
     from .calbased_metrics import participant_macro_views, pooled_diagnostics, POOLED_COLUMNS
     macro_rows, diagnostics = [], []
     for name, frame in predictions.items():
@@ -30,7 +31,7 @@ def write_tables(output, targets, predictions, audit, *, title):
     diagnostic = pd.concat(diagnostics, ignore_index=True)
     macro.to_csv(output / "participant_macro.csv", index=False)
     diagnostic.to_csv(output / "diagnostic_tables.csv", index=False)
-    lines = [f"# {title}", "", "Protocol: post-enrollment-30-v1. Participant-macro MAE is primary.",
+    lines = [f"# {title}", "", f"Protocol: {protocol_id}. Participant-macro MAE is primary.",
         "The threshold fields below are retrospective numerical AAMI/BHS screens, not device certification.",
         "All windows and participants are retained. Each profile uses 360 labelled registration windows, not 360 independent cuff events.",
         "Random-window evaluation does not establish chronological or long-term performance.", "",
@@ -46,6 +47,42 @@ def write_tables(output, targets, predictions, audit, *, title):
             lines.append("| " + " | ".join(rendered) + " |")
         lines.append("")
     (output / "RESULT_TABLES.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_paired_intervals(output, targets, predictions, plan):
+    """Scoring only: this function is never imported by a training stage."""
+    setting = plan["uncertainty"]
+    reference = "new_person_lora"
+    per_person = {}
+    keys = ["subject_uid", "segment_uid", "source"]
+    for name, frame in predictions.items():
+        joined = frame.merge(targets, on=keys, validate="one_to_one")
+        joined["SBP"] = (joined.pred_sbp - joined.sbp).abs()
+        joined["DBP"] = (joined.pred_dbp - joined.dbp).abs()
+        grouped = joined.groupby(["subject_uid", "source"])[["SBP", "DBP"]].mean().sort_index()
+        grouped["Mean"] = grouped[["SBP", "DBP"]].mean(axis=1)
+        per_person[name] = grouped
+    rows = []
+    for candidate, values in per_person.items():
+        if candidate == reference:
+            continue
+        baseline = per_person[reference]
+        if not baseline.index.equals(values.index):
+            raise ValueError("paired intervals require exactly matched participants")
+        for scope in ("Overall", "MIMIC", "VitalDB"):
+            gains = baseline - values
+            if scope != "Overall":
+                gains = gains.loc[gains.index.get_level_values("source") == scope]
+            for bp in ("Mean", "SBP", "DBP"):
+                ci = paired_stratified_interval(gains[bp].to_numpy(), gains.index.get_level_values("source").to_numpy(),
+                    replicates=setting["bootstrap_replicates"], seed=setting["seed"])
+                rows.append({"Setting": candidate, "Reference": reference, "Scope": scope, "BP": bp,
+                    "primary_contrast": candidate == "new_person_lora_memory" and scope == "Overall" and bp == "Mean", **ci})
+    pd.DataFrame(rows).to_csv(output / "paired_participant_intervals.csv", index=False)
+    save_json(output / "uncertainty_contract.json", dict(setting,
+        interpretation="pointwise exploratory intervals conditional on this fitted model; not training-seed uncertainty",
+        positive_gain="reference participant MAE minus candidate participant MAE",
+        all_participants_retained=True, not_used_for_training=True))
 
 
 def population_benchmark(args):
@@ -64,7 +101,7 @@ def population_benchmark(args):
     file = args.output / "population_lora_predictions.parquet"
     prediction.to_parquet(file, index=False)
     prediction = validate_predictions(pd.read_parquet(file), inputs)
-    frozen = {"protocol_id": PROTOCOL, "status": "frozen_predictions", "plan_sha256": sha256(args.plan),
+    frozen = {"protocol_id": plan["protocol_id"], "status": "frozen_predictions", "plan_sha256": sha256(args.plan),
         "checkpoint_sha256": source["checkpoint_sha256"], "predictions_sha256": sha256(file),
         "query_ids_sha256": event_ids_sha256(inputs.segment_uid), "test_targets_accessed": False,
         "training_feedback_permitted": False, "full_index_sha256": sha256(args.full_index)}
@@ -74,22 +111,23 @@ def population_benchmark(args):
     targets = read_exact_targets(args.full_index, inputs[["subject_uid", "segment_uid", "source"]])
     write_tables(args.output, targets, {"population_lora": prediction},
         {"test_rows_with_registration_content": plan["audit"]["population_test_rows_with_training_content"]},
-        title="Remaining-population frozen benchmark")
+        title="Remaining-population frozen benchmark", protocol_id=plan["protocol_id"])
     save_json(args.output / "evaluation_receipt.json", dict(frozen, status="complete", test_targets_accessed=True,
         subjects=inputs.subject_uid.nunique(), windows=len(inputs)))
 
 
 def enrollment_score(args):
     plan, source, _ = load_population(args.population_run, args.plan, synthetic=args.synthetic)
+    protocol_id, methods = plan["protocol_id"], plan["methods"]
     _, inputs = partition(args.plan, "enrollment_test_inputs", synthetic=args.synthetic)
     if len(args.personal_runs) != 2:
         raise ValueError("both prespecified personal shards required")
-    loaded = {name: [] for name in METHODS}
+    loaded = {name: [] for name in methods}
     seen, evidence = set(), []
     for index, root in enumerate(args.personal_runs):
         report = json.loads((root / "run.json").read_text())
         expected_subjects = plan["selected_subjects"][index::2]
-        if report.get("protocol_id") != PROTOCOL or report.get("status") != "complete" or report.get("stage") != "personal_registration" or report.get("plan_sha256") != sha256(args.plan) or report.get("population_checkpoint_sha256") != source["checkpoint_sha256"]:
+        if report.get("protocol_id") != protocol_id or report.get("status") != "complete" or report.get("stage") != "personal_registration" or report.get("plan_sha256") != sha256(args.plan) or report.get("population_checkpoint_sha256") != source["checkpoint_sha256"]:
             raise ValueError("invalid personal completion/checkpoint provenance")
         if report.get("test_targets_accessed") is not False or report.get("frozen_predictions") is not True or report.get("shared_frozen") is not True or report.get("other_person_adapter_copied") is not False or report.get("subjects") != expected_subjects:
             raise ValueError("invalid personal information access or shard membership")
@@ -103,7 +141,10 @@ def enrollment_score(args):
                               ("registration_metadata.parquet", "registration_metadata_sha256")):
                 if sha256(root / info["directory"] / name) != info[key]:
                     raise ValueError("frozen personal profile changed")
-        for name in METHODS:
+            if protocol_id == EXPANDED_PROTOCOL:
+                if info.get("all_ablation_reload_equivalence") is not True or sha256(root / info["directory"] / "ablation_state.json") != info.get("ablation_state_sha256"):
+                    raise ValueError("ablation profile provenance failed")
+        for name in methods:
             filename = f"{name}_predictions.parquet"
             if sha256(root / filename) != report["prediction_files"][filename]:
                 raise ValueError("personal predictions changed")
@@ -118,16 +159,20 @@ def enrollment_score(args):
         file = args.output / f"{name}_frozen_predictions.parquet"
         frame.to_parquet(file, index=False)
         files[file.name] = sha256(file)
-    frozen = {"protocol_id": PROTOCOL, "status": "frozen_predictions", "plan_sha256": sha256(args.plan),
+    frozen = {"protocol_id": protocol_id, "status": "frozen_predictions", "plan_sha256": sha256(args.plan),
         "population_checkpoint_sha256": source["checkpoint_sha256"], "personal_runs": evidence,
-        "prediction_files": files, "all_four_methods_frozen_before_targets": True,
+        "prediction_files": files, "all_methods_frozen_before_targets": True, "method_count": len(methods),
         "query_ids_sha256": event_ids_sha256(inputs.segment_uid), "test_targets_accessed": False,
         "test_based_selection": False, "full_index_sha256": sha256(args.full_index)}
+    if protocol_id == PROTOCOL:
+        frozen["all_four_methods_frozen_before_targets"] = True
     save_json(args.output / "frozen_predictions.json", frozen)
     targets = read_exact_targets(args.full_index, inputs[["subject_uid", "segment_uid", "source"]])
     write_tables(args.output, targets, predictions,
         {"test_rows_with_registration_content": plan["audit"]["enrollment_test_rows_with_training_content"],
-         "cross_population_subject_overlap": 0}, title="Thirty-subject post-training enrollment")
+         "cross_population_subject_overlap": 0}, title=f"{len(seen)}-subject post-training enrollment", protocol_id=protocol_id)
+    if protocol_id == EXPANDED_PROTOCOL:
+        write_paired_intervals(args.output, targets, predictions, plan)
     save_json(args.output / "evaluation_receipt.json", dict(frozen, status="complete", test_targets_accessed=True,
         subjects=len(seen), windows=len(inputs), scope="exploratory_not_confirmatory"))
 

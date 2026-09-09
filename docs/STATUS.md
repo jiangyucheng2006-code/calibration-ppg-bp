@@ -2,6 +2,25 @@
 
 Last updated: 2026-09-09.
 
+## 200-person post-training enrollment — implementation and preflight
+
+The user authorized expanding the whole-subject-excluded enrollment to 100 or
+200 people. The prespecified choice is 200: 100 MIMIC and 100 VitalDB, leaving
+2,306 people for fresh population fitting. [Frozen plan](PLAN_POST_ENROLLMENT_200_V1.md).
+The original 30-person and exact-official results remain unchanged.
+
+Nine matched prediction settings retain the prior four and add no-LoRA
+memory-only, shared-model memory fusion, adapted memory-only, uniform weights
+and fixed-half fusion. These reuse one fresh shared model and one fitted adapter
+per new person; they are not nine separate population retrainings. The original
+360 registration / 40 test membership per person is retained. All 200 people
+are scored with Overall/MIMIC/VitalDB tables and fixed participant-paired CIs.
+
+Local contract/control tests: 17 passed, 5 neural/end-to-end checks correctly
+skipped because the local runtime has no PyTorch. Server GPU smoke and formal
+submission are not yet verified at this entry. Live SSH inspection found no
+active user jobs and both hpc-2 GPUs idle. No new results are claimed.
+
 ## Completed results and collaborator report
 
 Both completed result batches now have dedicated reports and three-source

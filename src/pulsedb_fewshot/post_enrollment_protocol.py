@@ -1,7 +1,7 @@
 """Subject-excluded post-training enrollment; not an exact official benchmark.
 
-The original official 360/40 membership is retained within each person. Thirty
-whole subjects are sampled using identity/source metadata only, never BP/errors.
+The original official 360/40 membership is retained within each person. Whole
+subjects are sampled using identity/source metadata only, never BP/errors.
 The original store remains unchanged. Fitting reads explicit partition files.
 """
 from __future__ import annotations
@@ -25,6 +25,25 @@ PARTITIONS = ("population_train", "population_test_inputs",
               "enrollment_train", "enrollment_test_inputs")
 METHODS = ("personal_mean", "shared_with_anchor", "new_person_lora",
            "new_person_lora_memory")
+EXPANDED_PROTOCOL = "post-enrollment-200-v1"
+EXPANDED_METHODS = METHODS + (
+    "shared_memory_only", "shared_memory_blend", "lora_memory_only",
+    "lora_memory_uniform", "lora_memory_fixed_half")
+PROTOCOLS = {
+    PROTOCOL: {"per_source": 15, "synthetic_per_source": 1, "methods": METHODS},
+    EXPANDED_PROTOCOL: {"per_source": 100, "synthetic_per_source": 2, "methods": EXPANDED_METHODS},
+}
+ABLATION_CONTRACT = {
+    "shared_memory_only": "zero_adapter_features; donor_BP_only; personal_mean_if_no_legal_donors",
+    "shared_memory_blend": "zero_adapter_features; same_distance_gate_and_shared_head",
+    "lora_memory_only": "adapted_features; donor_BP_only; personal_mean_if_no_legal_donors",
+    "lora_memory_uniform": "same_adapted_top5_donors_and_distance_gate; equal_donor_weights",
+    "lora_memory_fixed_half": "same_adapted_top5_and_similarity_weights; fixed_alpha_0.5_if_valid",
+}
+UNCERTAINTY = {"unit": "participant", "paired": True,
+    "bootstrap_replicates": 2000, "seed": SEED, "confidence": .95,
+    "source_stratified": True, "primary": "new_person_lora_memory_vs_new_person_lora",
+    "scope": "conditional_on_frozen_model; exploratory_pointwise_intervals_not_multiple_testing_claims"}
 KEYS = ["subject_uid", "segment_uid", "source"]
 FORBIDDEN = {"sbp", "dbp", "target_sbp", "target_dbp", "SegSBP", "SegDBP"}
 
@@ -44,8 +63,11 @@ def select_people(metadata, *, seed=SEED, per_source=15):
     return sorted(selected)
 
 
-def audit_split(train, test, selected, *, synthetic=False):
+def audit_split(train, test, selected, *, synthetic=False, protocol_id=PROTOCOL):
     """Audit all identities before splitting; no official source rows are deleted."""
+    if protocol_id not in PROTOCOLS:
+        raise ValueError("unknown enrollment protocol")
+    per_source = PROTOCOLS[protocol_id]["per_source"]
     if FORBIDDEN & set(test) or any(str(c).lower().startswith(("target_", "abp", "segsbp", "segdbp")) for c in test):
         raise ValueError("test inputs contain reference labels")
     if train.segment_uid.duplicated().any() or test.segment_uid.duplicated().any():
@@ -67,16 +89,16 @@ def audit_split(train, test, selected, *, synthetic=False):
              "enrollment_train": train.loc[train.subject_uid.isin(selected)].copy(),
              "enrollment_test_inputs": test.loc[test.subject_uid.isin(selected)].copy()}
     if not synthetic:
-        if len(selected) != 30 or train.subject_uid.nunique() != 2506:
-            raise ValueError("formal screen requires 30 of 2506 people")
+        if len(selected) != 2 * per_source or train.subject_uid.nunique() != 2506:
+            raise ValueError(f"formal screen requires {2 * per_source} of 2506 people")
         src = train[["subject_uid", "source"]].drop_duplicates().groupby("source").size().to_dict()
         if src != {"MIMIC": 1213, "VitalDB": 1293}:
             raise ValueError("source cohort composition changed")
         if not train.groupby("subject_uid").size().eq(360).all() or not test.groupby("subject_uid").size().eq(40).all():
             raise ValueError("source must preserve exact 360/40 membership")
         selected_src = parts["enrollment_train"][["subject_uid", "source"]].drop_duplicates().groupby("source").size().to_dict()
-        if selected_src != {"MIMIC": 15, "VitalDB": 15}:
-            raise ValueError("enrollment stratum counts must be 15/15")
+        if selected_src != {"MIMIC": per_source, "VitalDB": per_source}:
+            raise ValueError(f"enrollment stratum counts must be {per_source}/{per_source}")
     evidence = {}
     for name, part in parts.items():
         evidence[name] = {"rows": len(part), "subjects": part.subject_uid.nunique(),
@@ -90,7 +112,10 @@ def audit_split(train, test, selected, *, synthetic=False):
     return parts, evidence
 
 
-def prepare(store, output, *, synthetic=False):
+def prepare(store, output, *, synthetic=False, protocol_id=PROTOCOL):
+    if protocol_id not in PROTOCOLS:
+        raise ValueError("unknown enrollment protocol")
+    spec = PROTOCOLS[protocol_id]
     store, output = Path(store).resolve(), Path(output).resolve()
     contract = json.loads((store / "manifest.json").read_text())
     if contract.get("protocol_id") != SOURCE_PROTOCOL or contract.get("status") != "ready":
@@ -106,18 +131,18 @@ def prepare(store, output, *, synthetic=False):
     # Label-free metadata exclusively determines sampling. The next read is
     # preprocessing after selection, not access by a fitted population model.
     identities = pd.read_parquet(store / "train_manifest.parquet", columns=["subject_uid", "source"])
-    selected = select_people(identities, per_source=1 if synthetic else 15)
+    selected = select_people(identities, per_source=spec["synthetic_per_source"] if synthetic else spec["per_source"])
     train = pd.read_parquet(store / "train_manifest.parquet")
     train = validate_training_frame(train, smoke=synthetic)
     test = (pd.read_parquet(store / "test_inputs.parquet") if synthetic else load_test_inputs(store, train))
-    parts, audit = audit_split(train, test, selected, synthetic=synthetic)
+    parts, audit = audit_split(train, test, selected, synthetic=synthetic, protocol_id=protocol_id)
     output.mkdir(parents=True, exist_ok=False)
     files = {}
     for name, frame in parts.items():
         path = output / f"{name}.parquet"
         frame.reset_index(drop=True).to_parquet(path, index=False)
         files[path.name] = sha256(path)
-    plan = {"protocol_id": PROTOCOL, "status": "ready", "synthetic": synthetic,
+    plan = {"protocol_id": protocol_id, "status": "ready", "synthetic": synthetic,
         "source_root": str(store), "source_protocol": SOURCE_PROTOCOL,
         "source_manifest_sha256": sha256(store / "manifest.json"),
         "source_train_sha256": sha256(store / "train_manifest.parquet"),
@@ -129,10 +154,15 @@ def prepare(store, output, *, synthetic=False):
         "personal_adapter": "fresh_rank4_A_normal_B_zero",
         "personal_parameter_count": 2048, "personal_selection": "inner_320_40_patience8_including_epoch0",
         "personal_refit": "fresh_adapter_all_360_selected_epochs",
-        "methods": list(METHODS), "memory_k": 5, "memory_temperature": 0.1,
+        "methods": list(spec["methods"]), "memory_k": 5, "memory_temperature": 0.1,
         "memory_q95_fit": "each_person_registration_features_leave40block",
         "test_feedback_permitted": False, "official_rows_removed": False,
         "claims": "Exploratory post-training enrollment, randomized-window reconstruction; not few-cuff or future-date validation. Previously studied dataset, not a new confirmatory cohort."}
+    if protocol_id == EXPANDED_PROTOCOL:
+        previous = select_people(identities, per_source=1 if synthetic else 15)
+        plan["previous_30_overlap_count"] = len(set(previous) & set(selected))
+        plan["ablation_contract"] = ABLATION_CONTRACT
+        plan["uncertainty"] = UNCERTAINTY
     save_json(output / "plan.json", plan)
     return plan
 
@@ -140,14 +170,20 @@ def prepare(store, output, *, synthetic=False):
 def load_plan(path, *, synthetic=False):
     path = Path(path).resolve()
     plan = json.loads(path.read_text())
-    if plan.get("protocol_id") != PROTOCOL or plan.get("status") != "ready" or bool(plan.get("synthetic")) != synthetic:
+    if plan.get("protocol_id") not in PROTOCOLS or plan.get("status") != "ready" or bool(plan.get("synthetic")) != synthetic:
         raise ValueError("invalid enrollment plan")
+    spec = PROTOCOLS[plan["protocol_id"]]
     if plan.get("selection_seed") != SEED or plan.get("selection_uses_labels_or_errors") is not False or plan.get("old_checkpoint_permitted") is not False or plan.get("test_feedback_permitted") is not False:
         raise ValueError("unapproved enrollment access contract")
-    if len(plan.get("selected_subjects", [])) != (2 if synthetic else 30) or len(set(plan["selected_subjects"])) != len(plan["selected_subjects"]):
+    expected_people = 2 * (spec["synthetic_per_source"] if synthetic else spec["per_source"])
+    if len(plan.get("selected_subjects", [])) != expected_people or len(set(plan["selected_subjects"])) != len(plan["selected_subjects"]):
         raise ValueError("selected people changed")
-    if plan.get("methods") != list(METHODS) or plan.get("personal_parameter_count") != 2048:
+    if plan.get("methods") != list(spec["methods"]) or plan.get("personal_parameter_count") != 2048:
         raise ValueError("candidate configuration changed")
+    if plan.get("memory_k") != 5 or plan.get("memory_temperature") != .1 or plan.get("memory_q95_fit") != "each_person_registration_features_leave40block":
+        raise ValueError("memory configuration changed")
+    if plan["protocol_id"] == EXPANDED_PROTOCOL and (plan.get("ablation_contract") != ABLATION_CONTRACT or plan.get("uncertainty") != UNCERTAINTY):
+        raise ValueError("prespecified ablation or uncertainty contract changed")
     store = Path(plan["source_root"])
     if sha256(store / "manifest.json") != plan["source_manifest_sha256"]:
         raise ValueError("original store contract changed")
@@ -188,8 +224,9 @@ def main():
     p.add_argument("--store-root", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--synthetic", action="store_true")
+    p.add_argument("--protocol", choices=tuple(PROTOCOLS), default=PROTOCOL)
     args = p.parse_args()
-    result = prepare(args.store_root, args.output, synthetic=args.synthetic)
+    result = prepare(args.store_root, args.output, synthetic=args.synthetic, protocol_id=args.protocol)
     print(json.dumps(result["audit"], indent=2))
 
 

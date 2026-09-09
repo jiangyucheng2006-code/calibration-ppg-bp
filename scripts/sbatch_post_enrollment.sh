@@ -13,7 +13,9 @@ ppg_work=/home/jiangyu.cheng/work/ppg_bp
 ppg_nas=/home/jiangyu.cheng/nas/ppg_bp
 ppg_python="$ppg_work/envs/train/bin/python"
 ppg_stage="${1:?stage}"; ppg_root="${2:?batch root}"; ppg_store="${3:?source store}"
-[[ "$ppg_root" == "$ppg_work/outputs/post-enrollment-30-v1_"* ]]
+ppg_protocol="${PPG_ENROLLMENT_PROTOCOL:-post-enrollment-30-v1}"
+[[ "$ppg_protocol" == post-enrollment-30-v1 || "$ppg_protocol" == post-enrollment-200-v1 ]]
+[[ "$ppg_root" == "$ppg_work/outputs/${ppg_protocol}_"* ]]
 [[ "$ppg_store" == "$ppg_work/data/processed/pulsedb-official-calbased-v1_"* ]]
 export PYTHONPATH="$ppg_code/src" PYTHONDONTWRITEBYTECODE=1
 export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2
@@ -37,11 +39,13 @@ case "$ppg_stage" in
   smoke)
     mkdir "$ppg_output"
     "$ppg_python" -m unittest discover -s tests -p 'test_post_enrollment.py' -v
+    "$ppg_python" -m unittest discover -s tests -p 'test_post_enrollment_ablations.py' -v
     "$ppg_python" -m unittest discover -s tests -p 'test_official_calbased_train.py' -v
     "$ppg_python" -c 'import torch; from pulsedb_fewshot.lora_prs_models import LoraPRSRegressor, PRS_MODELS; from pulsedb_fewshot.post_enrollment_personal import fresh_person_model, feature_forward; assert torch.cuda.is_available(); base=LoraPRSRegressor(PRS_MODELS["lora_continue"],subject_count=2).cuda(); m=fresh_person_model(base.state_dict(),20260909,"cuda"); x=torch.randn(4,1,1250,device="cuda"); z=m.base.encoder(x).detach(); y,_=feature_forward(m,z,torch.zeros(4,2,device="cuda")); y.square().mean().backward(); assert m.base.lora_b.weight.grad is not None; assert all(p.grad is None for p in m.base.encoder.parameters()); print("GPU_PERSONAL_FORWARD_BACKWARD=pass",torch.cuda.get_device_name(0))'
+    "$ppg_python" -c 'import os,sys; from pathlib import Path; from pulsedb_fewshot.official_calbased_train import save_json; from pulsedb_fewshot.training import source_tree_sha256; save_json(Path(sys.argv[1]),{"status":"pass","protocol_id":sys.argv[2],"source_store":sys.argv[3],"snapshot":os.environ["PPG_PROJECT_ROOT"],"source_tree_sha256":source_tree_sha256(Path(os.environ["PPG_PROJECT_ROOT"])),"slurm_job_id":os.environ["SLURM_JOB_ID"],"gpu_test_passed":True})' "$ppg_output/receipt.json" "$ppg_protocol" "$ppg_store"
     ;;
   prepare)
-    "$ppg_python" -m pulsedb_fewshot.post_enrollment_protocol --store-root "$ppg_store" --output "$ppg_output"
+    "$ppg_python" -m pulsedb_fewshot.post_enrollment_protocol --store-root "$ppg_store" --output "$ppg_output" --protocol "$ppg_protocol"
     chmod 400 "$ppg_output/plan.json" "$ppg_output/"*.parquet
     ;;
   population_inner)

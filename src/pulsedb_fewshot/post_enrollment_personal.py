@@ -13,7 +13,8 @@ import pandas as pd
 import torch
 
 from .official_calbased_train import _loader, canonical_metadata, sha256, save_json, event_ids_sha256
-from .post_enrollment_protocol import PROTOCOL, SEED, METHODS, partition
+from .post_enrollment_protocol import EXPANDED_PROTOCOL, SEED, partition
+from .post_enrollment_ablations import memory_variant
 from .post_enrollment_population import load_population, shared_digest, seed_all, check_device
 
 PERSONAL_KEYS = {"base.lora_a.weight", "base.lora_b.weight"}
@@ -132,11 +133,7 @@ def memory_predict(bank_z, query_z, bank_bp, query_base, bank_frame, query_frame
     neighbors = prepare_neighbors(bank_z, query_z, bank_rows, query_rows,
         mode="random_disjoint", k=5, block_size=40, audit=False)
     state = neighbors["validation"]
-    ids, weights = state["knn_indices"], state["knn_weights"]
-    memory = (np.asarray(bank_bp)[np.maximum(ids, 0)] * weights[..., None]).sum(1)
-    memory[~state["valid"]] = query_base[~state["valid"]]
-    alpha = state["support_weight"][:, None]
-    output = np.asarray(query_base) + alpha * (memory - query_base)
+    output = memory_variant(bank_bp, query_base, state)
     if not np.isfinite(output).all():
         raise ValueError("nonfinite memory prediction")
     return output, {"q95": neighbors["train_distance_cutpoints"]["q95"],
@@ -147,6 +144,7 @@ def memory_predict(bank_z, query_z, bank_bp, query_base, bank_frame, query_frame
 def run(args):
     check_device(args.device, args.synthetic)
     plan, base_report, checkpoint = load_population(args.population_run, args.plan, device=args.device, synthetic=args.synthetic)
+    protocol_id, methods = plan["protocol_id"], plan["methods"]
     _, calibration = partition(args.plan, "enrollment_train", synthetic=args.synthetic)
     _, queries = partition(args.plan, "enrollment_test_inputs", synthetic=args.synthetic)
     if args.shard not in (0, 1):
@@ -156,7 +154,7 @@ def run(args):
     subjects = plan["selected_subjects"][args.shard::2]
     args.store_root = Path(plan["source_root"])
     args.output.mkdir(parents=True, exist_ok=False)
-    report = {"protocol_id": PROTOCOL, "stage": "personal_registration", "status": "running",
+    report = {"protocol_id": protocol_id, "stage": "personal_registration", "status": "running",
         "plan_sha256": sha256(args.plan), "population_checkpoint_sha256": base_report["checkpoint_sha256"],
         "shard": args.shard, "subjects": subjects, "test_targets_accessed": False,
         "shared_frozen": True, "other_person_adapter_copied": False,
@@ -164,7 +162,7 @@ def run(args):
     save_json(args.output / "run.json", report)
     started = time.monotonic()
     scaler = checkpoint["target_scaler"]
-    predictions = {name: [] for name in METHODS}
+    predictions = {name: [] for name in methods}
     try:
         for subject in subjects:
             tag = hashlib.sha256(subject.encode()).hexdigest()[:16]
@@ -197,12 +195,13 @@ def run(args):
             memory_bp, memory_state, neighbors = memory_predict(bank_adapted, query_adapted,
                 bank[["sbp", "dbp"]].to_numpy(np.float32), lora_bp, bank, query)
             personal_state = {key: model.state_dict()[key].detach().cpu() for key in PERSONAL_KEYS}
-            torch.save({"protocol_id": PROTOCOL, "subject_uid": subject, "adapter": personal_state,
+            torch.save({"protocol_id": protocol_id, "subject_uid": subject, "adapter": personal_state,
                 "anchor_mmHg": anchor_all.tolist(), "target_scaler": scaler,
                 "population_checkpoint_sha256": base_report["checkpoint_sha256"],
                 "plan_sha256": sha256(args.plan), "registration_ids_sha256": event_ids_sha256(bank.segment_uid),
                 "shared_state_sha256": shared_before, "memory_state": memory_state}, directory / "profile.pt")
             np.savez_compressed(directory / "memory_bank.npz", features=bank_adapted,
+                shared_features=bank_z,
                 reference_bp=bank[["sbp", "dbp"]].to_numpy(np.float32))
             canonical_metadata(bank, "train").to_parquet(directory / "registration_metadata.parquet", index=False)
             # Verify a profile can be reloaded for the right account and version.
@@ -232,6 +231,37 @@ def run(args):
             values = {"personal_mean": np.tile(anchor_all, (len(query), 1)),
                 "shared_with_anchor": shared_bp, "new_person_lora": lora_bp,
                 "new_person_lora_memory": memory_bp}
+            if protocol_id == EXPANDED_PROTOCOL:
+                bank_bp = bank[["sbp", "dbp"]].to_numpy(np.float32)
+                shared_memory, shared_memory_state, shared_neighbors = memory_predict(
+                    bank_z, query_z, bank_bp, shared_bp, bank, query)
+                values.update(
+                    shared_memory_only=memory_variant(bank_bp, values["personal_mean"], shared_neighbors, mode="memory_only"),
+                    shared_memory_blend=shared_memory,
+                    lora_memory_only=memory_variant(bank_bp, values["personal_mean"], neighbors, mode="memory_only"),
+                    lora_memory_uniform=memory_variant(bank_bp, lora_bp, neighbors, mode="distance_uniform"),
+                    lora_memory_fixed_half=memory_variant(bank_bp, lora_bp, neighbors, mode="fixed_half"))
+                with np.load(directory / "memory_bank.npz", allow_pickle=False) as stored_bank:
+                    reproduced_shared, reproduced_shared_state, reproduced_shared_neighbors = memory_predict(
+                        stored_bank["shared_features"], query_z, stored_bank["reference_bp"], shared_bp, bank, query)
+                    _, _, reproduced_neighbors = memory_predict(stored_bank["features"], restored_z,
+                        stored_bank["reference_bp"], restored_bp, bank, query)
+                    reproduced = {
+                        "shared_memory_only": memory_variant(stored_bank["reference_bp"], values["personal_mean"], reproduced_shared_neighbors, mode="memory_only"),
+                        "shared_memory_blend": reproduced_shared,
+                        "lora_memory_only": memory_variant(stored_bank["reference_bp"], values["personal_mean"], reproduced_neighbors, mode="memory_only"),
+                        "lora_memory_uniform": memory_variant(stored_bank["reference_bp"], restored_bp, reproduced_neighbors, mode="distance_uniform"),
+                        "lora_memory_fixed_half": memory_variant(stored_bank["reference_bp"], restored_bp, reproduced_neighbors, mode="fixed_half")}
+                if any(not np.allclose(values[name], pred, atol=1e-5, rtol=0) for name, pred in reproduced.items()):
+                    raise ValueError("saved profile does not reproduce ablation predictions")
+                if reproduced_shared_state["q95"] != shared_memory_state["q95"]:
+                    raise ValueError("saved shared memory threshold changed")
+                save_json(directory / "ablation_state.json", {
+                    "methods": methods, "shared_memory": shared_memory_state,
+                    "adapted_memory": memory_state, "all_ablation_reload_equivalence": True,
+                    "test_targets_accessed": False})
+            if set(values) != set(methods):
+                raise ValueError("prediction settings do not match the frozen protocol")
             for name, pred in values.items():
                 rows = query[["subject_uid", "segment_uid", "source"]].copy()
                 rows[["pred_sbp", "pred_dbp"]] = pred
@@ -244,12 +274,15 @@ def run(args):
                 "memory_bank_sha256": sha256(directory / "memory_bank.npz"),
                 "registration_metadata_sha256": sha256(directory / "registration_metadata.parquet"),
                 "memory_q95": memory_state["q95"], "valid_memory_queries": memory_state["valid_queries"]}
+            if protocol_id == EXPANDED_PROTOCOL:
+                profile_report["ablation_state_sha256"] = sha256(directory / "ablation_state.json")
+                profile_report["all_ablation_reload_equivalence"] = True
             report["profiles"][subject] = profile_report
             save_json(args.output / "run.json", report)
             print(json.dumps({"completed_profiles": len(report["profiles"]), "total": len(subjects),
                 "profile": tag, "selected_epoch": selection["selected_epoch"], "reload_equivalence": True}), flush=True)
         report["prediction_files"] = {}
-        for name in METHODS:
+        for name in methods:
             path = args.output / f"{name}_predictions.parquet"
             pd.concat(predictions[name], ignore_index=True).to_parquet(path, index=False)
             report["prediction_files"][path.name] = sha256(path)

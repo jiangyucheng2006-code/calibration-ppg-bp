@@ -15,7 +15,7 @@ import torch
 
 from .official_calbased_train import (fit_personal_state, _loader, _predict,
     participant_score, save_json, sha256, event_ids_sha256)
-from .post_enrollment_protocol import PROTOCOL, SEED, partition, load_plan
+from .post_enrollment_protocol import SEED, partition, load_plan
 
 
 def seed_all(seed):
@@ -51,6 +51,7 @@ def shared_digest(state):
 def run(args):
     check_device(args.device, args.synthetic)
     plan, frame = partition(args.plan, "population_train", synthetic=args.synthetic)
+    protocol_id = plan["protocol_id"]
     args.store_root = Path(plan["source_root"])
     if args.patience != 8 or args.seed != SEED or (args.epochs and not args.synthetic):
         raise ValueError("prespecified seed/patience or formal epoch policy changed")
@@ -64,7 +65,7 @@ def run(args):
             raise ValueError("final requires a completed inner-selection run")
         selection_path = args.selection_run / "run.json"
         source = json.loads(selection_path.read_text())
-        if source.get("status") != "complete" or source.get("protocol_id") != PROTOCOL or source.get("stage") != "inner" or source.get("plan_sha256") != sha256(args.plan) or source.get("test_targets_accessed") is not False:
+        if source.get("status") != "complete" or source.get("protocol_id") != protocol_id or source.get("stage") != "inner" or source.get("plan_sha256") != sha256(args.plan) or source.get("test_targets_accessed") is not False:
             raise ValueError("invalid population epoch selection provenance")
         for key in ("seed", "batch_size", "learning_rate", "weight_decay", "huber_delta", "gradient_clip"):
             if source["arguments"][key] != getattr(args, key):
@@ -86,7 +87,7 @@ def run(args):
     objective = torch.nn.HuberLoss(delta=args.huber_delta)
     train_loader = _loader(fit, args, scaler, anchors, mapping, targets=True, shuffle=True)
     val_loader = None if validation is None else _loader(validation, args, scaler, anchors, mapping, targets=False, shuffle=False)
-    report = {"protocol_id": PROTOCOL, "stage": args.stage, "status": "running",
+    report = {"protocol_id": protocol_id, "stage": args.stage, "status": "running",
         "plan_sha256": sha256(args.plan), "synthetic": args.synthetic,
         "started_utc": datetime.now(timezone.utc).isoformat(), "slurm_job_id": os.getenv("SLURM_JOB_ID"),
         "old_checkpoint_used": False, "initialization": "from_scratch",
@@ -133,12 +134,12 @@ def run(args):
                     stale += 1
             if improved:
                 best_epoch = epoch
-                torch.save({"model_state": model.state_dict(), "protocol_id": PROTOCOL,
+                torch.save({"model_state": model.state_dict(), "protocol_id": protocol_id,
                     "stage": args.stage, "subject_to_index": mapping, "target_scaler": scaler,
                     "subject_anchors": anchors.to_dict("index"), "epoch": epoch,
                     "plan_sha256": sha256(args.plan)}, args.output / "best.pt")
             torch.save({"model_state": model.state_dict(), "optimizer_state": optimizer.state_dict(),
-                "epoch": epoch, "protocol_id": PROTOCOL, "stage": args.stage}, args.output / "last.pt")
+                "epoch": epoch, "protocol_id": protocol_id, "stage": args.stage}, args.output / "last.pt")
             history.append(row)
             save_json(args.output / "history.json", history)
             print(json.dumps(row), flush=True)
@@ -171,7 +172,7 @@ def load_population(run_root, plan_path, *, device="cpu", synthetic=False):
     run_root = Path(run_root)
     plan = load_plan(plan_path, synthetic=synthetic)
     report = json.loads((run_root / "run.json").read_text())
-    if report.get("protocol_id") != PROTOCOL or report.get("stage") != "final" or report.get("status") != "complete" or report.get("plan_sha256") != sha256(plan_path) or report.get("old_checkpoint_used") is not False or report.get("enrollment_labels_accessed") is not False or report.get("test_targets_accessed") is not False:
+    if report.get("protocol_id") != plan["protocol_id"] or report.get("stage") != "final" or report.get("status") != "complete" or report.get("plan_sha256") != sha256(plan_path) or report.get("old_checkpoint_used") is not False or report.get("enrollment_labels_accessed") is not False or report.get("test_targets_accessed") is not False:
         raise ValueError("invalid fresh population checkpoint provenance")
     if sha256(run_root / "best.pt") != report["checkpoint_sha256"]:
         raise ValueError("population checkpoint changed")
