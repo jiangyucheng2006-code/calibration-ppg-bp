@@ -130,6 +130,11 @@ class ModelTests(unittest.TestCase):
         from pulsedb_fewshot.post_enrollment_personal import fresh_person_model, fit_adapter
         from pulsedb_fewshot.post_enrollment_population import shared_digest
         old = LoraPRSRegressor(PRS_MODELS["lora_continue"], subject_count=4)
+        # The actual population head has been trained. A completely untrained
+        # zero-output head gives the adapter zero gradients by construction.
+        with torch.no_grad():
+            for parameter in old.base.residual_head.parameters():
+                parameter.normal_(0, .03)
         model = fresh_person_model(old.state_dict(), SEED, "cpu")
         before = shared_digest(model.state_dict())
         args = argparse.Namespace(device="cpu", learning_rate=3e-4, weight_decay=1e-4,

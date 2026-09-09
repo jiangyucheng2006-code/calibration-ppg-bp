@@ -211,9 +211,16 @@ def run(args):
                 raise ValueError("personal profile identity/version mismatch")
             restored = fresh_person_model(checkpoint["model_state"], seed + 1, args.device)
             shared_bp = predict(restored, query_z, anchor_all, scaler, args.device)[0]
-            status = restored.load_state_dict(saved["adapter"], strict=False)
-            if set(status.missing_keys) != set(restored.state_dict()) - PERSONAL_KEYS or status.unexpected_keys:
+            if set(saved["adapter"]) != PERSONAL_KEYS:
                 raise ValueError("invalid serialized personal state")
+            # A partial load reports BatchNorm's num_batches_tracked differently
+            # across state-dict versions. Merge only the two permitted tensors
+            # into the verified shared state, then require an exact strict load.
+            restored_state = restored.state_dict()
+            restored_state.update(saved["adapter"])
+            restored.load_state_dict(restored_state, strict=True)
+            if shared_digest(restored.state_dict()) != shared_before:
+                raise ValueError("profile reload changed shared network state")
             restored_bp, restored_z = predict(restored, query_z, saved["anchor_mmHg"], saved["target_scaler"], args.device)
             with np.load(directory / "memory_bank.npz", allow_pickle=False) as stored_bank:
                 restored_memory, restored_state, _ = memory_predict(stored_bank["features"], restored_z,
