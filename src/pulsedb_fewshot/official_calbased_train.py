@@ -57,7 +57,8 @@ def save_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
 
 
-def validate_training_frame(frame: pd.DataFrame, *, smoke: bool = False) -> pd.DataFrame:
+def validate_training_frame(frame: pd.DataFrame, *, smoke: bool = False,
+                            expected_subjects: int = 2506) -> pd.DataFrame:
     missing = REQUIRED - set(frame)
     if missing:
         raise ValueError(f"official train manifest missing {sorted(missing)}")
@@ -93,9 +94,9 @@ def validate_training_frame(frame: pd.DataFrame, *, smoke: bool = False) -> pd.D
     counts = f.groupby(["subject_uid", "inner_role"]).size().unstack(fill_value=0)
     if (counts == 0).any().any():
         raise ValueError("every registered subject needs both inner roles")
-    if not smoke and (len(counts) != 2506 or not counts["train"].eq(320).all()
+    if not smoke and (len(counts) != expected_subjects or not counts["train"].eq(320).all()
                       or not counts["internal_validation"].eq(40).all()):
-        raise ValueError("official cohort requires 2506 people with 320/40 inner train/validation")
+        raise ValueError(f"official cohort requires {expected_subjects} people with 320/40 inner train/validation")
     # A repeated participant is intentional; exact data reuse across roles is not.
     if f.groupby("ppg_content_sha256").inner_role.nunique().gt(1).any():
         assert_allowed_duplicates(f, error="PPG content crosses inner roles")
