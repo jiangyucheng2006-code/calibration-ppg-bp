@@ -1,15 +1,41 @@
 # Calibration PPG BP
 
-## Current work — exact official CalBased comparison
+## Latest results and method explanation — 9 September 2026
 
-The [six-method official CalBased plan](docs/PLAN_OFFICIAL_CALBASED_20260908.md)
-starts a separate, explicitly authorized benchmark: exact official assignments,
-2,506 people, 360 training and 40 test windows/person. Compare fresh persistent
-LoRA, fixed memory, v1 relation, E1, scalar trust and BP-specific trust. Internal
-selection stays inside the official training set; final predictions are frozen
-before a separate scorer joins test labels. No official result is available yet.
-See [verified execution status](docs/STATUS.md). Historical experiments are not
-overwritten, and this benchmark does not establish unseen-user independence.
+[中文模型说明与手表采集计划](docs/PERSONAL_LORA_MEMORY_METHOD_ZH.md) explains
+the implemented ResNet backbone, personal low-rank feature adaptation, reference
+retrieval, new-user enrollment, and the limits of the current evidence.
+[Download the Chinese Word report](docs/个人LoRA与参考记忆血压估计研究说明.docx).
+
+Both recent batches are complete. Values below are participant-macro SBP / DBP
+MAE in mmHg; **the two cohorts are not paired with each other**.
+
+| Experiment and method | Overall | MIMIC | VitalDB |
+|---|---:|---:|---:|
+| Official CalBased · LoRA | 3.8207 / 2.0994 | 4.1920 / 2.2802 | 3.4724 / 1.9298 |
+| Official CalBased · LoRA + fixed memory | 3.4210 / 1.8858 | 3.8073 / 2.0699 | 3.0587 / 1.7132 |
+| New 30-person enrollment · LoRA | 4.0749 / 2.2775 | 3.8486 / 2.2589 | 4.3011 / 2.2961 |
+| New 30-person enrollment · LoRA + memory | 3.1515 / 1.7466 | 3.0666 / 1.7583 | 3.2364 / 1.7349 |
+
+- [Official CalBased results](results/official_calbased_v1_20260909/README.md):
+  2,506 registered people, 360 training / 40 test windows each. Exact source
+  membership is retained, including 35 disclosed cross-role duplicate-content
+  rows. Four learned memory variants select epoch 0; their matching scores are
+  not evidence of four separate learned improvements.
+- [Post-training enrollment results](results/post_enrollment_30_v1_20260909/README.md):
+  a fresh population model excludes all 30 selected people. Each then supplies
+  360 labelled registration windows for a new personal adapter and reference
+  bank, followed by 40 disjoint test windows. Overall mean MAE improves 22.89%
+  over matched LoRA; no people are filtered. This is an exploratory derived
+  protocol, not the unchanged official benchmark or a few-cuff study.
+- Both reports include Overall/MIMIC/VitalDB tables with R², ME, STD, threshold
+  percentages, and qualified AAMI/BHS numerical screens. These are not device
+  certification, external wrist validation, or proof of prospective stability.
+
+See [verified execution and publication status](docs/STATUS.md). Planned human
+data collection remains unstarted and requires the appropriate ethics and
+measurement protocol. Raw signals, personal profiles and checkpoints are not
+published.
 
 ## Completed previous work — registered-user personal memory
 

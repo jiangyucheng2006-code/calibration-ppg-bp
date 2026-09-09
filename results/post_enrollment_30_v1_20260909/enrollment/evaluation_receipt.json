@@ -1,0 +1,30 @@
+{
+  "protocol_id": "post-enrollment-30-v1",
+  "status": "complete",
+  "plan_sha256": "5149ecc9e5f4e345bfa8cd668132df55fc2ad604c3edc7e5503df8ec6b1d928d",
+  "population_checkpoint_sha256": "028684a22e89930dfd6cd7f83a055c370c16d0d5feb046fb64d48326418d44a5",
+  "personal_runs": [
+    {
+      "run_sha256": "7c56a27ad884e79df87725b3a2142cf831f84e51daccb57de3c19d67d875358e",
+      "subjects": 15
+    },
+    {
+      "run_sha256": "a4feda28bc48d2f99a3f443b570b0e377114b38016cf876d1d676aca650e2db4",
+      "subjects": 15
+    }
+  ],
+  "prediction_files": {
+    "personal_mean_frozen_predictions.parquet": "8a2a5a5f7a8754486d792620b7a87e6cf6e28b84cb8f022ce8259fface9fe917",
+    "shared_with_anchor_frozen_predictions.parquet": "998ca7c66279e55473c8ae765e229f5b27669dfcc539c278e7ce2fb9daf9c6ea",
+    "new_person_lora_frozen_predictions.parquet": "d9a8d726b6a8b83d889a9412da2964bba626ac7f93ec1122c9929e17e923a90e",
+    "new_person_lora_memory_frozen_predictions.parquet": "4989c09263270e784747e6e7ca20716ba9edbf9f2814b7b4c40a0df9e229fdab"
+  },
+  "all_four_methods_frozen_before_targets": true,
+  "query_ids_sha256": "eef539feb54a953d17c88f8c3e63c9a7645020b8543bd4ea82fcf465200b37b2",
+  "test_targets_accessed": true,
+  "test_based_selection": false,
+  "full_index_sha256": "4bd0d281b1fb3b0f715b23e41315405c6b13ad696452469f57c2c771d08e569d",
+  "subjects": 30,
+  "windows": 1200,
+  "scope": "exploratory_not_confirmatory"
+}

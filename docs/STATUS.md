@@ -1,6 +1,135 @@
 # Verified project status
 
-Last updated: 2026-09-08.
+Last updated: 2026-09-09.
+
+## Results and collaborator report prepared for publication
+
+Both completed result batches now have dedicated reports and three-source
+tables: [official CalBased](../results/official_calbased_v1_20260909/README.md)
+and [30-person post-training enrollment](../results/post_enrollment_30_v1_20260909/README.md).
+[The Chinese method report](PERSONAL_LORA_MEMORY_METHOD_ZH.md) and its
+[editable Word version](个人LoRA与参考记忆血压估计研究说明.docx) explain the actual
+ResNet/feature-LoRA implementation, fixed reference memory, enrollment and the
+proposed cuff-paired wrist study. The root README points to these current results.
+
+This is a publication/documentation update: no new fit, participant filtering,
+prediction changes or human-data collection. Longitudinal history updates and
+additional matched controls remain proposed, not implemented or verified here.
+
+## Thirty-person post-training enrollment — completed, verified 15:09 CST
+
+Jobs 1719–1726 all COMPLETED 0:0; final evaluation ended at 14:45:01 CST.
+The queue is empty. Population inner training ran 40 epochs, selected epoch 32,
+then a fresh final model refit all permitted population rows for 32 epochs.
+No selected enrollment subject participated in either population fit.
+
+| Method | Overall SBP / DBP MAE | MIMIC SBP / DBP MAE | VitalDB SBP / DBP MAE |
+|---|---:|---:|---:|
+| Personal BP mean | 11.5854 / 6.0402 | 10.5278 / 5.2594 | 12.6429 / 6.8209 |
+| Shared + own BP anchor | 10.8464 / 5.7255 | 10.7799 / 5.5361 | 10.9128 / 5.9150 |
+| New-person LoRA | 4.0749 / 2.2775 | 3.8486 / 2.2589 | 4.3011 / 2.2961 |
+| New-person LoRA + memory | 3.1515 / 1.7466 | 3.0666 / 1.7583 | 3.2364 / 1.7349 |
+
+All 30 people/1,200 queries retained, 15 people per source, 360 labelled
+registration windows/person. Compared with new-person LoRA, memory improves
+Overall mean MAE by 0.7271 mmHg (22.89%); MIMIC/VitalDB by 21.00%/24.65%.
+It improves mean MAE in 29/30 people (one worsens by 0.0847); SBP improves in
+28/30, DBP in 30/30. No hypothesis tests/CIs or independent re-training here.
+LoRA and LoRA+memory both meet the saved numerical AAMI/BHS-A screens in all
+scopes; these are not clinical-device validation or certification.
+
+All profiles actually trained: selected personal epochs 7–726, median257;
+2048 parameters/person. All30 shared-state-freeze and save/reload checks pass.
+Recomputed all primary MAEs from saved scored predictions without touching
+source BP labels. Twenty-two aggregate/receipt files match work/NAS/local hashes;
+three inspected source modules match the actual server runtime hashes.
+
+[Full report, requested diagnostic tables and verification](../results/post_enrollment_30_v1_20260909/README.md).
+The remaining2476-person LoRA benchmark is 3.7752/2.0810 Overall; not a paired
+comparator to the new30. This supports accumulated-data post-training enrollment,
+not few-cuff, chronological/long-term stability or external clinical validity.
+No new training, protocol edits or GitHub push in this status-check turn.
+The earlier running snapshot below is retained as execution history.
+
+## Thirty-person post-training enrollment — partition verified; population fit running
+
+The user authorized a new whole-subject-excluded onboarding experiment on
+2026-09-09: train a fresh population model without 30 randomly sampled people,
+then create their personal LoRA and reference memory from their own registration
+records. [Frozen design and label budgets](PLAN_POST_ENROLLMENT_30_V1.md).
+This retains the earlier official benchmark unchanged and is separately named
+`post-enrollment-30-v1`, not an exact-official reproduction or a few-cuff study.
+
+The user confirms they can supply paired cuff BP and PPG for future real-world
+personal archives. The present work uses public data only, with no recruitment
+or clinical-readiness claim. Four matched controls, shared-state freezing and
+serialized-profile replay are required before interpreting new-user accuracy.
+Implementation is complete and the finite batch is submitted. Runtime code
+revision: `5ee29e7`, based on `8711792`. The immutable server snapshot is
+`/home/jiangyu.cheng/work/ppg_bp/code/post_enrollment_5ee29e7`.
+
+- Smoke 1719: COMPLETED, exit 0:0, 31 seconds. All 39 server tests passed,
+  including end-to-end synthetic enrollment/scoring and the unchanged official
+  protocol tests. Real RTX 5080 personal forward/backward computation passed.
+- First smoke 1718 failed before formal fitting: a partial-state-load check
+  incorrectly assumed BatchNorm missing-key behavior, and a synthetic gradient
+  test used an untrained zero-output head. Both were corrected and re-tested.
+  The failed log is retained; no formal fit used that version.
+- Prepare 1720 COMPLETED 0:0 in 36 seconds (CPU only). Its materialized split
+  has 2,476 population people (1,198 MIMIC / 1,278 VitalDB), 891,360 labelled
+  registration/training rows and 99,040 test inputs; the new cohort has exactly
+  30 people (15/15), 10,800 registration rows and 1,200 test inputs.
+- Cross-cohort subject/content overlap is zero. The 30-person registration/test
+  content overlap is also zero. The remaining population retains the 35
+  already disclosed source-native TRAIN/TEST duplicate-content pairs.
+- Population inner job 1721 is RUNNING on hpc-2/RTX 5080. Its live receipt
+  confirms 2,476 fitted people, 792,320 inner-fit rows, no enrollment-label
+  access and no old checkpoint. Subsequent jobs are PENDING (Dependency).
+- 1721 population inner fit → 1722 fresh selected-epoch full refit →
+  1723 frozen remaining-population benchmark → 1724/1725 personal profiles on
+  RTX 5080/RTX 5070 Ti respectively → 1726 final 30-person scoring.
+- Work batch: `/home/jiangyu.cheng/work/ppg_bp/outputs/post-enrollment-30-v1_20260909-102000`.
+  Submission record and per-stage outputs/logs are archived under the matching
+  `/home/jiangyu.cheng/nas/ppg_bp/outputs/` batch and `nas/ppg_bp/logs/`.
+- No accuracy result is available yet. No result-driven candidate changes,
+  raw-data deletion, human-data collection, or GitHub push occurred this turn.
+
+## Official CalBased — all six candidates scored, verified 08:39 CST
+
+The recovered batch completed normally. Slurm jobs 1700–1717 all report
+`COMPLETED`, exit `0:0`; the account queue is empty. Final evaluation 1717
+finished at **2026-09-09 06:42:21 CST**. This supersedes the active-fitting
+snapshot below, without changing the frozen protocol.
+
+- Inner LoRA trained 54 epochs, selected epoch 46, then stopped after eight
+  non-improving epochs. Final LoRA was freshly fitted for 46 epochs on all
+  902,160 official training windows. The three OOF fits completed 25 epochs each.
+- All six candidates were frozen before the evaluator joined official test
+  targets. The receipt reports 2,506 people / 100,240 test windows, no removed
+  test rows, no test-based model selection, and no training feedback generated.
+- Participant-macro SBP/DBP MAE: LoRA **3.8207/2.0994** Overall,
+  **4.1920/2.2802** MIMIC, **3.4724/1.9298** VitalDB. Fixed personal memory
+  gives **3.4210/1.8858**, **3.8073/2.0699**, **3.0587/1.7132**, respectively.
+- v1, E1, scalar trust and BP-specific trust each genuinely trained eight
+  internal-selection epochs (6,256 optimizer steps), but none beat its epoch-0
+  fixed-memory initialization. All selected epoch 0. Their final reported
+  scores reproduce the fixed-memory result to four decimals; this is not
+  evidence that four learned additions improved it. v1/E1 final refits correctly
+  have zero optimizer steps; trust heads remain frozen at the selected state.
+- All reported pooled SBP/DBP AAMI numerical screens are PASS and BHS screens
+  Grade A in all three scopes. These are retrospective numerical diagnostics,
+  **not clinical certification**. This single-seed result is not a significance
+  or unseen-user generalization claim.
+- The authorized exact-official source duplicates remain disclosed, including
+  35 test windows with matching training PPG content. Internal/OOF splits are
+  index-disjoint, not strictly content-independent.
+- The ten aggregate/receipt files in `evaluate/` were verified byte-identical
+  between work and NAS. [Full result tables](../results/official_calbased_v1_20260909/RESULT_TABLES.md).
+
+This inspection did not change code, data, configuration, checkpoints or the
+server queue. No new jobs or GitHub push were performed. Further method changes
+must not use this already-opened official test as an untouched selection set.
+
 
 ## Official CalBased — exact membership retained; formal fitting active, 23:41 CST
 

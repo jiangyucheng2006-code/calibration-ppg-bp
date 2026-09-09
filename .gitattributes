@@ -7,3 +7,6 @@
 *.yaml text eol=lf
 *.csv text eol=lf
 results/personal_memory_v2/*.json text eol=lf
+results/official_calbased_v1_20260909/*.json text eol=lf
+results/post_enrollment_30_v1_20260909/**/*.json text eol=lf
+results/post_enrollment_30_v1_20260909/*.json text eol=lf
