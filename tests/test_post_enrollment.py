@@ -12,7 +12,7 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 
-from pulsedb_fewshot.post_enrollment_protocol import select_people, audit_split, SEED, PROTOCOL, EXPANDED_PROTOCOL
+from pulsedb_fewshot.post_enrollment_protocol import select_people, audit_split, linked_quarantine, SEED, PROTOCOL, EXPANDED_PROTOCOL
 
 
 def frames(people=8):
@@ -105,6 +105,28 @@ class ProtocolTests(unittest.TestCase):
         train, test, _ = frames()
         with self.assertRaisesRegex(ValueError, "unknown enrollment protocol"):
             audit_split(train, test, select_people(train, per_source=1), synthetic=True, protocol_id="anything")
+
+    def test_linked_identity_is_quarantined_without_resampling(self):
+        train, test, _ = frames()
+        selected = select_people(train, per_source=2)
+        i = train.loc[train.subject_uid.isin(selected)].index[0]
+        j = train.loc[~train.subject_uid.isin(selected)].index[0]
+        linked_person = train.loc[j, "subject_uid"]
+        train.loc[i, "ppg_content_sha256"] = train.loc[j, "ppg_content_sha256"]
+        parts, audit = audit_split(train, test, selected, synthetic=True, protocol_id=EXPANDED_PROTOCOL)
+        self.assertEqual(audit["quarantined_subjects"], [linked_person])
+        self.assertEqual(audit["quarantine_rows"], 80)
+        for part in parts.values():
+            self.assertNotIn(linked_person, set(part.subject_uid))
+        self.assertEqual(set(parts["enrollment_train"].subject_uid), set(selected))
+        self.assertEqual(set(parts["enrollment_test_inputs"].subject_uid), set(selected))
+        self.assertEqual(sum(len(p) for p in parts.values()) + 80, len(train) + len(test))
+        self.assertEqual(audit["cross_cohort_content_overlap"], 0)
+
+    def test_quarantine_follows_transitive_content_links(self):
+        metadata = pd.DataFrame({"subject_uid": ["a", "b", "b", "c", "d"],
+                                 "ppg_content_sha256": ["h1", "h1", "h2", "h2", "h3"]})
+        self.assertEqual(linked_quarantine(metadata, ["a"]), ["b", "c"])
 
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "torch optional on local contract-only runtime")

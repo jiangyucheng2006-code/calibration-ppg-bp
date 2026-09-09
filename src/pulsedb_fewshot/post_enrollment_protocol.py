@@ -63,6 +63,26 @@ def select_people(metadata, *, seed=SEED, per_source=15):
     return sorted(selected)
 
 
+def linked_quarantine(metadata, selected):
+    """Keep the random sample; exclude other IDs linked by identical PPG.
+
+    Connected-component closure is outcome blind. Identity equivalence is not
+    assumed: identical signal content alone warrants a conservative exclusion.
+    """
+    pairs = metadata[["subject_uid", "ppg_content_sha256"]].drop_duplicates()
+    sizes = pairs.groupby("ppg_content_sha256").size()
+    links = [set(group.subject_uid) for _, group in
+             pairs.loc[pairs.ppg_content_sha256.isin(sizes[sizes.gt(1)].index)].groupby("ppg_content_sha256")]
+    connected = set(selected)
+    while True:
+        before = len(connected)
+        for people in links:
+            if people & connected:
+                connected.update(people)
+        if len(connected) == before:
+            return sorted(connected - set(selected))
+
+
 def audit_split(train, test, selected, *, synthetic=False, protocol_id=PROTOCOL):
     """Audit all identities before splitting; no official source rows are deleted."""
     if protocol_id not in PROTOCOLS:
@@ -80,14 +100,23 @@ def audit_split(train, test, selected, *, synthetic=False, protocol_id=PROTOCOL)
         raise ValueError("invalid selected people")
     selected = set(selected)
     combined = pd.concat([train.assign(source_role="train"), test.assign(source_role="test")])
+    quarantined = linked_quarantine(combined, selected) if protocol_id == EXPANDED_PROTOCOL else []
+    quarantine_rows = combined.loc[combined.subject_uid.isin(quarantined)].copy()
+    # Quarantine entire linked identities, never just the troublesome windows.
+    # The random evaluation cohort and original source files are unchanged.
+    active_train = train.loc[~train.subject_uid.isin(quarantined)]
+    active_test = test.loc[~test.subject_uid.isin(quarantined)]
+    combined = combined.loc[~combined.subject_uid.isin(quarantined)].copy()
     combined["cohort"] = np.where(combined.subject_uid.isin(selected), "enrollment", "population")
     if combined.groupby("ppg_content_sha256").cohort.nunique().gt(1).any():
         raise ValueError("PPG content crosses population/new-user boundary")
     assert_cross_role_intervals(combined, "cohort")
-    parts = {"population_train": train.loc[~train.subject_uid.isin(selected)].copy(),
-             "population_test_inputs": test.loc[~test.subject_uid.isin(selected)].copy(),
-             "enrollment_train": train.loc[train.subject_uid.isin(selected)].copy(),
-             "enrollment_test_inputs": test.loc[test.subject_uid.isin(selected)].copy()}
+    parts = {"population_train": active_train.loc[~active_train.subject_uid.isin(selected)].copy(),
+             "population_test_inputs": active_test.loc[~active_test.subject_uid.isin(selected)].copy(),
+             "enrollment_train": active_train.loc[active_train.subject_uid.isin(selected)].copy(),
+             "enrollment_test_inputs": active_test.loc[active_test.subject_uid.isin(selected)].copy()}
+    if sum(len(part) for part in parts.values()) + len(quarantine_rows) != len(train) + len(test):
+        raise ValueError("partition conservation failed")
     if not synthetic:
         if len(selected) != 2 * per_source or train.subject_uid.nunique() != 2506:
             raise ValueError(f"formal screen requires {2 * per_source} of 2506 people")
@@ -107,6 +136,11 @@ def audit_split(train, test, selected, *, synthetic=False, protocol_id=PROTOCOL)
             "source_subjects": part[["subject_uid", "source"]].drop_duplicates().groupby("source").size().to_dict()}
     evidence["cross_cohort_content_overlap"] = 0
     evidence["cross_cohort_subject_overlap"] = 0
+    if protocol_id == EXPANDED_PROTOCOL:
+        evidence["quarantined_subjects"] = quarantined
+        evidence["quarantine_rows"] = len(quarantine_rows)
+        evidence["quarantine_source_subjects"] = quarantine_rows[["subject_uid", "source"]].drop_duplicates().groupby("source").size().to_dict()
+        evidence["quarantine_policy"] = "whole_identity_ppg_content_connected_closure_without_labels_or_resampling"
     evidence["enrollment_test_rows_with_training_content"] = int(parts["enrollment_test_inputs"].ppg_content_sha256.isin(parts["enrollment_train"].ppg_content_sha256).sum())
     evidence["population_test_rows_with_training_content"] = int(parts["population_test_inputs"].ppg_content_sha256.isin(parts["population_train"].ppg_content_sha256).sum())
     return parts, evidence
@@ -163,6 +197,8 @@ def prepare(store, output, *, synthetic=False, protocol_id=PROTOCOL):
         plan["previous_30_overlap_count"] = len(set(previous) & set(selected))
         plan["ablation_contract"] = ABLATION_CONTRACT
         plan["uncertainty"] = UNCERTAINTY
+        plan["quarantined_subjects"] = audit["quarantined_subjects"]
+        plan["selection_unchanged_by_quarantine"] = True
     save_json(output / "plan.json", plan)
     return plan
 
@@ -184,6 +220,12 @@ def load_plan(path, *, synthetic=False):
         raise ValueError("memory configuration changed")
     if plan["protocol_id"] == EXPANDED_PROTOCOL and (plan.get("ablation_contract") != ABLATION_CONTRACT or plan.get("uncertainty") != UNCERTAINTY):
         raise ValueError("prespecified ablation or uncertainty contract changed")
+    if plan["protocol_id"] == EXPANDED_PROTOCOL:
+        quarantined = plan.get("quarantined_subjects", [])
+        if (plan.get("selection_unchanged_by_quarantine") is not True
+                or quarantined != plan["audit"]["quarantined_subjects"]
+                or set(quarantined) & set(plan["selected_subjects"])):
+            raise ValueError("whole-identity quarantine contract changed")
     store = Path(plan["source_root"])
     if sha256(store / "manifest.json") != plan["source_manifest_sha256"]:
         raise ValueError("original store contract changed")
@@ -203,6 +245,8 @@ def partition(path, name, *, synthetic=False):
     if len(frame) != expected["rows"] or event_ids_sha256(frame.segment_uid) != expected["segment_ids_sha256"] or event_ids_sha256(frame.subject_uid.unique()) != expected["subject_ids_sha256"]:
         raise ValueError("partition identities changed")
     selected = set(plan["selected_subjects"])
+    if set(frame.subject_uid) & set(plan.get("quarantined_subjects", [])):
+        raise ValueError("quarantined identity entered active partition")
     if name.startswith("population") and set(frame.subject_uid) & selected:
         raise ValueError("new subject entered population fitting")
     if name.startswith("enrollment") and set(frame.subject_uid) != selected:

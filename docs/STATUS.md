@@ -6,7 +6,7 @@ Last updated: 2026-09-09.
 
 The user authorized expanding the whole-subject-excluded enrollment to 100 or
 200 people. The prespecified choice is 200: 100 MIMIC and 100 VitalDB, leaving
-2,306 people for fresh population fitting. [Frozen plan](PLAN_POST_ENROLLMENT_200_V1.md).
+2,306 people initially available for fresh population fitting. [Frozen plan](PLAN_POST_ENROLLMENT_200_V1.md).
 The original 30-person and exact-official results remain unchanged.
 
 Nine matched prediction settings retain the prior four and add no-LoRA
@@ -16,10 +16,15 @@ per new person; they are not nine separate population retrainings. The original
 360 registration / 40 test membership per person is retained. All 200 people
 are scored with Overall/MIMIC/VitalDB tables and fixed participant-paired CIs.
 
-Local contract/control tests: 17 passed, 5 neural/end-to-end checks correctly
-skipped because the local runtime has no PyTorch. Server GPU smoke and formal
-submission are not yet verified at this entry. Live SSH inspection found no
-active user jobs and both hpc-2 GPUs idle. No new results are claimed.
+Server smoke 1727 completed 0:0: all 50 tests plus actual GPU forward/backward
+passed. Initial full preparation 1728 correctly stopped on five identical-PPG
+links between one selected subject and one other MIMIC identity. Jobs 1729–1734
+were dependency-cancelled; no formal model or test scores were produced.
+The 200 selected people remain unchanged. An outcome-blind content-link closure
+now quarantines entire linked outside identities from population fit and test.
+One additional MIMIC person is implicated, so the expected population is 2,305.
+Original data are not deleted; no test-based reselection or leakage bypass.
+The corrected snapshot must pass a new smoke before a fresh batch is submitted.
 
 ## Completed results and collaborator report
 
