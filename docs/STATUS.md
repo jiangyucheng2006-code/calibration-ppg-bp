@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-09.
 
-## 200-person post-training enrollment — implementation and preflight
+## 200-person post-training enrollment — running; verified 18:14 CST
 
 The user authorized expanding the whole-subject-excluded enrollment to 100 or
 200 people. The prespecified choice is 200: 100 MIMIC and 100 VitalDB, leaving
@@ -25,6 +25,44 @@ now quarantines entire linked outside identities from population fit and test.
 One additional MIMIC person is implicated, so the expected population is 2,305.
 Original data are not deleted; no test-based reselection or leakage bypass.
 The corrected snapshot must pass a new smoke before a fresh batch is submitted.
+
+The corrected snapshot **78ca7f5** has now passed the new server smoke 1735:
+52 tests plus a real RTX 5080 forward/backward check, all successful. Preparation
+1736 completed 0:0 in 38 seconds. The unchanged 200-person sample is confirmed
+(100/source, three also belonged to the earlier 30-person evaluation sample).
+One duplicate-linked outside identity is quarantined, so the actual remaining
+population is 2,305: 1,112 MIMIC and 1,193 VitalDB. No original data were deleted.
+
+Confirmed active partitions: population 829,800 fit / 92,200 test rows;
+enrollment 72,000 registration / 8,000 test rows. Cross-cohort subject/content
+overlap is zero, enrollment registration/test identical-content overlap is zero,
+and different enrollment IDs share no identical content. The remaining population
+retains 34 previously approved official source-native test/train content copies.
+This derivative is not the exact 2,506-person official benchmark.
+
+| Stage | Job | Verified status |
+|---|---:|---|
+| Revised GPU smoke | 1735 | COMPLETED 0:0 |
+| Partition and quarantine audit | 1736 | COMPLETED 0:0 |
+| Fresh population inner selection | 1737 | RUNNING on hpc-2 / RTX 5080 |
+| Fresh population 360-window refit | 1738 | PENDING, predecessor dependency |
+| Remaining-population frozen benchmark | 1739 | PENDING, predecessor dependency |
+| 100 personal profiles, shard 0 | 1740 | PENDING, RTX 5080 |
+| 100 personal profiles, shard 1 | 1741 | PENDING, RTX 5070 Ti |
+| Nine-setting frozen scoring | 1742 | PENDING, both personal shards |
+
+Run receipt for 1737 confirms 2,305 people / 737,600 inner-fit rows,
+`old_checkpoint_used=false`, `enrollment_labels_accessed=false`, and
+`test_targets_accessed=false`. Source-tree hash:
+`9c8cec628e820052c4c92fca95835f87e697a4c7d8d95469c03809e94fbe9fa3`.
+This is a startup check, not a completed model or accuracy result.
+
+Batch: `/home/jiangyu.cheng/work/ppg_bp/outputs/post-enrollment-200-v1_20260909-180700`.
+Immutable code: `/home/jiangyu.cheng/work/ppg_bp/code/post_enrollment_78ca7f5`.
+NAS mirrors have byte-identical plan/submission receipts and the two deployment
+archives (verified original snapshot plus three-file corrective update). Logs and
+stage outputs archive at stage completion. No GitHub push was requested/performed
+in this turn; local experiment plan, code and status are committed for continuity.
 
 ## Completed results and collaborator report
 
