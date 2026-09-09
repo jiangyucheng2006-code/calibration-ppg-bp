@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-09.
 
-## Results and collaborator report prepared for publication
+## Completed results and collaborator report
 
 Both completed result batches now have dedicated reports and three-source
 tables: [official CalBased](../results/official_calbased_v1_20260909/README.md)
@@ -10,7 +10,12 @@ and [30-person post-training enrollment](../results/post_enrollment_30_v1_202609
 [The Chinese method report](PERSONAL_LORA_MEMORY_METHOD_ZH.md) and its
 [editable Word version](个人LoRA与参考记忆血压估计研究说明.docx) explain the actual
 ResNet/feature-LoRA implementation, fixed reference memory, enrollment and the
-proposed cuff-paired wrist study. The root README points to these current results.
+proposed cuff-paired wrist study. The final five-page report uses 12 pt Microsoft
+YaHei for Chinese and Times New Roman for Latin/numbers, with plain black/white
+tables. It follows the requested order: model, changes, split, procedure, results,
+and wrist study. All five pages and 24 metric rows were checked. The root README
+points to these current results. Publication package revision: `81a7e50`, followed
+by the requested concise report revision.
 
 This is a publication/documentation update: no new fit, participant filtering,
 prediction changes or human-data collection. Longitudinal history updates and
