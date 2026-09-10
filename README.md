@@ -1,13 +1,14 @@
 # Calibration PPG BP
 
-## Current experiment — original-partition personal enrollment
+## Current experiment — full-cohort personal enrollment
 
-[The two-method enrollment plan](docs/PLAN_LEGACY_SPLIT_ENROLLMENT_V1.md) applies
-the original subject-disjoint assignments to the current audited window pool.
+[The full-cohort enrollment plan](docs/PLAN_FULL_COHORT_ENROLLMENT_V1.md) scans
+all5,361 original people, preserving disjoint training/validation/test identities.
 Only personal LoRA and the same LoRA plus reference memory are compared.
-GPU smoke and data preparation passed; fresh shared fitting is running.
-[Verified progress and job IDs](docs/STATUS.md) include final cohort counts,
-registration budgets and leakage checks. No new result is available yet.
+The incorrectly narrowed2,504-person subset batch was cancelled with authorization.
+Full-cohort preparation/training status is recorded in
+[verified progress and job IDs](docs/STATUS.md). Assignment counts precede
+necessary validity and registration/query eligibility checks. No new result is available yet.
 
 ## Latest results — 200-person new-user enrollment, 10 September 2026
 

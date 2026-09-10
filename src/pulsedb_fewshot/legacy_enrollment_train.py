@@ -52,7 +52,7 @@ def population(args):
     objective = torch.nn.HuberLoss(delta=args.huber_delta)
     loader = _loader(fit, args, scaler, anchors, mapping, targets=True, shuffle=True)
     val_loader = _loader(query, args, scaler, val_anchors, {s: 0 for s in bank.subject_uid.unique()}, targets=False, shuffle=False)
-    report = {"protocol_id": PROTOCOL, "status": "running", "stage": "population",
+    report = {"protocol_id": plan["protocol_id"], "status": "running", "stage": "population",
               "plan_sha256": sha256(args.plan), "old_checkpoint_used": False,
               "test_targets_accessed": False, "test_registration_accessed": False,
               "shared_fit_role": "meta_train_only", "checkpoint_selection_role": "meta_validation",
@@ -97,13 +97,13 @@ def population(args):
             improved = score < best - 1e-8
             if improved:
                 best, best_epoch, stale = score, epoch, 0
-                torch.save({"model_state": model.state_dict(), "protocol_id": PROTOCOL,
+                torch.save({"model_state": model.state_dict(), "protocol_id": plan["protocol_id"],
                             "plan_sha256": sha256(args.plan), "subject_to_index": mapping,
                             "target_scaler": scaler, "epoch": epoch}, args.output / "best.pt")
             else:
                 stale += 1
             torch.save({"model_state": model.state_dict(), "optimizer_state": optimizer.state_dict(),
-                        "epoch": epoch, "protocol_id": PROTOCOL, "plan_sha256": sha256(args.plan)}, args.output / "last.pt")
+                        "epoch": epoch, "protocol_id": plan["protocol_id"], "plan_sha256": sha256(args.plan)}, args.output / "last.pt")
             row = {"epoch": epoch, "train_loss": loss_total / n, "validation_mean_mae": score,
                    "best_epoch": best_epoch, "stale_epochs": stale, "optimizer_steps": steps,
                    "elapsed_seconds": time.monotonic() - started}
@@ -131,7 +131,7 @@ def load_population(root, plan_path, *, device="cpu", synthetic=False):
     plan = load_plan(plan_path, synthetic=synthetic)
     root = Path(root)
     report = json.loads((root / "run.json").read_text())
-    if (report.get("protocol_id") != PROTOCOL or report.get("status") != "complete"
+    if (report.get("protocol_id") != plan["protocol_id"] or report.get("status") != "complete"
             or report.get("stage") != "population" or report.get("plan_sha256") != sha256(plan_path)
             or report.get("old_checkpoint_used") is not False or report.get("test_targets_accessed") is not False
             or report.get("test_registration_accessed") is not False or report.get("shared_fit_role") != "meta_train_only"
@@ -157,7 +157,7 @@ def personal(args):
     if args.cohort == "test":
         # Both methods on validation people must finish before the final cohort.
         freeze = json.loads((args.validation_run / "frozen_methods.json").read_text())
-        if freeze.get("plan_sha256") != sha256(args.plan) or freeze.get("checkpoint_sha256") != report["checkpoint_sha256"] or freeze.get("methods") != plan["methods"] or freeze.get("status") != "frozen" or freeze.get("config") != CONFIG:
+        if freeze.get("plan_sha256") != sha256(args.plan) or freeze.get("checkpoint_sha256") != report["checkpoint_sha256"] or freeze.get("methods") != plan["methods"] or freeze.get("status") != "frozen" or freeze.get("config") != plan["config"]:
             raise ValueError("validation completion/frozen-method gate missing")
     access = f"personal_{args.cohort}"
     _, bank = partition(args.plan, f"{args.cohort}_registration", access=access, synthetic=args.synthetic)

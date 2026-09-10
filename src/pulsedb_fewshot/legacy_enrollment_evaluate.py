@@ -26,7 +26,7 @@ def run(args):
     for shard, root in enumerate(args.personal_runs):
         report = json.loads((root / "run.json").read_text())
         expected = subjects[shard::2]
-        if (report.get("protocol_id") != PROTOCOL or report.get("status") != "complete"
+        if (report.get("protocol_id") != plan["protocol_id"] or report.get("status") != "complete"
                 or report.get("plan_sha256") != sha256(args.plan)
                 or report.get("population_checkpoint_sha256") != population["checkpoint_sha256"]
                 or report.get("evaluation_cohort") != args.cohort
@@ -58,7 +58,7 @@ def run(args):
         path = args.output / f"{name}_frozen_predictions.parquet"
         frame.to_parquet(path, index=False)
         files[path.name] = sha256(path)
-    frozen = {"protocol_id": PROTOCOL, "cohort": args.cohort, "status": "frozen",
+    frozen = {"protocol_id": plan["protocol_id"], "cohort": args.cohort, "status": "frozen",
               "plan_sha256": sha256(args.plan), "checkpoint_sha256": population["checkpoint_sha256"],
               "methods": METHODS, "prediction_files": files, "personal_receipts": receipts,
               "query_ids_sha256": event_ids_sha256(inputs.segment_uid),
@@ -71,16 +71,20 @@ def run(args):
         index = Path(plan["full_index"])
         if sha256(index) != plan["full_index_sha256"]:
             raise ValueError("reference label store changed")
-        targets = read_exact_targets(index, inputs[["subject_uid", "segment_uid", "source"]])
+        if plan["protocol_id"] == "full-cohort-enrollment-v1":
+            from .full_enrollment_data import read_grouped_targets
+            targets = read_grouped_targets(index, inputs)
+        else:
+            targets = read_exact_targets(index, inputs[["subject_uid", "segment_uid", "source"]])
     write_tables(args.output, targets, predictions,
                  {"cross_outer_subject_overlap": 0, "cross_role_content_overlap": 0},
-                 title=f"Original-partition enrollment: {args.cohort}", protocol_id=PROTOCOL)
+                 title=f"{plan['protocol_id']}: {args.cohort}", protocol_id=plan["protocol_id"])
     # Existing formatter's old fixed-360 sentence is inappropriate when a
     # content group slightly changes the nominal 90/10 allocation.
     report = args.output / "RESULT_TABLES.md"
     text = report.read_text(encoding="utf-8").replace(
         "All windows and participants are retained. Each profile uses 360 labelled registration windows, not 360 independent cuff events.",
-        "All frozen eligible queries and participants are retained. Registration uses approximately 90% of each person's 400 source windows; indivisible duplicate/overlap groups can change the exact count. These are not independent cuff events.")
+        "All frozen eligible queries and participants are retained. Registration uses approximately 90% of each person's eligible source windows; indivisible overlap groups and minimum one-window roles can change the exact fraction. Consult the cohort and budget audit for exclusions and actual counts. These are not independent cuff events.")
     report.write_text(text, encoding="utf-8")
     write_paired_intervals(args.output, targets, predictions, {"uncertainty": UNCERTAINTY})
     frozen.update(status="complete", scoring_targets_accessed=True, training_feedback=False)

@@ -20,6 +20,7 @@ from .official_time_policy import sample_span_audit, TIME_BOUNDARY_POLICY
 from .post_enrollment_protocol import FORBIDDEN
 
 PROTOCOL = "legacy-split-enrollment-v1"
+FULL_PROTOCOL = "full-cohort-enrollment-v1"
 LEGACY_SPLIT_SHA256 = "8705f7cd75d92201bd203c00fb4d8ad8c738c02d7c4b56e5747210ffba504cd7"
 SEED = 20260910
 METHODS = ["new_person_lora", "new_person_lora_memory"]
@@ -39,6 +40,10 @@ CONFIG = {
     "cross_outer_duplicate_policy": "quarantine_all_members_of_cross_role_identity_components",
     "duplicate_allocation": "same_content_and_overlapping_intervals_stay_in_one_personal_role",
 }
+FULL_CONFIG = dict(CONFIG, cohort_scope="all_original_subjects_all_valid_windows",
+                   minimum_query_windows=1, minimum_inner_validation_windows=1,
+                   minimum_inner_fit_windows=1, memory_query_chunk_size=128,
+                   exact_within_outer_duplicates="retain_one_canonical_window")
 PARTITIONS = ("population_train", "validation_registration", "validation_inputs",
               "test_registration", "test_inputs")
 ACCESS = {
@@ -97,7 +102,8 @@ def row_components(person):
     def union(i, j):
         a, b = root(i), root(j)
         parent[max(a, b)] = min(a, b)
-    for _, g in person.groupby("ppg_content_sha256", sort=False):
+    duplicates = person.loc[person.ppg_content_sha256.duplicated(keep=False)]
+    for _, g in duplicates.groupby("ppg_content_sha256", sort=False):
         indices = g.index.tolist()
         for i in indices[1:]:
             union(indices[0], i)
@@ -114,29 +120,32 @@ def row_components(person):
     return list(groups.values())
 
 
-def assign_person(person):
+def assign_person(person, *, full_cohort=False):
     person = person.sort_values("segment_uid").reset_index(drop=True).copy()
     groups = row_components(person)
     seed = SEED + int(hashlib.sha256(person.subject_uid.iloc[0].encode()).hexdigest()[:6], 16)
     rng = np.random.default_rng(seed)
     groups = [groups[i] for i in rng.permutation(len(groups))]
-    query_target = max(5, int(round(len(person) * .1)))
+    minimum = 1 if full_cohort else 5
+    if full_cohort and len(groups) < 3:
+        raise ValueError("insufficient independent groups for registration and query")
+    query_target = max(minimum, int(round(len(person) * .1)))
     query_groups, remaining, n = [], [], 0
-    for group in groups:
-        if n < query_target:
+    for number, group in enumerate(groups):
+        if n < query_target and (not full_cohort or number < len(groups) - 2):
             query_groups.append(group)
             n += len(group)
         else:
             remaining.append(group)
-    inner_target = max(5, int(round((len(person) - n) / 9)))
+    inner_target = max(minimum, int(round((len(person) - n) / 9)))
     inner_groups, fit_groups, m = [], [], 0
-    for group in remaining:
-        if m < inner_target:
+    for number, group in enumerate(remaining):
+        if m < inner_target and (not full_cohort or number < len(remaining) - 1):
             inner_groups.append(group)
             m += len(group)
         else:
             fit_groups.append(group)
-    if sum(map(len, fit_groups)) < 5 or not query_groups or not inner_groups:
+    if sum(map(len, fit_groups)) < minimum or not query_groups or not inner_groups:
         raise ValueError("insufficient independent groups for registration and query")
     person["personal_role"] = "registration"
     person["inner_role"] = "train"
@@ -147,7 +156,7 @@ def assign_person(person):
     return person
 
 
-def build_assignment(metadata, legacy):
+def build_assignment(metadata, legacy, *, full_cohort=False):
     reject_labels(metadata)
     if metadata.segment_uid.duplicated().any() or legacy.subject_uid.duplicated().any():
         raise ValueError("duplicate source row or outer participant assignment")
@@ -164,12 +173,20 @@ def build_assignment(metadata, legacy):
     quarantine = sorted(people.loc[people.component.isin(cross[cross.gt(1)].index), "subject_uid"])
     active = f.loc[~f.subject_uid.isin(quarantine)].copy()
     assignments, excluded = [], []
+    collapsed = 0
+    if full_cohort:
+        before = set(active.subject_uid)
+        n_before = len(active)
+        active = active.sort_values(["subject_uid", "segment_uid"]).drop_duplicates("ppg_content_sha256")
+        collapsed = n_before - len(active)
+        excluded.extend({"subject_uid": s, "reason": "no_unique_content_after_same_outer_duplicate_collapse"}
+                        for s in sorted(before - set(active.subject_uid)))
     for subject, g in active.groupby("subject_uid", sort=True):
         if g.split.iloc[0] == "meta_train":
             assignments.append(g.assign(personal_role="population_fit", inner_role="train"))
         else:
             try:
-                assignments.append(assign_person(g))
+                assignments.append(assign_person(g, full_cohort=full_cohort))
             except ValueError as exc:
                 if "insufficient independent groups" not in str(exc):
                     raise
@@ -183,6 +200,7 @@ def build_assignment(metadata, legacy):
     if interval["cross_role_overlap_pairs"]:
         raise ValueError("positive physiological overlap crosses roles")
     audit = {"quarantined_subjects": quarantine, "quarantine_rows": int(metadata.subject_uid.isin(quarantine).sum()),
+             "same_outer_duplicate_rows_collapsed": collapsed,
              "insufficient_history_exclusions": excluded, "interval_audit": interval,
              "cross_outer_subject_overlap": 0, "cross_role_content_overlap": 0,
              "original_assignment_changed": False, "assignment_uses_bp_or_errors": False,
@@ -270,7 +288,8 @@ def load_plan(path, *, synthetic=False):
     if sha256(path) != json.loads((path.parent / "plan_digest.json").read_text())["sha256"]:
         raise ValueError("frozen plan checksum changed")
     plan = json.loads(path.read_text())
-    if plan.get("protocol_id") != PROTOCOL or plan.get("status") != "ready" or bool(plan.get("synthetic")) != synthetic or plan.get("config") != CONFIG or plan.get("methods") != METHODS:
+    expected_config = {PROTOCOL: CONFIG, FULL_PROTOCOL: FULL_CONFIG}.get(plan.get("protocol_id"))
+    if expected_config is None or plan.get("status") != "ready" or bool(plan.get("synthetic")) != synthetic or plan.get("config") != expected_config or plan.get("methods") != METHODS:
         raise ValueError("unapproved legacy enrollment contract")
     if not synthetic and plan["legacy_split_sha256"] != LEGACY_SPLIT_SHA256:
         raise ValueError("wrong original participant split")
@@ -278,6 +297,11 @@ def load_plan(path, *, synthetic=False):
         raise ValueError("source provenance changed")
     if set(plan["validation_subjects"]) & set(plan["test_subjects"]):
         raise ValueError("validation/test subject overlap")
+    if plan["protocol_id"] == FULL_PROTOCOL:
+        if plan.get("all_original_subjects_accounted_for") is not True:
+            raise ValueError("full cohort accounting missing")
+        if not synthetic and plan.get("original_subjects") != 5361:
+            raise ValueError("full cohort was restricted")
     return plan
 
 

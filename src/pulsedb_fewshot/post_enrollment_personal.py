@@ -122,7 +122,7 @@ def fit_adapter(model, train_z, train_bp, anchor_mm, scaler, args, *, validation
             "shared_unchanged": True, "history": history}
 
 
-def memory_predict(bank_z, query_z, bank_bp, query_base, bank_frame, query_frame):
+def memory_predict(bank_z, query_z, bank_bp, query_base, bank_frame, query_frame, *, query_chunk_size=None):
     """Fixed donor weighting and per-person registration-only q95; no query BP."""
     from .personal_memory_prepare import prepare_neighbors
     from .official_memory_train import canonical_rows
@@ -131,7 +131,7 @@ def memory_predict(bank_z, query_z, bank_bp, query_base, bank_frame, query_frame
     bank_rows, query_rows = canonical_rows(bmeta, "train"), canonical_rows(qmeta, "internal_validation")
     audit = audit_official_metadata(bank_rows, query_rows)
     neighbors = prepare_neighbors(bank_z, query_z, bank_rows, query_rows,
-        mode="random_disjoint", k=5, block_size=40, audit=False)
+        mode="random_disjoint", k=5, block_size=40, audit=False, query_chunk_size=query_chunk_size)
     state = neighbors["validation"]
     output = memory_variant(bank_bp, query_base, state)
     if not np.isfinite(output).all():
@@ -156,6 +156,8 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
     30/200-person entry point retains its unchanged, strict partition loader.
     """
     protocol_id, methods = plan["protocol_id"], plan["methods"]
+    memory_kwargs = ({"query_chunk_size": plan["config"]["memory_query_chunk_size"]}
+                     if protocol_id == "full-cohort-enrollment-v1" else {})
     if {"sbp", "dbp", "target_sbp", "target_dbp"} & set(queries):
         raise ValueError("personal query inputs must not contain BP labels")
     if set(calibration.segment_uid) & set(queries.segment_uid):
@@ -197,7 +199,7 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
             selection = fit_adapter(model, bank_z[train_mask], bank.loc[train_mask, ["sbp", "dbp"]].to_numpy(np.float32),
                 anchor_inner, scaler, args, validation=(bank_z[val_mask], bank.loc[val_mask, ["sbp", "dbp"]].to_numpy(np.float32)))
             save_json(directory / "selection.json", selection)
-            # Fresh fit, not continuation from the selection model; all 360
+            # Fresh fit, not continuation from the selection model; all permitted
             # labelled registration windows are now legitimately available.
             model = fresh_person_model(checkpoint["model_state"], seed, args.device)
             shared_before = shared_digest(model.state_dict())
@@ -208,7 +210,7 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
             lora_bp, query_adapted = predict(model, query_z, anchor_all, scaler, args.device)
             _, bank_adapted = predict(model, bank_z, anchor_all, scaler, args.device)
             memory_bp, memory_state, neighbors = memory_predict(bank_adapted, query_adapted,
-                bank[["sbp", "dbp"]].to_numpy(np.float32), lora_bp, bank, query)
+                bank[["sbp", "dbp"]].to_numpy(np.float32), lora_bp, bank, query, **memory_kwargs)
             personal_state = {key: model.state_dict()[key].detach().cpu() for key in PERSONAL_KEYS}
             torch.save({"protocol_id": protocol_id, "subject_uid": subject, "adapter": personal_state,
                 "anchor_mmHg": anchor_all.tolist(), "target_scaler": scaler,
@@ -238,7 +240,7 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
             restored_bp, restored_z = predict(restored, query_z, saved["anchor_mmHg"], saved["target_scaler"], args.device)
             with np.load(directory / "memory_bank.npz", allow_pickle=False) as stored_bank:
                 restored_memory, restored_state, _ = memory_predict(stored_bank["features"], restored_z,
-                    stored_bank["reference_bp"], restored_bp, bank, query)
+                    stored_bank["reference_bp"], restored_bp, bank, query, **memory_kwargs)
             if not np.allclose(restored_bp, lora_bp, atol=1e-5, rtol=0) or not np.allclose(restored_memory, memory_bp, atol=1e-5, rtol=0) or restored_state["q95"] != memory_state["q95"]:
                 raise ValueError("saved profile does not reproduce predictions")
             if shared_digest(model.state_dict()) != base_report["shared_state_sha256"]:

@@ -133,7 +133,8 @@ def _empty(n: int, k: int) -> dict[str, np.ndarray]:
 
 def prepare_neighbors(train_features, validation_features, train: list[dict], validation: list[dict],
                       *, mode: str, k: int = 5, block_size: int = 40,
-                      exclusion_s: float = 0.0, audit: bool = True) -> dict:
+                      exclusion_s: float = 0.0, audit: bool = True,
+                      query_chunk_size: int | None = None) -> dict:
     """Label-free retrieval. All insufficient histories use an explicit fallback.
 
     Train retrieval excludes the query's complete 40-window time-sorted block
@@ -142,6 +143,8 @@ def prepare_neighbors(train_features, validation_features, train: list[dict], va
     """
     if mode not in MODES or k < 1 or block_size < 1 or exclusion_s < 0:
         raise ValueError("invalid retrieval configuration")
+    if query_chunk_size is not None and query_chunk_size < 1:
+        raise ValueError("positive query chunk size required")
     if audit:
         audit_metadata(train, validation)
     for x, rows in ((train_features, train), (validation_features, validation)):
@@ -177,9 +180,13 @@ def prepare_neighbors(train_features, validation_features, train: list[dict], va
         ):
             if not len(query_indices):
                 continue
-            scores = np.clip(_unit(x[query_indices]) @ bx.T, -1.0, 1.0)
+            chunk_size = query_chunk_size or len(query_indices)
             target = output[role]
             for local_q, global_q in enumerate(query_indices):
+                if local_q % chunk_size == 0:
+                    selected = query_indices[local_q:local_q + chunk_size]
+                    scores = np.clip(_unit(x[selected]) @ bx.T, -1.0, 1.0)
+                query_scores = scores[local_q % chunk_size]
                 query = rows[global_q]
                 comparable = axes == query["time_axis_uid"]
                 physical = comparable & (records == query["recording_uid"])
@@ -196,15 +203,15 @@ def prepare_neighbors(train_features, validation_features, train: list[dict], va
                 donors = np.flatnonzero(legal)
                 if len(donors) < k:
                     continue
-                chosen = donors[np.lexsort((uids[donors], -scores[local_q, donors]))[:k]]
-                weights = np.exp((scores[local_q, chosen] - scores[local_q, chosen].max()) / 0.1)
+                chosen = donors[np.lexsort((uids[donors], -query_scores[donors]))[:k]]
+                weights = np.exp((query_scores[chosen] - query_scores[chosen].max()) / 0.1)
                 weights /= weights.sum()
                 target["knn_indices"][global_q] = bank_indices[chosen]
                 target["knn_weights"][global_q] = weights
                 legal_ordered = stable_order[legal[stable_order]]
                 uniform = legal_ordered[np.linspace(0, len(legal_ordered) - 1, k, dtype=int)]
                 target["uniform_indices"][global_q] = bank_indices[uniform]
-                target["nearest_distance"][global_q] = 1.0 - scores[local_q, chosen[0]]
+                target["nearest_distance"][global_q] = 1.0 - query_scores[chosen[0]]
                 target["valid"][global_q] = True
                 time_donors = donors[comparable[donors]]
                 if len(time_donors):

@@ -2,6 +2,16 @@
 
 Last updated: 2026-09-10.
 
+## Full-cohort correction — implementation and checks in progress
+
+The user explicitly requested all original people, not the official CalBased
+input-pool intersection. [The corrective plan](PLAN_FULL_COHORT_ENROLLMENT_V1.md)
+uses original3,752train/805validation/804test assignments and scans all5,245,454
+windows. Eligibility and provenance exclusions will be reported, not concealed.
+Jobs1745-1751 were cancelled at2026-09-10T06:29:33Z; their artifacts are preserved.
+The historical running-state entry below is superseded. The new batch has not
+yet been submitted at this entry. No new results or GitHub push are implied.
+
 ## Original-partition enrollment — training started, 10 September 2026
 
 [The focused two-method plan](PLAN_LEGACY_SPLIT_ENROLLMENT_V1.md) compares only
