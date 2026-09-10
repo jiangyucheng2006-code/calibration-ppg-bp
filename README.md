@@ -6,6 +6,8 @@
 all5,361 original people, preserving disjoint training/validation/test identities.
 Only personal LoRA and the same LoRA plus reference memory are compared.
 The incorrectly narrowed2,504-person subset batch was cancelled with authorization.
+All72server checks and GPU smoke passed; complete-data preparation is running
+as job1754, with audit and training queued behind successful prerequisites.
 Full-cohort preparation/training status is recorded in
 [verified progress and job IDs](docs/STATUS.md). Assignment counts precede
 necessary validity and registration/query eligibility checks. No new result is available yet.

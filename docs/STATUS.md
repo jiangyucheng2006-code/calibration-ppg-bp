@@ -2,15 +2,44 @@
 
 Last updated: 2026-09-10.
 
-## Full-cohort correction — implementation and checks in progress
+## Full-cohort correction — submitted; complete-data preparation running
 
 The user explicitly requested all original people, not the official CalBased
 input-pool intersection. [The corrective plan](PLAN_FULL_COHORT_ENROLLMENT_V1.md)
 uses original3,752train/805validation/804test assignments and scans all5,245,454
 windows. Eligibility and provenance exclusions will be reported, not concealed.
 Jobs1745-1751 were cancelled at2026-09-10T06:29:33Z; their artifacts are preserved.
-The historical running-state entry below is superseded. The new batch has not
-yet been submitted at this entry. No new results or GitHub push are implied.
+The historical running-state entry below is superseded. The replacement batch
+is submitted. At2026-09-10T06:50:41Z, materialization1754 is RUNNING onhpc-2
+(4CPUcores,12GB, noGPU); the remaining stages are dependency-pending.
+
+| Stage | Slurm job | State at this check |
+|---|---:|---|
+| Full pipeline and GPU smoke | 1753 | COMPLETED0:0,63seconds |
+| All-source waveform materialization | 1754 | RUNNING |
+| Full cohort audit and partition freeze | 1755 | Waiting for1754 |
+| Fresh population model | 1756 | Waiting for1755; RTX5080 |
+| Personal validation, two shards | 1757 / 1758 | Waiting; RTX5080 / RTX5070Ti |
+| Validation scoring and method freeze | 1759 | Waiting for both validation shards |
+| Personal final evaluation, two shards | 1760 / 1761 | Waiting for1759 |
+| Final paired result tables | 1762 | Waiting for both final shards |
+
+This is two candidate methods with one shared population fit, not ten models.
+The72server tests (7full-cohort,11old-subset,16enrollment,8ablation,30memory)
+and CUDA forward/backward passed. Initial smoke1752 failed because a synthetic
+source stratum had only one person for its confidence interval. The fixture
+was corrected without altering formal metrics or data rules; its failed log
+is retained. The full raw-to-profile-to-score synthetic pipeline now passes.
+
+Run: `/home/jiangyu.cheng/work/ppg_bp/outputs/full-cohort-enrollment-v1_20260910-145200`.
+Inputs: `/home/jiangyu.cheng/work/ppg_bp/data/processed/full-cohort-inputs-v1_20260910-145200`.
+Read-only runtime: `/home/jiangyu.cheng/work/ppg_bp/code/full-enrollment-817fd81`.
+Code commit: `817fd81d674158de8de82df8180b16ad5c6daeec`.
+Source-tree SHA-256: `56d33f001d1faf02227e35dc640f11ce8a44119348413f82df0f1ecd98b48526`.
+Full-index SHA-256: `4bd0d281b1fb3b0f715b23e41315405c6b13ad696452469f57c2c771d08e569d`.
+The live materialization contract confirms5,361people/5,245,454windows, with
+both subject_cap and window_cap null. Final eligible counts are not available
+until audit1755completes. No full-cohort results or GitHub push are implied.
 
 ## Original-partition enrollment — training started, 10 September 2026
 
