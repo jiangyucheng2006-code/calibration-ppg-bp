@@ -1,5 +1,14 @@
 # Calibration PPG BP
 
+## Current experiment — original-partition personal enrollment
+
+[The two-method enrollment plan](docs/PLAN_LEGACY_SPLIT_ENROLLMENT_V1.md) applies
+the original subject-disjoint assignments to the current audited window pool.
+Only personal LoRA and the same LoRA plus reference memory are compared.
+GPU smoke and data preparation passed; fresh shared fitting is running.
+[Verified progress and job IDs](docs/STATUS.md) include final cohort counts,
+registration budgets and leakage checks. No new result is available yet.
+
 ## Latest results — 200-person new-user enrollment, 10 September 2026
 
 The expanded enrollment study and its matched ablations are complete.

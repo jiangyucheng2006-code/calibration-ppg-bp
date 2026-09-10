@@ -1,8 +1,9 @@
 # Personal enrollment on the original participant partition
 
 Protocol: `legacy-split-enrollment-v1`. Authorized 10 September 2026.
-Status: implementation and pre-submission verification; see STATUS.md for the
-actual submission record. No prior checkpoint is eligible for initialization.
+Status: GPU smoke and real preparation passed; fresh shared fitting submitted
+and running. See STATUS.md for job IDs, audited counts and snapshot hashes.
+No prior checkpoint is eligible for initialization.
 
 ## Question and the two candidates
 

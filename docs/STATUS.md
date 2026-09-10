@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-10.
 
-## Original-partition enrollment — implementation ready for GPU smoke
+## Original-partition enrollment — training started, 10 September 2026
 
 [The focused two-method plan](PLAN_LEGACY_SPLIT_ENROLLMENT_V1.md) compares only
 new-person LoRA with the same LoRA plus personal reference memory. It applies
@@ -12,11 +12,42 @@ to K=1/2/3/5. Pre-audit counts are 1,739 train, 384 validation and 383 test
 people. Registration/query is approximately 90/10, with content/overlap groups
 kept together and outcome-blind cross-outer linked-identity quarantine.
 
-The implementation starts a fresh shared model, keeps final query targets out
-of fitting and uses disjoint validation people for epoch selection. The local
-contract checks pass; end-to-end tensor, serialization and GPU verification
-must succeed before formal submission. No submitted jobs are implied by this
-implementation entry. Existing runs and the original partition remain intact.
+The fresh shared model is **running as job 1745 on hpc-2's RTX 5080** at the
+latest check. Smoke1743 completed with exit0:0 in53seconds: all35 regression
+and end-to-end checks pass, plus CUDA forward/backward verification. Data
+preparation1744 completed with exit0:0 in5minutes47seconds. Its long lookup
+phase was investigated but completed normally; no job was cancelled or
+resubmitted and no input-reader change was applied to the frozen runtime.
+
+Two content-linked MIMIC identities (one train, one validation) were quarantined
+under the prespecified input-only rule,800rows total. No test person or query
+was removed; no insufficient-history exclusion occurred. The final cohort is:
+
+| Original role | MIMIC | VitalDB | Participants | Windows |
+|---|---:|---:|---:|---:|
+| Shared fitting | 857 | 881 | 1,738 | 695,200 |
+| Validation enrollment / query | 187 | 196 | 383 | 137,880 / 15,320 |
+| Test enrollment / query | 167 | 216 | 383 | 137,880 / 15,320 |
+
+The audit finds zero cross-role exact-content collisions and zero positive
+recorded-span overlaps. Three single-timestamp boundary touches are disclosed;
+do not call all samples or random adjacent windows physiologically independent.
+Validation and test each have360registration/40query windows per person.
+Final test query BP has not entered training or personal state.
+
+Queued stages: validation shards1746/1747, validation report1748, test
+shards1749/1750 and final report1751. Personal shards use RTX5080/5070Ti;
+CPU preparation/scoring request no GPU. These are two paired methods across
+processing stages, not eight new models. No test score is available yet.
+
+Frozen runtime commit`3196350a2b51ab82a620ec5bd0b1c170f51524da`, source-tree SHA256
+`1adc1ef686cbf265dbec60f659ca93bbd023164e809fce83166816de8a18efcc`.
+Plan SHA256`b6fd3d5c04e343af506375a7b5eb6b3112e8c5569ceeb10e001f0c736e3cf267`.
+Run directory:`work/ppg_bp/outputs/legacy-split-enrollment-v1_20260910-134700`;
+completed stages/logs are copied to the matching NAS tree. Existing source
+data, original partitions and all earlier runs remain intact. This turn
+updates local code/records and submits server work; it does not publish new
+results or push GitHub.
 
 ## 200-person enrollment — complete; verified 10 September 2026
 
