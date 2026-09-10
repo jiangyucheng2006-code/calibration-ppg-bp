@@ -6,8 +6,10 @@
 all5,361 original people, preserving disjoint training/validation/test identities.
 Only personal LoRA and the same LoRA plus reference memory are compared.
 The incorrectly narrowed2,504-person subset batch was cancelled with authorization.
-All72server checks and GPU smoke passed; complete-data preparation is running
-as job1754, with audit and training queued behind successful prerequisites.
+All 72 server checks and GPU smoke passed. Source-file availability is confirmed
+for all 5,361 people; complete-data preparation is running as job1764, with
+audit and training queued behind successful prerequisites. Missing work copies
+are staged from verified NAS masters rather than excluding their participants.
 Full-cohort preparation/training status is recorded in
 [verified progress and job IDs](docs/STATUS.md). Assignment counts precede
 necessary validity and registration/query eligibility checks. No new result is available yet.
