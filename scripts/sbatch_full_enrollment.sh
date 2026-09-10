@@ -50,7 +50,7 @@ case "$ppg_stage" in
     ;;
   materialize)
     mkdir "$ppg_output"
-    "$ppg_python" -m pulsedb_fewshot.full_enrollment_data --stage materialize --full-index "$ppg_index" --legacy-split "$ppg_split" --raw-root "$ppg_raw" --output "$ppg_store" --workers 2 --shards 32
+    "$ppg_python" -m pulsedb_fewshot.full_enrollment_data --stage materialize --full-index "$ppg_index" --legacy-split "$ppg_split" --raw-root "$ppg_raw" --archive-root "$ppg_nas/data/raw/PulseDB_v2" --output "$ppg_store" --workers 2 --shards 32
     cp "$ppg_store/manifest.json" "$ppg_output/"
     chmod 400 "$ppg_store/"*.json "$ppg_store/"*.parquet "$ppg_store/"*.npy
     ;;

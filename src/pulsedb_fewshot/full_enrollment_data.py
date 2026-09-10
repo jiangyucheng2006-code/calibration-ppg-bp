@@ -10,6 +10,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import json
 import hashlib
 from pathlib import Path
+import shutil
 import time
 
 import numpy as np
@@ -51,15 +52,67 @@ def _source_path(row, raw_root):
         raise ValueError("invalid raw file name")
     root = Path(raw_root).resolve()
     path = (root / directory / name).resolve()
-    if not path.is_relative_to(root) or not path.is_file():
-        raise ValueError(f"missing work-area raw file: {path}")
+    if not path.is_relative_to(root):
+        raise ValueError(f"raw work path escaped its root: {path}")
     return path
+
+
+def stage_source(row, raw_root, archive_root, stage_root):
+    """Use a work copy or create one private temporary copy from the NAS master."""
+    source = _source_path(row, raw_root)
+    if source.is_file():
+        return source, False
+    master = Path(row.raw_file).resolve()
+    archive = Path(archive_root).resolve()
+    if not master.is_relative_to(archive) or not master.is_file() or master.name != source.name:
+        raise ValueError(f"neither work copy nor permitted NAS master exists: {source}")
+    stage = Path(stage_root).resolve()
+    stage.mkdir(parents=True, exist_ok=True)
+    source = stage / (str(row.source) + "_" + master.name)
+    if not source.resolve().is_relative_to(stage):
+        raise ValueError("temporary copy escaped its private staging directory")
+    # Exclusive creation: never overwrite a pre-existing raw file.
+    with master.open("rb") as reader, source.open("xb") as writer:
+        shutil.copyfileobj(reader, writer, length=8 * 1024 * 1024)
+    return source, True
+
+
+def source_availability(index, raw_root, archive_root):
+    """Metadata-only file availability and bounded staging-space check."""
+    import pyarrow.parquet as pq
+    from types import SimpleNamespace
+    pf = pq.ParquetFile(index)
+    columns = {name: pf.schema.names.index(name) for name in ("subject_uid", "source", "raw_file")}
+    existing = staged = largest = 0
+    subjects = []
+    for i in range(pf.num_row_groups):
+        values = {}
+        for name, col in columns.items():
+            stats = pf.metadata.row_group(i).column(col).statistics
+            if stats is None or not stats.has_min_max or stats.min != stats.max:
+                raise ValueError("one identifiable participant/file per row group required")
+            values[name] = stats.min
+        row = SimpleNamespace(**values)
+        subjects.append(row.subject_uid)
+        work = _source_path(row, raw_root)
+        master = Path(row.raw_file).resolve()
+        if work.is_file():
+            existing += 1
+            path = work
+        elif master.is_relative_to(Path(archive_root).resolve()) and master.is_file():
+            staged += 1
+            path = master
+        else:
+            raise ValueError(f"missing original participant file in work and NAS: {row.subject_uid}")
+        largest = max(largest, path.stat().st_size)
+    return {"existing_work_files": existing, "files_to_stage_from_nas": staged,
+            "largest_raw_file_bytes": largest, "subject_ids": subjects}
 
 
 def materialize_shard(task):
     import h5py
     import pyarrow.parquet as pq
-    index, raw_root, output, shard, shards, synthetic = task
+    index, raw_root, archive_root, output, shard, shards, synthetic = task
     root = Path(output)
     pf = pq.ParquetFile(index)
     groups = list(range(shard, pf.num_row_groups, shards))
@@ -75,7 +128,8 @@ def materialize_shard(task):
         if f.subject_uid.nunique() != 1 or f.raw_file.nunique() != 1:
             raise ValueError("full source index must have one file/subject per row group")
         people.update(f.subject_uid)
-        source = _source_path(f.iloc[0], raw_root)
+        source, temporary = stage_source(f.iloc[0], raw_root, archive_root,
+                                         root / "staging" / f"shard_{shard:03d}")
         expected = set(f.raw_file_sha256)
         if len(expected) != 1 or sha256(source) != next(iter(expected)):
             raise ValueError("raw work copy changed from the full index")
@@ -120,8 +174,12 @@ def materialize_shard(task):
         f["full_index_group"] = group_id
         frames.append(f.loc[valid, OUTPUT_COLUMNS])
         offset += len(f)
-        raw_receipts.append({"subject_uid": f.subject_uid.iloc[0], "file": str(source),
-                             "sha256": next(iter(expected)), "rows": len(f)})
+        raw_receipts.append({"subject_uid": f.subject_uid.iloc[0], "source_master": str(f.raw_file.iloc[0]),
+                             "temporary_work_copy": temporary, "sha256": next(iter(expected)), "rows": len(f)})
+        if temporary:
+            # This exact file was exclusively created by this worker above.
+            # Its immutable NAS master and any pre-existing work copy are untouched.
+            source.unlink()
         if count % 10 == 0 or count == len(groups):
             save_json(root / f"progress_{shard:03d}.json", {
                 "shard": shard, "completed_files": count, "total_files": len(groups),
@@ -148,13 +206,23 @@ def materialize(args):
         raise ValueError("full source index row-group count changed")
     root = args.output.resolve()
     root.mkdir(parents=True, exist_ok=False)
+    availability = source_availability(args.full_index, args.raw_root, args.archive_root)
+    subjects = availability.pop("subject_ids")
+    if len(subjects) != len(set(subjects)) or set(subjects) != set(old.subject_uid):
+        raise ValueError("source-file availability did not cover the entire original cohort")
+    needed_bytes = pf.metadata.num_rows * 1250 * 4 + args.workers * availability["largest_raw_file_bytes"] + 5 * 1024**3
+    if shutil.disk_usage(root).free < needed_bytes:
+        raise ValueError("insufficient work space for full waveforms and bounded raw staging")
     plan = {"protocol_id": STORE_PROTOCOL, "status": "materializing", "synthetic": args.synthetic,
             "full_index": str(args.full_index.resolve()), "full_index_sha256": sha256(args.full_index),
             "legacy_split_sha256": sha256(args.legacy_split), "original_subjects": len(old),
             "original_windows": pf.metadata.num_rows, "window_cap": None, "subject_cap": None,
-            "label_values_read": False, "shards": args.shards}
+            "label_values_read": False, "shards": args.shards,
+            "source_availability": availability,
+            "raw_storage_policy": "NAS master to private temporary work copy; remove only own successful temporary copy"}
     save_json(root / "materialization.json", plan)
-    jobs = [(str(args.full_index), str(args.raw_root), str(root), i, args.shards, args.synthetic)
+    print(json.dumps({"source_availability": availability, "original_subjects": len(old)}), flush=True)
+    jobs = [(str(args.full_index), str(args.raw_root), str(args.archive_root), str(root), i, args.shards, args.synthetic)
             for i in range(args.shards)]
     receipts = []
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
@@ -292,6 +360,7 @@ def parser():
     p.add_argument("--full-index", type=Path, required=True)
     p.add_argument("--legacy-split", type=Path, required=True)
     p.add_argument("--raw-root", type=Path)
+    p.add_argument("--archive-root", type=Path)
     p.add_argument("--store-root", type=Path)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--workers", type=int, default=2)

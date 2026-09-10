@@ -114,3 +114,13 @@ Formal submission follows successful synthetic end-to-end and CUDA smoke tests.
 Code snapshot, source/split hashes, plans, logs, progress and successful outputs
 are retained. Original NAS masters and previous experiments remain unchanged.
 No raw waveforms, personal records, or model tensors are published to GitHub.
+
+Operational correction after materialization1754: only a subset of raw files
+has persistent work copies. All source-file availability is now checked before
+array construction. Missing work copies are staged from the exact index-pinned
+NAS master into a private work temporary file, hashed, parsed in work, and then
+only that newly created temporary copy is removed. Existing work files and NAS
+masters are never overwritten/deleted. At most two raw copies are staged at a
+time; this does not exclude missing-work people or train directly against NAS.
+The full waveform store remains in work for GPU fitting. This storage fix does
+not change model settings, subject membership or selection criteria.

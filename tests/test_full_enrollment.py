@@ -121,8 +121,13 @@ class FullPipelineTests(unittest.TestCase):
                 for table in tables:
                     writer.write_table(table)
             args = argparse.Namespace(full_index=root / "index.parquet", legacy_split=root / "split.csv",
-                                      raw_root=raw_root, output=root / "store", workers=1, shards=2, synthetic=True)
+                                      raw_root=root / "empty_work_raw", archive_root=raw_root,
+                                      output=root / "store", workers=1, shards=2, synthetic=True)
             data.materialize(args)
+            self.assertEqual(len(list(raw_root.rglob("*.mat"))), 12)
+            self.assertEqual(len(list((root / "store" / "staging").rglob("*.mat"))), 0)
+            store_contract = json.loads((root / "store" / "manifest.json").read_text())
+            self.assertEqual(store_contract["source_availability"]["files_to_stage_from_nas"], 12)
             args.store_root, args.output = root / "store", root / "prepare"
             accessed = set()
             original = data.read_grouped_targets
