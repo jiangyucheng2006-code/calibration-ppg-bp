@@ -4,6 +4,13 @@ Last updated: 2026-09-11.
 
 ## 2026-09-11 — Eight personal-history budgets authorized and implemented
 
+Initial synthetic smoke job 1782 ended with a failed input-rejection assertion:
+prediction fields were not explicitly rejected by the metadata-only assignment
+boundary. They were not used to choose rows, and the complete synthetic
+training/scoring pipeline itself passed. A scoped fix rejects prediction/error
+columns and refreshes the redundant inner-role tag at each budget. The initial
+snapshot/log is preserved. No formal budget job was submitted before this fix.
+
 The user authorizes the [20%-90% enrollment study](ENROLLMENT_BUDGET_PLAN_20260911.md)
 with identical queries, nested label-blind registration subsets, paired LoRA
 and LoRA+memory, and the unchanged full-cohort subject-disjoint population model.

@@ -133,6 +133,9 @@ class BudgetPipelineTests(unittest.TestCase):
                 budget.prepare(argparse.Namespace(parent_plan=parent_plan, population_run=root / "population",
                                                   output=root / "prepare", synthetic=True))
             plan = root / "prepare" / "plan.json"
+            for p in budget.PERCENTAGES:
+                _, checked = budget.partition(plan, "test", p, synthetic=True)
+                self.assertTrue(checked.access_role.eq(checked.split + ":registration:" + checked.inner_role).all())
             def personal_args(cohort, p, shard):
                 return train.parser().parse_args(["--stage", "personal", "--cohort", cohort, "--percent", str(p),
                     "--shard", str(shard), "--plan", str(plan), "--population-run", str(root / "population"),

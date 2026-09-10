@@ -40,8 +40,9 @@ def person_budgets(metadata, query_count):
     the old bank. Whole groups are indivisible; actual counts are reported.
     """
     reject_labels(metadata)
-    if any("error" in c.lower() or "residual" in c.lower() for c in metadata):
-        raise ValueError("errors must not be available to budget assignment")
+    if any("error" in str(c).lower() or "residual" in str(c).lower()
+           or str(c).lower().startswith(("pred_", "prediction_")) for c in metadata):
+        raise ValueError("predictions/errors must not be available to budget assignment")
     m = metadata.sort_values("segment_uid").reset_index(drop=True)
     if m.empty or m.subject_uid.nunique() != 1 or query_count < 1:
         raise ValueError("one nonempty person and fixed queries required")
@@ -130,6 +131,10 @@ def prepare(args):
             keys = pd.concat(assigned[p], ignore_index=True)
             # Preserve parent row order, including exact 90% parity.
             part = bank.drop(columns="inner_role").merge(keys, on=KEYS, how="inner", sort=False, validate="one_to_one")
+            # The parent helper's redundant role tag must describe these new
+            # inner roles, not retain the old 90%-budget selection tags.
+            if "access_role" in part:
+                part["access_role"] = part.split + ":registration:" + part.inner_role
             if p == 90:
                 pd.testing.assert_frame_equal(part[bank.columns].reset_index(drop=True), bank.reset_index(drop=True))
             if set(part.subject_uid) != set(query.subject_uid) or set(part.segment_uid) & set(query.segment_uid):
