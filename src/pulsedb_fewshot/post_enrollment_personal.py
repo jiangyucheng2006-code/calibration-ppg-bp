@@ -157,7 +157,7 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
     """
     protocol_id, methods = plan["protocol_id"], plan["methods"]
     memory_kwargs = ({"query_chunk_size": plan["config"]["memory_query_chunk_size"]}
-                     if protocol_id == "full-cohort-enrollment-v1" else {})
+                     if protocol_id in ("full-cohort-enrollment-v1", "enrollment-budget-v1") else {})
     if {"sbp", "dbp", "target_sbp", "target_dbp"} & set(queries):
         raise ValueError("personal query inputs must not contain BP labels")
     if set(calibration.segment_uid) & set(queries.segment_uid):
@@ -195,9 +195,20 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
             # Even raw query features are deferred until registration is complete.
             train_mask = bank.inner_role.eq("train").to_numpy()
             val_mask = ~train_mask
-            anchor_inner = bank.loc[train_mask, ["sbp", "dbp"]].mean().to_numpy(np.float32)
-            selection = fit_adapter(model, bank_z[train_mask], bank.loc[train_mask, ["sbp", "dbp"]].to_numpy(np.float32),
-                anchor_inner, scaler, args, validation=(bank_z[val_mask], bank.loc[val_mask, ["sbp", "dbp"]].to_numpy(np.float32)))
+            if not train_mask.any() or not val_mask.any():
+                if (protocol_id != "enrollment-budget-v1" or not train_mask.all()
+                        or plan["config"].get("single_group_fallback") != "zero_adapter"):
+                    raise ValueError("personal epoch selection requires disjoint inner roles")
+                # A tiny enrollment budget cannot supply an independent inner
+                # validation group. Keep the person and the permitted BP anchor,
+                # but do not borrow query labels or a larger-budget epoch count.
+                selection = {"selected_epoch": 0, "epochs_completed": 0, "optimizer_steps": 0,
+                             "shared_unchanged": True, "history": [],
+                             "fallback": "insufficient_registration_groups_zero_adapter"}
+            else:
+                anchor_inner = bank.loc[train_mask, ["sbp", "dbp"]].mean().to_numpy(np.float32)
+                selection = fit_adapter(model, bank_z[train_mask], bank.loc[train_mask, ["sbp", "dbp"]].to_numpy(np.float32),
+                    anchor_inner, scaler, args, validation=(bank_z[val_mask], bank.loc[val_mask, ["sbp", "dbp"]].to_numpy(np.float32)))
             save_json(directory / "selection.json", selection)
             # Fresh fit, not continuation from the selection model; all permitted
             # labelled registration windows are now legitimately available.
@@ -293,6 +304,9 @@ def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
                 "memory_bank_sha256": sha256(directory / "memory_bank.npz"),
                 "registration_metadata_sha256": sha256(directory / "registration_metadata.parquet"),
                 "memory_q95": memory_state["q95"], "valid_memory_queries": memory_state["valid_queries"]}
+            if protocol_id == "enrollment-budget-v1":
+                profile_report["budget_percent"] = plan["budget_percent"]
+                profile_report["selection_fallback"] = selection.get("fallback")
             if protocol_id == EXPANDED_PROTOCOL:
                 profile_report["ablation_state_sha256"] = sha256(directory / "ablation_state.json")
                 profile_report["all_ablation_reload_equivalence"] = True

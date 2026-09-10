@@ -2,6 +2,23 @@
 
 Last updated: 2026-09-11.
 
+## 2026-09-11 — Eight personal-history budgets authorized and implemented
+
+The user authorizes the [20%-90% enrollment study](ENROLLMENT_BUDGET_PLAN_20260911.md)
+with identical queries, nested label-blind registration subsets, paired LoRA
+and LoRA+memory, and the unchanged full-cohort subject-disjoint population model.
+Implementation includes a tiny-history zero-adapter fallback, full coverage
+audit, all-arm freeze-before-scoring and participant-paired budget intervals.
+At this entry, code is written but execution gates have not yet passed; no new
+result or submitted training is claimed. Deployment receipts will supersede
+this preparation status below/above when verified.
+
+The former K=1/2/3/5 few-event research route is now archived/discontinued, not
+the current roadmap. Preserve its old results; do not automatically restart
+it. The active question is useful accumulated-history enrollment for people
+excluded from shared fitting. Random budget growth does not establish that
+real-world elapsed use time automatically improves each person's reliability.
+
 ## 2026-09-11 — Result publication package and protocol interpretation
 
 The user conditionally authorizes publishing the completed results if useful.
