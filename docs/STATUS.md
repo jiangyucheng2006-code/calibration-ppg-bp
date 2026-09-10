@@ -13,7 +13,9 @@ people. Registration/query is approximately 90/10, with content/overlap groups
 kept together and outcome-blind cross-outer linked-identity quarantine.
 
 The fresh shared model is **running as job 1745 on hpc-2's RTX 5080** at the
-latest check. Smoke1743 completed with exit0:0 in53seconds: all35 regression
+latest check. Epoch1 completed normally in179.83seconds with10,863 optimizer
+steps; its zero-adapter validation selection score is not either candidate's
+final personalized performance. Smoke1743 completed with exit0:0 in53seconds: all35 regression
 and end-to-end checks pass, plus CUDA forward/backward verification. Data
 preparation1744 completed with exit0:0 in5minutes47seconds. Its long lookup
 phase was investigated but completed normally; no job was cancelled or
