@@ -40,6 +40,16 @@ class FullContractTests(unittest.TestCase):
         f, _ = build_assignment(meta, old, full_cohort=True)
         self.assertEqual(set(f.subject_uid), set(old.subject_uid))
 
+    def test_ineligible_target_is_explicitly_accounted_for(self):
+        meta, old, _, _ = fixture()
+        person = old.loc[old.split.eq("meta_validation"), "subject_uid"].iloc[0]
+        indices = meta.loc[meta.subject_uid.eq(person)].index
+        subset = meta.drop(index=indices[2:])
+        f, audit = build_assignment(subset, old, full_cohort=True)
+        self.assertNotIn(person, set(f.subject_uid))
+        self.assertEqual(audit["insufficient_history_exclusions"],
+                         [{"subject_uid": person, "reason": "insufficient independent groups for registration and query"}])
+
     def test_duplicate_collapse_is_label_blind_and_deterministic(self):
         meta, old, _, _ = fixture()
         meta.loc[1, "ppg_content_sha256"] = meta.loc[0, "ppg_content_sha256"]
@@ -86,9 +96,9 @@ class FullPipelineTests(unittest.TestCase):
             raw_root = root / "raw"
             tables = []
             for group_id, (subject, g) in enumerate(meta.groupby("subject_uid", sort=True)):
-                # Exercise a short eligible target history, a target with too few
-                # rows, a one-row population person, and several non-400 budgets.
-                n = {0: 1, 1: 2, 2: 3}.get(group_id, 55 + group_id)
+                # At least two target people/source are needed for source CIs.
+                # The separate contract test covers an ineligible target person.
+                n = {0: 1, 1: 3, 2: 3}.get(group_id, 55 + group_id)
                 g = g.iloc[:n].copy()
                 directory = "PulseDB_MIMIC" if g.source.iloc[0] == "MIMIC" else "PulseDB_Vital"
                 file = raw_root / directory / f"person{group_id}.mat"
@@ -103,6 +113,9 @@ class FullPipelineTests(unittest.TestCase):
                 g = g.assign(subject_id=subject.split(":")[1], n_samples=1250, raw_file=str(file),
                              raw_file_sha256=sha256(file), ppg_field="PPG_F", ppg_storage_mode="references",
                              ppg_reference_index=np.arange(len(g)), segment_schema_valid=True, segment_exclusion_reasons="")
+                if group_id == 3:
+                    g.loc[0, "segment_schema_valid"] = False
+                    g.loc[0, "segment_exclusion_reasons"] = "synthetic_invalid_schema"
                 tables.append(pa.Table.from_pandas(g, preserve_index=False))
             with pq.ParquetWriter(root / "index.parquet", tables[0].schema) as writer:
                 for table in tables:
@@ -122,7 +135,8 @@ class FullPipelineTests(unittest.TestCase):
             self.assertTrue(plan["all_original_subjects_accounted_for"])
             self.assertEqual(plan["original_subjects"], 12)
             self.assertEqual(plan["protocol_id"], FULL_PROTOCOL)
-            self.assertEqual(plan["audit"]["excluded_people"], 1)
+            self.assertEqual(plan["audit"]["excluded_people"], 0)
+            self.assertEqual(plan["audit"]["excluded_windows"], 1)
             _, query = partition(path, "test_inputs", access="personal_test", synthetic=True)
             self.assertFalse(accessed & set(query.segment_uid))
             self.assertTrue(load_plan(path, synthetic=True)["all_original_subjects_accounted_for"])
