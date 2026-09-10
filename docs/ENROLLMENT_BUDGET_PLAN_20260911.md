@@ -32,6 +32,12 @@ gradient updates; validation did select its epoch. Test-person parameters start
 fresh. This is subject-disjoint population fitting followed by supervised
 personal enrollment, not calibration-free inference.
 
+The parent selected its shared checkpoint using validation participants' 90%
+registration anchors. This study conditions on that already selected shared
+model; it does not repeat population-level checkpoint selection at every
+budget. The final-person curves are the primary comparison. Validation curves
+are development diagnostics, not independently untouched low-budget evaluation.
+
 Reuse exactly 76,909 validation queries and 78,237 final queries, with the same
 people, waveform identities and reference targets at every budget. The final
 query-set SHA256 is

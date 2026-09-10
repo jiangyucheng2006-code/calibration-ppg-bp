@@ -1,5 +1,19 @@
 # Calibration PPG BP
 
+## Current experiment — eight personal enrollment budgets, 11 September 2026
+
+The [20%-90% fixed-query study](docs/ENROLLMENT_BUDGET_PLAN_20260911.md) is
+implemented and queued. It reuses the verified subject-disjoint shared model
+and creates fresh personal profiles at each of eight nested history budgets.
+Each budget produces paired LoRA and LoRA+reference-memory predictions for the
+same validation/test people and query windows. There are no new results yet.
+
+[Execution record and job table](docs/ENROLLMENT_BUDGET_RUN_20260911.md):
+77 tests and the GPU check passed; formal jobs 1784–1818 were accepted on hpc-2.
+The old K=1/2/3/5 few-event route is archived/discontinued as an active goal.
+The current direction is enrollment using accumulated labeled personal history;
+random-history budget curves are not a demonstration of longitudinal reliability.
+
 ## Latest results — full-cohort new-user enrollment, 11 September 2026
 
 The [full-cohort study](docs/PLAN_FULL_COHORT_ENROLLMENT_V1.md) is complete.
@@ -29,9 +43,11 @@ All jobs 1764–1772 completed successfully; final scoring ended at 00:49 China
 time on 11 September. [Verified status](docs/STATUS.md) preserves the full
 execution history. This is exploratory high-history enrollment, not few-cuff,
 chronological wrist validation, exact official CalBased/CalFree or clinical
-certification. Lower-budget and sequential-update studies remain proposed.
+certification. The subsequent lower-budget study is described above;
+chronological sequential-update validation remains proposed.
 The publication update contains code, aggregate results and audit receipts,
-not raw signals or personal profiles. No new training was submitted.
+not raw signals or personal profiles. That result-publication step did not
+itself submit training; the newly authorized batch is recorded separately above.
 
 For the new-user research question, retain subject-disjoint population
 training followed by explicitly budgeted personal enrollment as the preferred

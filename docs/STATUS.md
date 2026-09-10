@@ -2,6 +2,29 @@
 
 Last updated: 2026-09-11.
 
+## 2026-09-11 — Budget study submitted after successful verification
+
+Latest live check at 02:15:12 China time: preparation 1784 completed (82 s,
+exit 0:0), and 20% validation jobs 1785/1786 were RUNNING on RTX 5080/5070 Ti,
+with 53/382 and 53/381 profiles completed and reload-verified. No restart/error
+was reported. All budget manifests and the exact parent final query IDs pass
+local checks; plan bytes match work/NAS/local. See the execution record for
+actual enrollment counts and tiny-history fallback coverage. No accuracy yet.
+
+This supersedes the preparation-only entry below. Smoke job 1783 completed in
+99 seconds with 77 tests and the RTX 5080 forward/backward check passing. The
+immutable runtime is `2b5dd22`; the [execution record](ENROLLMENT_BUDGET_RUN_20260911.md)
+contains hashes and the full job table. Initial failed smoke 1782 was corrected
+before any formal fitting. Jobs 1784–1818 were accepted on hpc-2: eight budgets,
+two cohorts, two person shards, and paired LoRA/memory outputs. The initial live
+check showed preparation job 1784 RUNNING and downstream fitting/scoring waiting
+for dependencies.
+
+No new numerical result, population refit, raw-data download, public push or
+global-memory update is claimed. The model/targets from the completed parent
+study remain unchanged. Results will retain identical query keys and all
+eligible people; the original K=1/2/3/5 route is archived/discontinued.
+
 ## 2026-09-11 — Eight personal-history budgets authorized and implemented
 
 Initial synthetic smoke job 1782 ended with a failed input-rejection assertion:
