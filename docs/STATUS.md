@@ -50,6 +50,10 @@ periodically saved worker progress; this is not a completed validity audit.
 Final eligible counts are not available until audit1765completes.
 No full-cohort results or GitHub push are implied.
 
+Last live check at 2026-09-10T07:00:25Z: job1764 remains RUNNING (2m52s);
+periodic worker records show260files and291,267windows scanned. No shard has
+finished yet, and audit1765/population1766 remain dependency-pending.
+
 ## Original-partition enrollment — training started, 10 September 2026
 
 [The focused two-method plan](PLAN_LEGACY_SPLIT_ENROLLMENT_V1.md) compares only
