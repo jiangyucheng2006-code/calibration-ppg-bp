@@ -2,6 +2,22 @@
 
 Last updated: 2026-09-10.
 
+## Original-partition enrollment — implementation ready for GPU smoke
+
+[The focused two-method plan](PLAN_LEGACY_SPLIT_ENROLLMENT_V1.md) compares only
+new-person LoRA with the same LoRA plus personal reference memory. It applies
+the original saved subject-disjoint assignments to the current audited
+2,506-person window pool; it is not a new random 200-person sample or a return
+to K=1/2/3/5. Pre-audit counts are 1,739 train, 384 validation and 383 test
+people. Registration/query is approximately 90/10, with content/overlap groups
+kept together and outcome-blind cross-outer linked-identity quarantine.
+
+The implementation starts a fresh shared model, keeps final query targets out
+of fitting and uses disjoint validation people for epoch selection. The local
+contract checks pass; end-to-end tensor, serialization and GPU verification
+must succeed before formal submission. No submitted jobs are implied by this
+implementation entry. Existing runs and the original partition remain intact.
+
 ## 200-person enrollment — complete; verified 10 September 2026
 
 **[Formal results and ablations](../results/post_enrollment_200_v1_20260910/README.md)**

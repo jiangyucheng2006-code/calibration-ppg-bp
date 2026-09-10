@@ -144,9 +144,24 @@ def memory_predict(bank_z, query_z, bank_bp, query_base, bank_frame, query_frame
 def run(args):
     check_device(args.device, args.synthetic)
     plan, base_report, checkpoint = load_population(args.population_run, args.plan, device=args.device, synthetic=args.synthetic)
-    protocol_id, methods = plan["protocol_id"], plan["methods"]
     _, calibration = partition(args.plan, "enrollment_train", synthetic=args.synthetic)
     _, queries = partition(args.plan, "enrollment_test_inputs", synthetic=args.synthetic)
+    return run_profiles(args, plan, base_report, checkpoint, calibration, queries)
+
+
+def run_profiles(args, plan, base_report, checkpoint, calibration, queries):
+    """Shared personal fitter; each caller must validate its own named protocol.
+
+    This helper does not select participants or open a label store. The original
+    30/200-person entry point retains its unchanged, strict partition loader.
+    """
+    protocol_id, methods = plan["protocol_id"], plan["methods"]
+    if {"sbp", "dbp", "target_sbp", "target_dbp"} & set(queries):
+        raise ValueError("personal query inputs must not contain BP labels")
+    if set(calibration.segment_uid) & set(queries.segment_uid):
+        raise ValueError("personal registration/query identities overlap")
+    if set(calibration.subject_uid) != set(plan["selected_subjects"]) or set(queries.subject_uid) != set(plan["selected_subjects"]):
+        raise ValueError("personal fitter received incorrect subject membership")
     if args.shard not in (0, 1):
         raise ValueError("exactly two balanced source shards are defined")
     # Sorted alternating people, not source-based separation: both jobs contribute
@@ -260,6 +275,8 @@ def run(args):
                     "methods": methods, "shared_memory": shared_memory_state,
                     "adapted_memory": memory_state, "all_ablation_reload_equivalence": True,
                     "test_targets_accessed": False})
+            if tuple(methods) == ("new_person_lora", "new_person_lora_memory"):
+                values = {name: values[name] for name in methods}
             if set(values) != set(methods):
                 raise ValueError("prediction settings do not match the frozen protocol")
             for name, pred in values.items():
