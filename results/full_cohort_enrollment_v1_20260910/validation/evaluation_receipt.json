@@ -1,0 +1,32 @@
+{
+  "protocol_id": "full-cohort-enrollment-v1",
+  "cohort": "validation",
+  "status": "complete",
+  "plan_sha256": "593bef54dfa758746c8e8645ac988881210150f29fcec2c6ff8a8b18ad54516a",
+  "checkpoint_sha256": "5340902ef5bf81c1f8a704380d3376d9b7e1b1df3d509175b0b89c7d494397ed",
+  "methods": [
+    "new_person_lora",
+    "new_person_lora_memory"
+  ],
+  "prediction_files": {
+    "new_person_lora_frozen_predictions.parquet": "4d745153eaad11e725e3f6dc273e762cbf2fd6cee6fc531ac960b3916714d310",
+    "new_person_lora_memory_frozen_predictions.parquet": "377ab8eede17503e6c8bd8360d8743bb0b4a0ccce38b85df51708de4cd6a34af"
+  },
+  "personal_receipts": [
+    {
+      "run_sha256": "a0cfbc1859fdc11c3e72ef85e7d30ee72a479986bd3070a9266525933e3a03b5",
+      "subjects": 382
+    },
+    {
+      "run_sha256": "e193cdb696bd6a4a5c45b3cb9fe77ee6ba472cc964bebf7bf7164da4cea9b736",
+      "subjects": 381
+    }
+  ],
+  "query_ids_sha256": "0a180c6446b5600023f8d46b2bbf7ce3e6a276f62571ae0145ac0edcde0a09c3",
+  "all_predictions_frozen_before_targets": true,
+  "test_based_selection": false,
+  "subjects": 763,
+  "windows": 76909,
+  "scoring_targets_accessed": true,
+  "training_feedback": false
+}

@@ -1,20 +1,46 @@
 # Calibration PPG BP
 
-## Current experiment — full-cohort personal enrollment
+## Latest results — full-cohort new-user enrollment, 11 September 2026
 
-[The full-cohort enrollment plan](docs/PLAN_FULL_COHORT_ENROLLMENT_V1.md) scans
-all5,361 original people, preserving disjoint training/validation/test identities.
-Only personal LoRA and the same LoRA plus reference memory are compared.
-The incorrectly narrowed2,504-person subset batch was cancelled with authorization.
-All 72 server checks and GPU smoke passed. Source-file availability is confirmed
-for all 5,361 people; complete-data preparation is running as job1764, with
-audit and training queued behind successful prerequisites. Missing work copies
-are staged from verified NAS masters rather than excluding their participants.
-Full-cohort preparation/training status is recorded in
-[verified progress and job IDs](docs/STATUS.md). Assignment counts precede
-necessary validity and registration/query eligibility checks. No new result is available yet.
+The [full-cohort study](docs/PLAN_FULL_COHORT_ENROLLMENT_V1.md) is complete.
+All 5,361 original people were considered; 5,275 remained after documented
+validity/provenance/history checks: 3,750 population-training, 763 validation
+and 762 final-evaluation participants. Outer subject roles are disjoint.
+Each new person supplied approximately 90% of their eligible windows for
+personal enrollment; query targets never entered profile fitting.
 
-## Latest results — 200-person new-user enrollment, 10 September 2026
+**[Completed results and interpretation](results/full_cohort_enrollment_v1_20260910/README.md)**
+include all three source views, the requested full tables, uncertainty and
+verification evidence. Primary values below are participant-macro SBP/DBP
+MAE in mmHg, not pooled-window diagnostics.
+
+| Method | Overall | MIMIC | VitalDB |
+|---|---:|---:|---:|
+| Personal LoRA | 3.8556 / 2.1661 | 3.7949 / 2.0948 | 3.9053 / 2.2244 |
+| Personal LoRA + reference memory | **3.2081 / 1.8336** | **3.2322 / 1.7896** | **3.1884 / 1.8695** |
+
+Both methods use the same 78,237 final queries. Mean MAE decreases from 3.0108
+to 2.5209 mmHg: a 0.4900 mmHg reduction (16.27%), with a saved 95% paired
+participant bootstrap interval of [0.4513, 0.5320], conditional on the fitted
+model. By individual mean MAE, 626 people improve, 97 tie and 39 worsen.
+All source-level means improve.
+
+All jobs 1764–1772 completed successfully; final scoring ended at 00:49 China
+time on 11 September. [Verified status](docs/STATUS.md) preserves the full
+execution history. This is exploratory high-history enrollment, not few-cuff,
+chronological wrist validation, exact official CalBased/CalFree or clinical
+certification. Lower-budget and sequential-update studies remain proposed.
+The publication update contains code, aggregate results and audit receipts,
+not raw signals or personal profiles. No new training was submitted.
+
+For the new-user research question, retain subject-disjoint population
+training followed by explicitly budgeted personal enrollment as the preferred
+evaluation framework. This does not reinstate the old K=1/2/3/5 budget or
+establish chronological prediction. Historical seen-user experiments remain
+separate benchmarks; see the [protocol interpretation](results/full_cohort_enrollment_v1_20260910/README.md#why-retain-the-subject-disjoint-population-split)
+and [experiment index](docs/EXPERIMENT_RESULTS_BY_PROTOCOL_20260910.md).
+
+## Previous results — 200-person new-user enrollment, 10 September 2026
 
 The expanded enrollment study and its matched ablations are complete.
 **[200 人建档结果与消融总结（中文）](results/post_enrollment_200_v1_20260910/README.md)**

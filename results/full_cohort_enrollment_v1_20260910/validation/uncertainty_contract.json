@@ -1,0 +1,14 @@
+{
+  "unit": "participant",
+  "paired": true,
+  "bootstrap_replicates": 2000,
+  "seed": 20260909,
+  "confidence": 0.95,
+  "source_stratified": true,
+  "primary": "new_person_lora_memory_vs_new_person_lora",
+  "scope": "conditional_on_frozen_model; exploratory_pointwise_intervals_not_multiple_testing_claims",
+  "interpretation": "pointwise exploratory intervals conditional on this fitted model; not training-seed uncertainty",
+  "positive_gain": "reference participant MAE minus candidate participant MAE",
+  "all_participants_retained": true,
+  "not_used_for_training": true
+}

@@ -1,0 +1,69 @@
+{
+  "protocol_id": "full-cohort-enrollment-v1",
+  "cohort": "validation",
+  "status": "frozen",
+  "plan_sha256": "593bef54dfa758746c8e8645ac988881210150f29fcec2c6ff8a8b18ad54516a",
+  "checkpoint_sha256": "5340902ef5bf81c1f8a704380d3376d9b7e1b1df3d509175b0b89c7d494397ed",
+  "methods": [
+    "new_person_lora",
+    "new_person_lora_memory"
+  ],
+  "prediction_files": {
+    "new_person_lora_frozen_predictions.parquet": "4d745153eaad11e725e3f6dc273e762cbf2fd6cee6fc531ac960b3916714d310",
+    "new_person_lora_memory_frozen_predictions.parquet": "377ab8eede17503e6c8bd8360d8743bb0b4a0ccce38b85df51708de4cd6a34af"
+  },
+  "personal_receipts": [
+    {
+      "run_sha256": "a0cfbc1859fdc11c3e72ef85e7d30ee72a479986bd3070a9266525933e3a03b5",
+      "subjects": 382
+    },
+    {
+      "run_sha256": "e193cdb696bd6a4a5c45b3cb9fe77ee6ba472cc964bebf7bf7164da4cea9b736",
+      "subjects": 381
+    }
+  ],
+  "query_ids_sha256": "0a180c6446b5600023f8d46b2bbf7ce3e6a276f62571ae0145ac0edcde0a09c3",
+  "all_predictions_frozen_before_targets": true,
+  "test_based_selection": false,
+  "subjects": 763,
+  "windows": 76909,
+  "scoring_targets_accessed": true,
+  "training_feedback": false,
+  "config": {
+    "methods": [
+      "new_person_lora",
+      "new_person_lora_memory"
+    ],
+    "seed": 20260910,
+    "within_person_split": "random_content_grouped",
+    "registration_fraction": 0.9,
+    "personal_inner_fit_fraction": 0.8888888888888888,
+    "personal_seed_base": 20260909,
+    "minimum_query_windows": 1,
+    "minimum_inner_validation_windows": 1,
+    "backbone": "resnet_small",
+    "feature_dim": 256,
+    "adapter_rank": 4,
+    "personal_parameters": 2048,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "huber_delta": 0.5,
+    "gradient_clip": 5.0,
+    "patience": 8,
+    "batch_size": 64,
+    "memory_k": 5,
+    "memory_temperature": 0.1,
+    "memory_block_size": 40,
+    "old_checkpoint_permitted": false,
+    "test_feedback_permitted": false,
+    "population_selection": "meta_validation_query_macro_zero_adapter_registration_anchor",
+    "personal_selection": "own_registration_inner_validation_then_fresh_full_registration_refit",
+    "cross_outer_duplicate_policy": "quarantine_all_members_of_cross_role_identity_components",
+    "duplicate_allocation": "same_content_and_overlapping_intervals_stay_in_one_personal_role",
+    "cohort_scope": "all_original_subjects_all_valid_windows",
+    "minimum_inner_fit_windows": 1,
+    "memory_query_chunk_size": 128,
+    "exact_within_outer_duplicates": "retain_one_canonical_window"
+  },
+  "selection": "both prespecified methods retained regardless of validation ordering"
+}

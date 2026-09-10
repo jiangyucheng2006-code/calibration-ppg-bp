@@ -1,6 +1,154 @@
 # Verified project status
 
-Last updated: 2026-09-10.
+Last updated: 2026-09-11.
+
+## 2026-09-11 — Result publication package and protocol interpretation
+
+The user conditionally authorizes publishing the completed results if useful.
+Publish the full-cohort report on the existing `method/personal-feature-mechanisms`
+research branch, together with its previously committed implementation,
+aggregate validation/final tables and verification receipts. Include the
+related protocol index and planning notes so their links remain readable.
+Raw PPG, participant-level records, personal profiles and checkpoints are not
+part of this publication. Historical entries below retain what was done at
+their recorded times; a prior entry saying "no push" describes that earlier
+review, not the scope of this later publication update.
+
+The recommended primary framework for the new-user paper question is
+subject-disjoint population training, followed by separate personal enrollment
+and scoring of other windows from each new person. The completed full-cohort
+batch already implements this outer split. Its approximately 90% labelled
+personal history and random within-person queries differ from the earlier
+K=1/2/3/5 chronological event study. Keep both distinctions explicit.
+
+This recommendation follows the intended deployment question, not a claim
+that choosing a split after seeing its score makes it confirmatory. Retain
+seen-user and official-CalBased experiments as separate benchmarks. Preserve
+all frozen assignments, scores and test-access boundaries; lower-budget,
+ablation and chronological-update work still requires its own predefined
+development procedure. No new training or global-memory update in this turn.
+
+The [completed result page](../results/full_cohort_enrollment_v1_20260910/README.md)
+contains the numerical comparison and full Overall/MIMIC/VitalDB tables.
+
+## 2026-09-11 01:10 China time — Full-cohort final evaluation complete
+
+Live inspection at 2026-09-10T17:10:49Z confirmed jobs1764–1772 all COMPLETED
+with exit0:0 and an empty user queue. Final scorer1772 finished at16:49:02UTC
+/00:49:02China time. The two final personal shards completed381/381each,
+taking1h23m22s and1h27m35s; final scoring took22seconds. This supersedes
+the earlier test-running snapshot below.
+
+The [completed full-cohort report](../results/full_cohort_enrollment_v1_20260910/README.md)
+contains primary, Overall/MIMIC/VitalDB full diagnostic tables and audit limits.
+On762people/78,237queries, participant-macro LoRA SBP/DBP/mean MAE is
+3.855606/2.166068/3.010837; LoRA+memory is3.208147/1.833556/2.520852.
+Paired mean gain0.489986mmHg(16.27%); saved95% participant/source-stratified
+bootstrap interval[0.451261,0.532025], conditional on this model.
+MIMIC:3.794853/2.094751 versus3.232228/1.789587;
+VitalDB:3.905340/2.224449 versus3.188434/1.869549.
+626people improve,97tie and39worsen by participant mean MAE.
+
+The requested pooled diagnostic table has different weighting: Overall memory
+SBP/DBP MAE2.723530/1.509100, signed-error STD4.511675/3.162588.
+All12method/source/BP rows meet the saved numerical AAMI/BHS-A screens,
+not complete clinical device-validation requirements. Primary results are
+participant-macro, not these lower pooled MAEs.
+
+Both prediction sets share the same query keys and targets. Independent
+arithmetic matches saved primary/diagnostic metrics within1.42e-14; source
+counts sum to Overall. All personal saved/reloaded predictions and shared
+frozen-state receipts pass. Seven small report/receipt files now exist locally
+under results/full_cohort_enrollment_v1_20260910/test, byte-identical to work
+and NAS. PrimaryCSV SHA256:1d38dbab63c7268b24988dca1dfff027d66764f903a4d9d8ed6f8a517a242dc1.
+
+This remains a custom, exploratory, subject-disjoint population/new-user
+enrollment study with approximately90% labelled personal history and random
+within-person queries. No new training, final-score-based tuning, protocol
+change, raw-data download, GitHub push or global-memory update. The user asks
+to see these results before further training; lower-budget and sequential
+update experiments remain deferred.
+
+## 2026-09-11 — Lower-budget and cumulative-history evaluation clarified
+
+The [enrollment review](ENROLLMENT_BUDGET_AND_NOVELTY_REVIEW_20260911.md#follow-up-fixed-query-comparison-versus-cumulative-personal-updates)
+now separates identical-query budget comparisons from chronological
+predict-before-update evaluation. The user proposes adding newly measured
+cuff-BP/PPG pairs to a growing personal archive. Current code builds one static
+profile; sequential updates remain a proposed extension. More history is not
+assumed to improve every person or every prediction. Preserve sparse reference
+availability, version-consistent adapted memory, and development-only selection.
+No execution, live status refresh, final scoring, frozen-protocol change or
+GitHub push occurred in this discussion.
+
+## 2026-09-11 — Enrollment-budget and nearest-prior-work clarification
+
+The [budget and novelty review](ENROLLMENT_BUDGET_AND_NOVELTY_REVIEW_20260911.md)
+verifies that 90% registration is a choice in the custom full-cohort protocol,
+not a universal PulseDB or LoRA requirement. Suggested 50/60/70/90 comparisons
+must use common queries and budget-specific personal state; they are not yet
+implemented or submitted. Targeted literature checking found direct LoRA and
+similar-reference precedents, but no confirmed fully identical pipeline in
+the inspected sources. Inaccessible full texts prevent a definitive absence
+claim. Existing training, test roles and results remain unchanged; no live
+status refresh or GitHub push occurred in this discussion.
+
+## 2026-09-11 — Planned matched comparisons after the existing batch
+
+The user proposes a subject-disjoint enrollment paper track if the completed
+evidence supports it, followed by published-method comparisons and personal
+module ablations. The [next-step planning note](PLAN_ENROLLMENT_COMPARISONS_20260911.md)
+separates those two experiment types and records label-budget, test-selection
+and longitudinal-claim limits. The minimum personal-stage comparison is shared
+model plus anchor, LoRA, unadapted-feature memory, and LoRA plus memory.
+
+No new training, monitoring, final-test scoring or GitHub push was performed
+for this planning discussion. The live job snapshot below remains dated
+2026-09-10; this planning entry is not a refreshed training-status check.
+
+## 23:30 China time — Full-cohort validation complete; test enrollment running
+
+This supersedes the preparation-only snapshot below. At 2026-09-10T15:30:26Z,
+jobs 1764–1769 were COMPLETED with exit 0:0. Jobs 1770/1771 were RUNNING on
+hpc-2, with 32/381 and 36/381 personal profiles completed. Final scorer 1772
+was dependency-pending; no full-cohort final test result is available yet.
+
+The full audit scanned all 5,361 original people / 5,245,454 windows. Actual
+included counts are 3,750 train, 763 validation and 762 test; 83 people lacked
+enough separable history and three were quarantined for cross-outer content/
+interval provenance. Total excluded windows: 22,502. Original subject roles
+were not reassigned, and no BP-error-based screening was introduced.
+
+The population model trained on 3,672,008 windows per epoch for 13 epochs
+(best epoch 5, patience 8), taking 6h05m16s. Data preparation took 52m40s;
+parallel personal validation took about 1h25m. This is one shared fit plus
+per-user enrollment, not two small single-network jobs.
+
+| Validation scope | Participants | LoRA SBP / DBP MAE | LoRA + memory SBP / DBP MAE | Mean-MAE improvement |
+| --- | ---: | ---: | ---: | ---: |
+| Overall | 763 | 4.0121 / 2.2543 | 3.3595 / 1.8714 | 0.5177 |
+| MIMIC | 344 | 4.1050 / 2.2938 | 3.5320 / 1.9479 | 0.4595 |
+| VitalDB | 419 | 3.9358 / 2.2218 | 3.2179 / 1.8086 | 0.5656 |
+
+These are participant-macro validation values, not final test values.
+Registration uses approximately 90% of each person's eligible windows.
+The saved window-pooled diagnostic MAEs are different because query counts
+vary across people. The primary gain interval is [0.4622, 0.5706] mmHg,
+conditional on this fitted model rather than repeated training seeds.
+
+- [Current validation: full diagnostic tables](../results/full_cohort_enrollment_v1_20260910/validation/RESULT_TABLES.md)
+- [Current validation: participant-macro CSV](../results/full_cohort_enrollment_v1_20260910/validation/participant_macro.csv)
+- [Historical results organized by protocol](EXPERIMENT_RESULTS_BY_PROTOCOL_20260910.md)
+
+The historical index distinguishes seen-user direct regressors, seen-user
+personal modules, subject-disjoint calibration-free Population models,
+K-shot QGH models, and substantial new-user enrollment. Rounds 11A–13 already
+contain 23 Population fits across 18 backbone configurations; they are not
+all few-shot models, but they used the earlier event-based cohort.
+
+No new job, protocol change, cancellation or GitHub push was performed for
+this status/history request. Seven small validation artifacts were copied
+locally and checked against matching server work/NAS files.
 
 ## Full-cohort correction — submitted; complete-data preparation running
 

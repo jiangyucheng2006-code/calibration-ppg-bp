@@ -1,0 +1,100 @@
+{
+  "reviewed_utc": "2026-09-10T17:10:49Z",
+  "reviewed_china": "2026-09-11 01:10:49 UTC+08:00",
+  "source_run": "full-cohort-enrollment-v1_20260910-150200",
+  "scope": "Read-only status, saved-result verification and local project continuity update. No model fitting or public push.",
+  "metric_recalculation": "pass",
+  "method_query_and_target_alignment": "pass",
+  "finite_predictions": "pass",
+  "duplicate_query_keys": 0,
+  "maximum_absolute_metric_difference": 1.4210854715202004e-14,
+  "all_source_counts_sum_to_overall": true,
+  "scope_counts": [
+    {
+      "method": "new_person_lora",
+      "scope": "Overall",
+      "participants": 762,
+      "windows": 78237
+    },
+    {
+      "method": "new_person_lora",
+      "scope": "MIMIC",
+      "participants": 343,
+      "windows": 54664
+    },
+    {
+      "method": "new_person_lora",
+      "scope": "VitalDB",
+      "participants": 419,
+      "windows": 23573
+    },
+    {
+      "method": "new_person_lora_memory",
+      "scope": "Overall",
+      "participants": 762,
+      "windows": 78237
+    },
+    {
+      "method": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "participants": 343,
+      "windows": 54664
+    },
+    {
+      "method": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "participants": 419,
+      "windows": 23573
+    }
+  ],
+  "mean_gain": 0.48998550820606357,
+  "relative_mean_gain_percent": 16.274062798741785,
+  "improved": 626,
+  "unchanged": 97,
+  "worsened": 39,
+  "overall_improved_percent": 82.1522309711286,
+  "audit_summary": {
+    "original_subjects": 5361,
+    "original_windows": 5245454,
+    "excluded_people": 86,
+    "excluded_windows": 22502,
+    "history_excluded_people": 83,
+    "content_quarantined_people": 3,
+    "cross_outer_subject_overlap": 0,
+    "cross_role_content_overlap": 0,
+    "interval_audit": {
+      "time_boundary_policy": "recorded-sample-span-v1",
+      "time_tolerance_s": 1e-7,
+      "cross_role_overlap_pairs": 0,
+      "cross_role_touching_pairs": 48
+    },
+    "eligible_source_subjects": {
+      "meta_test": {
+        "MIMIC": 343,
+        "VitalDB": 419
+      },
+      "meta_train": {
+        "MIMIC": 1694,
+        "VitalDB": 2056
+      },
+      "meta_validation": {
+        "MIMIC": 344,
+        "VitalDB": 419
+      }
+    }
+  },
+  "recomputed": "Participant-macro MAE, pooled diagnostic numeric columns, numerical-screen labels, paired gain estimates and counts. Confidence-interval endpoints are quoted from the saved source-stratified bootstrap report; no neural refit was performed.",
+  "checksums_work_nas_local_identical": true,
+  "copied_files": {
+    "participant_macro.csv": "1d38dbab63c7268b24988dca1dfff027d66764f903a4d9d8ed6f8a517a242dc1",
+    "diagnostic_tables.csv": "8b127607e67c794588077ed3c53bbc4ad7e627b9b908abb4b8b47b6cca25e1a1",
+    "paired_participant_intervals.csv": "018a413796456f8c406a22f0cb68564bbba23f5e95bd3916020fc126dcf1d3c8",
+    "RESULT_TABLES.md": "3ec88cbbbaf9df221c01bf92167a14564935c7aa04b2eeae542d1e6dfc7736cc",
+    "evaluation_receipt.json": "32815b1cc28a1e395e4d5fcc59059b89ceda51f777b1903938cd01009152a975",
+    "uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "frozen_predictions.json": "5da48614e3355443b6262eaf8635468be327e88530a1bffd0a4b012760a6b821"
+  },
+  "no_raw_data_or_personal_profiles_downloaded": true,
+  "new_training_submitted": false,
+  "github_push_performed": false
+}
