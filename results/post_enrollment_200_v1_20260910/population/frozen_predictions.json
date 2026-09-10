@@ -1,0 +1,11 @@
+{
+  "protocol_id": "post-enrollment-200-v1",
+  "status": "frozen_predictions",
+  "plan_sha256": "fcbaca2d53d666538c64f5019866034464c8c7abab503fb03eae5ee51c95b1ad",
+  "checkpoint_sha256": "c095bb2f7bc48932deab6469d8ae0aad71385fe64133ef75a70104f55201c3a1",
+  "predictions_sha256": "0553787f49f01ac8a1ac937de7174024a7277532dfd893cd2683d9dc6120c075",
+  "query_ids_sha256": "3508f2cd668f82800d95fef03daebdeac457d8732e64302f8c56c39c843b726e",
+  "test_targets_accessed": false,
+  "training_feedback_permitted": false,
+  "full_index_sha256": "4bd0d281b1fb3b0f715b23e41315405c6b13ad696452469f57c2c771d08e569d"
+}

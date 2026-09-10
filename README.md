@@ -1,6 +1,50 @@
 # Calibration PPG BP
 
-## Latest results and method explanation — 9 September 2026
+## Latest results — 200-person new-user enrollment, 10 September 2026
+
+The expanded enrollment study and its matched ablations are complete.
+**[200 人建档结果与消融总结（中文）](results/post_enrollment_200_v1_20260910/README.md)**
+contains all nine settings, three source views, requested metric tables,
+paired uncertainty, failure history and verification evidence.
+
+The 200 people (100 MIMIC / 100 VitalDB) were excluded from fresh population
+fitting. Each subsequently provided 360 labelled registration windows for a
+new personal profile, followed by 40 disjoint test windows. All 8,000 queries
+are retained. Values below are participant-macro SBP / DBP MAE in mmHg.
+
+| Method | Overall | MIMIC | VitalDB |
+|---|---:|---:|---:|
+| Personal LoRA | 3.9049 / 2.1858 | 4.2868 / 2.3628 | 3.5230 / 2.0088 |
+| Shared-feature memory only; no personal LoRA | 3.4846 / 1.9178 | 3.8867 / 2.1361 | 3.0825 / 1.6996 |
+| LoRA-feature memory only; no prediction-head fusion | 3.3696 / 1.8519 | 3.7708 / 2.0602 | 2.9685 / 1.6436 |
+| **Personal LoRA + reference memory** | **3.3312 / 1.8442** | **3.7162 / 2.0353** | **2.9463 / 1.6531** |
+
+The complete candidate reduces Overall mean MAE from **3.0453 to 2.5877**,
+a **15.03%** paired improvement over LoRA. The gain is 0.4576 mmHg,
+95% participant-paired source-stratified bootstrap CI [0.3930, 0.5232];
+186/200 people improve and 14 worsen. Both source-stratified means improve.
+The complete candidate has the lowest mean MAE in each scope among the nine
+settings, **not the best value for every BP/STD metric**.
+
+Memory-only controls are strong: the complete candidate improves mean MAE by
+only 0.1135 over shared-feature retrieval and 0.0230 over adapted-feature
+retrieval. Weighting/fusion add modest gains, so the results do not establish
+that every component is indispensable. Full LoRA and memory results meet the
+saved numerical AAMI/BHS-A screens, not clinical-device certification.
+
+This is a custom whole-person-excluded derivative of official membership,
+not the unchanged official benchmark, K-shot cuff calibration or a future-date
+wrist study. One content-linked outside identity was quarantined without
+reselecting the 200 people; the remaining population is 2,305. Three of the 200
+also occurred in the earlier 30-person sample. This is exploratory single-seed
+evidence, not a pristine independent confirmation.
+
+[All nine methods and all requested columns](results/post_enrollment_200_v1_20260910/enrollment/RESULT_TABLES.md)
+· [Paired intervals](results/post_enrollment_200_v1_20260910/enrollment/paired_participant_intervals.csv)
+· [Verified project status](docs/STATUS.md).
+No new training was submitted during this result review.
+
+## Previous results and method explanation — 9 September 2026
 
 [中文模型说明与手表采集计划](docs/PERSONAL_LORA_MEMORY_METHOD_ZH.md) explains
 the implemented ResNet backbone, personal low-rank feature adaptation, reference

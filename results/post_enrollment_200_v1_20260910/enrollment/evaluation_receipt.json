@@ -1,0 +1,36 @@
+{
+  "protocol_id": "post-enrollment-200-v1",
+  "status": "complete",
+  "plan_sha256": "fcbaca2d53d666538c64f5019866034464c8c7abab503fb03eae5ee51c95b1ad",
+  "population_checkpoint_sha256": "c095bb2f7bc48932deab6469d8ae0aad71385fe64133ef75a70104f55201c3a1",
+  "personal_runs": [
+    {
+      "run_sha256": "1aaa2026a1f2a44059661f8fe5647ee50eaacf23aab85d5612bbba2a5497c439",
+      "subjects": 100
+    },
+    {
+      "run_sha256": "2fa18e0dc98e790c2f918bd12f19be0d81fff9437f34951550c27a7b3d3de99c",
+      "subjects": 100
+    }
+  ],
+  "prediction_files": {
+    "personal_mean_frozen_predictions.parquet": "52681014786d656280b422172bb1324a2aefafc9765e4b81800ad60b88c14921",
+    "shared_with_anchor_frozen_predictions.parquet": "c734d7af3b5f14f1c4c16e788534ed15f9ba4bb2c8712c87420cce2a3c115d3d",
+    "new_person_lora_frozen_predictions.parquet": "c0c67c9b7d1901699f3ad90d208929e64a0218a1019896a9bc09f82a816a2dde",
+    "new_person_lora_memory_frozen_predictions.parquet": "bd6baabf6ebcee703a6e67492da919e63b5e503ac906e76fc2e455b2fcbc5a95",
+    "shared_memory_only_frozen_predictions.parquet": "fe13528880f785e4edc09c127b7fd99d5fcbd6b3e0ba4357cf1d2812fd64516b",
+    "shared_memory_blend_frozen_predictions.parquet": "c86428ec44a0847ddf4e3ff8046cb02d2b238e561a2137926e6cd0ab45c1b8eb",
+    "lora_memory_only_frozen_predictions.parquet": "be69621106cfd68a733ca0ae47eaac323a9663b3974ece00a4823643bedb52af",
+    "lora_memory_uniform_frozen_predictions.parquet": "acf11d98a32d2e67fc4d4e7946159d0e29a23d1c5969e101545f399cedb1bdfc",
+    "lora_memory_fixed_half_frozen_predictions.parquet": "34825a6a411d918dedf075348c9e7d0273a2f85037c1d3bd6c567650eecbde82"
+  },
+  "all_methods_frozen_before_targets": true,
+  "method_count": 9,
+  "query_ids_sha256": "553c4c7a4d7fa3982f5ecaa5d7ba3cacabcea13c344732b50434a7386f205faf",
+  "test_targets_accessed": true,
+  "test_based_selection": false,
+  "full_index_sha256": "4bd0d281b1fb3b0f715b23e41315405c6b13ad696452469f57c2c771d08e569d",
+  "subjects": 200,
+  "windows": 8000,
+  "scope": "exploratory_not_confirmatory"
+}

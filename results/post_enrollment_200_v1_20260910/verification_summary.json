@@ -1,0 +1,707 @@
+{
+  "status": "pass",
+  "verified_utc": "2026-09-10T04:54:09.567407+00:00",
+  "protocol_id": "post-enrollment-200-v1",
+  "code_source_tree_sha256": "9c8cec628e820052c4c92fca95835f87e697a4c7d8d95469c03809e94fbe9fa3",
+  "inspector_sha256": "f2517095e658a71aa38e88a6f42ff4bb02e17f69b4f0f92f90c30bd697f9a240",
+  "source_audit": {
+    "population_train": {
+      "rows": 829800,
+      "subjects": 2305,
+      "subject_ids_sha256": "95aa3c50ff70484c9df94ae455e39901116b60bb56901b1828a9579c9edc4468",
+      "segment_ids_sha256": "56037246cd577769c438dcb7f7d0e24bf7f1c10ca2b53cc4b66317c3f4a2dae4",
+      "source_subjects": {
+        "MIMIC": 1112,
+        "VitalDB": 1193
+      }
+    },
+    "population_test_inputs": {
+      "rows": 92200,
+      "subjects": 2305,
+      "subject_ids_sha256": "95aa3c50ff70484c9df94ae455e39901116b60bb56901b1828a9579c9edc4468",
+      "segment_ids_sha256": "3508f2cd668f82800d95fef03daebdeac457d8732e64302f8c56c39c843b726e",
+      "source_subjects": {
+        "MIMIC": 1112,
+        "VitalDB": 1193
+      }
+    },
+    "enrollment_train": {
+      "rows": 72000,
+      "subjects": 200,
+      "subject_ids_sha256": "289e3fea2d288a4c259682ca62122bad3249341847281e02a8051b26ac707563",
+      "segment_ids_sha256": "71de43d0b82ff6abb8a966385914a6c3092c00df5fa7ee4edd1f6757bda6eade",
+      "source_subjects": {
+        "MIMIC": 100,
+        "VitalDB": 100
+      }
+    },
+    "enrollment_test_inputs": {
+      "rows": 8000,
+      "subjects": 200,
+      "subject_ids_sha256": "289e3fea2d288a4c259682ca62122bad3249341847281e02a8051b26ac707563",
+      "segment_ids_sha256": "553c4c7a4d7fa3982f5ecaa5d7ba3cacabcea13c344732b50434a7386f205faf",
+      "source_subjects": {
+        "MIMIC": 100,
+        "VitalDB": 100
+      }
+    },
+    "cross_cohort_content_overlap": 0,
+    "cross_cohort_subject_overlap": 0,
+    "quarantine_rows": 400,
+    "quarantine_source_subjects": {
+      "MIMIC": 1
+    },
+    "quarantine_policy": "whole_identity_ppg_content_connected_closure_without_labels_or_resampling",
+    "enrollment_test_rows_with_training_content": 0,
+    "population_test_rows_with_training_content": 34,
+    "quarantined_subject_count": 1
+  },
+  "source_content_audit": "Existing frozen preparation audit checked; raw waveforms not rescanned during this review",
+  "previous_30_overlap_count": 3,
+  "population_inner_epochs": 43,
+  "population_selected_epoch": 35,
+  "population_final_epochs": 35,
+  "population_fit_subjects": 2305,
+  "subjects": 200,
+  "windows": 8000,
+  "source_subjects": {
+    "MIMIC": 100,
+    "VitalDB": 100
+  },
+  "selected_personal_epochs": {
+    "n": 200,
+    "minimum": 6.0,
+    "median": 284.5,
+    "maximum": 1225.0,
+    "mean": 300.445
+  },
+  "zero_epoch_profiles": 0,
+  "refit_optimizer_steps": {
+    "n": 200,
+    "minimum": 36.0,
+    "median": 1707.0,
+    "maximum": 7350.0,
+    "mean": 1802.67
+  },
+  "adapter_parameter_counts": [
+    2048
+  ],
+  "profile_artifact_hashes_verified": 800,
+  "shared_state_unchanged_profiles": 200,
+  "reload_equivalent_profiles": 200,
+  "ablation_reload_equivalent_profiles": 200,
+  "full_method_valid_memory_queries": 8000,
+  "registration_rows_per_person": 360,
+  "test_rows_per_person": 40,
+  "all_query_keys_and_targets_matched": true,
+  "enrollment_primary_metric_rows_recomputed": 27,
+  "enrollment_diagnostic_rows_recomputed": 54,
+  "population_primary_metric_rows_recomputed": 3,
+  "population_diagnostic_rows_recomputed": 6,
+  "saved_paired_interval_rows_recomputed": 72,
+  "analysis": "Prespecified paired source-stratified bootstrap and descriptive contrasts on already-scored predictions; no original target store read, new fit, exclusion or independent seed replication",
+  "paired_comparisons": [
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "Overall",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -0.2720715810496923,
+        "median": 5.73465034181038,
+        "maximum": 20.214537084726942,
+        "mean": 6.077172371800892
+      },
+      "improved_people": 199,
+      "worsened_people": 1,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "Overall",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -0.07733433297398395,
+        "median": 2.961604084281557,
+        "maximum": 10.507856860533531,
+        "mean": 3.164104144990611
+      },
+      "improved_people": 198,
+      "worsened_people": 2,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "Overall",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": 0.15480428238045985,
+        "median": 4.4386824179894155,
+        "maximum": 13.743169383339815,
+        "mean": 4.620638258395752
+      },
+      "improved_people": 200,
+      "worsened_people": 0,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "MIMIC",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.2720715810496923,
+        "median": 5.73465034181038,
+        "maximum": 20.214537084726942,
+        "mean": 6.05466700781502
+      },
+      "improved_people": 99,
+      "worsened_people": 1,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "MIMIC",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.07733433297398395,
+        "median": 2.920892741233995,
+        "maximum": 10.507856860533531,
+        "mean": 3.2611124538368976
+      },
+      "improved_people": 98,
+      "worsened_people": 2,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "MIMIC",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": 0.15480428238045985,
+        "median": 4.346101825447251,
+        "maximum": 13.743169383339815,
+        "mean": 4.657889730825959
+      },
+      "improved_people": 100,
+      "worsened_people": 0,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "VitalDB",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": 0.687628856375337,
+        "median": 5.821989048556368,
+        "maximum": 13.178145450570963,
+        "mean": 6.0996777357867655
+      },
+      "improved_people": 100,
+      "worsened_people": 0,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "VitalDB",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": 0.18923508804820788,
+        "median": 3.0208516741369227,
+        "maximum": 7.921219165310552,
+        "mean": 3.0670958361443246
+      },
+      "improved_people": 100,
+      "worsened_people": 0,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_with_anchor",
+      "candidate": "new_person_lora",
+      "scope": "VitalDB",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": 0.7861212158599766,
+        "median": 4.461158651522414,
+        "maximum": 10.276467755751883,
+        "mean": 4.583386785965544
+      },
+      "improved_people": 100,
+      "worsened_people": 0,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -0.4582071997737538,
+        "median": 0.45225684028066393,
+        "maximum": 4.420734069159099,
+        "mean": 0.5736334964286053
+      },
+      "improved_people": 177,
+      "worsened_people": 23,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -0.6804478868550861,
+        "median": 0.30468343596495306,
+        "maximum": 2.071154784876461,
+        "mean": 0.341565287932285
+      },
+      "improved_people": 183,
+      "worsened_people": 17,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -0.553821992550716,
+        "median": 0.36053479483703366,
+        "maximum": 2.955054578558372,
+        "mean": 0.45759939218044515
+      },
+      "improved_people": 186,
+      "worsened_people": 14,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.3411805546318716,
+        "median": 0.46382647203726,
+        "maximum": 4.420734069159099,
+        "mean": 0.5706351218776451
+      },
+      "improved_people": 86,
+      "worsened_people": 14,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.31993517395855964,
+        "median": 0.30468343596495306,
+        "maximum": 1.8689095459831324,
+        "mean": 0.3274740773844851
+      },
+      "improved_people": 92,
+      "worsened_people": 8,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.313010346247915,
+        "median": 0.3384814369155378,
+        "maximum": 2.543596183280966,
+        "mean": 0.4490545996310651
+      },
+      "improved_people": 93,
+      "worsened_people": 7,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.4582071997737538,
+        "median": 0.4022008551740719,
+        "maximum": 3.8389543722402832,
+        "mean": 0.5766318709795655
+      },
+      "improved_people": 91,
+      "worsened_people": 9,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.6804478868550861,
+        "median": 0.3032929204325894,
+        "maximum": 2.071154784876461,
+        "mean": 0.35565649848008507
+      },
+      "improved_people": 91,
+      "worsened_people": 9,
+      "tied_people": 0
+    },
+    {
+      "reference": "new_person_lora",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.553821992550716,
+        "median": 0.36689957253615935,
+        "maximum": 2.955054578558372,
+        "mean": 0.4661441847298253
+      },
+      "improved_people": 93,
+      "worsened_people": 7,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -1.4181254979010727,
+        "median": 0.14231138022374945,
+        "maximum": 1.3224096939854366,
+        "mean": 0.15333515367451475
+      },
+      "improved_people": 133,
+      "worsened_people": 67,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -0.9088333989049953,
+        "median": 0.0756310093874728,
+        "maximum": 1.2697938259422576,
+        "mean": 0.07360458535530197
+      },
+      "improved_people": 139,
+      "worsened_people": 61,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -1.163479448403034,
+        "median": 0.09692018152648296,
+        "maximum": 1.2194698595386981,
+        "mean": 0.11346986951490835
+      },
+      "improved_people": 138,
+      "worsened_people": 62,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.9124761573032059,
+        "median": 0.1582932868125273,
+        "maximum": 1.3224096939854366,
+        "mean": 0.1705462114461243
+      },
+      "improved_people": 67,
+      "worsened_people": 33,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.45170143382693073,
+        "median": 0.0773502249319154,
+        "maximum": 1.2697938259422576,
+        "mean": 0.10075081856910596
+      },
+      "improved_people": 72,
+      "worsened_people": 28,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.3615022916764765,
+        "median": 0.0929434995840539,
+        "maximum": 1.2194698595386981,
+        "mean": 0.13564851500761516
+      },
+      "improved_people": 67,
+      "worsened_people": 33,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -1.4181254979010727,
+        "median": 0.12177047840862198,
+        "maximum": 1.2885570169823772,
+        "mean": 0.1361240959029052
+      },
+      "improved_people": 66,
+      "worsened_people": 34,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.9088333989049953,
+        "median": 0.06580115349783355,
+        "maximum": 0.47853893597062225,
+        "mean": 0.04645835214149798
+      },
+      "improved_people": 67,
+      "worsened_people": 33,
+      "tied_people": 0
+    },
+    {
+      "reference": "shared_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -1.163479448403034,
+        "median": 0.09836415187195713,
+        "maximum": 0.7743706867537319,
+        "mean": 0.09129122402220155
+      },
+      "improved_people": 71,
+      "worsened_people": 29,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -1.540669166663525,
+        "median": 0.054330577864435625,
+        "maximum": 0.7232728335097871,
+        "mean": 0.0383848467390884
+      },
+      "improved_people": 118,
+      "worsened_people": 82,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -1.001643230639616,
+        "median": 0.009969660431081273,
+        "maximum": 0.3980391552059448,
+        "mean": 0.007669722690495411
+      },
+      "improved_people": 114,
+      "worsened_people": 86,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "Overall",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 200,
+        "minimum": -1.2711561986515705,
+        "median": 0.035545869306353284,
+        "maximum": 0.497879023258756,
+        "mean": 0.023027284714791884
+      },
+      "improved_people": 122,
+      "worsened_people": 78,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.6250210141807893,
+        "median": 0.09555075484704179,
+        "maximum": 0.7232728335097871,
+        "mean": 0.054596387664460275
+      },
+      "improved_people": 61,
+      "worsened_people": 39,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.3399661079061089,
+        "median": 0.020365394773885548,
+        "maximum": 0.2677335613390248,
+        "mean": 0.02481519249759385
+      },
+      "improved_people": 59,
+      "worsened_people": 41,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "MIMIC",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -0.3999977566528168,
+        "median": 0.05353842610549131,
+        "maximum": 0.34660561321830574,
+        "mean": 0.03970579008102705
+      },
+      "improved_people": 61,
+      "worsened_people": 39,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "sbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -1.540669166663525,
+        "median": 0.04454955871613375,
+        "maximum": 0.5977188913115681,
+        "mean": 0.022173305813716536
+      },
+      "improved_people": 57,
+      "worsened_people": 43,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "dbp_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -1.001643230639616,
+        "median": 0.005860926022870472,
+        "maximum": 0.3980391552059448,
+        "mean": -0.009475747116603032
+      },
+      "improved_people": 55,
+      "worsened_people": 45,
+      "tied_people": 0
+    },
+    {
+      "reference": "lora_memory_only",
+      "candidate": "new_person_lora_memory",
+      "scope": "VitalDB",
+      "metric": "mean_mae",
+      "improvement_mmHg": {
+        "n": 100,
+        "minimum": -1.2711561986515705,
+        "median": 0.023101599314124033,
+        "maximum": 0.497879023258756,
+        "mean": 0.0063487793485567075
+      },
+      "improved_people": 61,
+      "worsened_people": 39,
+      "tied_people": 0
+    }
+  ],
+  "archived_aggregate_sha256": {
+    "evaluate/MIMIC_diagnostics.csv": "4da63e193547d966fc4b18456efebe089b6c2bff3af3be09041cabff6e6505d8",
+    "evaluate/MIMIC_participant_macro.csv": "8db7de5d507a23d0ab8ab6b964a3a43c1b482aed31215654e19eda3d2c192581",
+    "evaluate/Overall_diagnostics.csv": "9902baefa7729fb15afee082b24a8b2457912856fba7c1a80a51d902010c568c",
+    "evaluate/Overall_participant_macro.csv": "a9b1361e8d112449232aaff8f1b1bf295386f28cfbac1b05d16d67140d850d4d",
+    "evaluate/VitalDB_diagnostics.csv": "13e4e8359a3ebf01a9495ca2632c4d3352934ec29facfec35b51de0fb4324146",
+    "evaluate/VitalDB_participant_macro.csv": "2cec8882ca6f2f736799a56900dbdedae31446fe4ada7258e9834b97c4530b1d",
+    "evaluate/diagnostic_tables.csv": "4063ad89ff1517e7b06db4b21598569266d395e851188eb27a5384fd69aa77f4",
+    "evaluate/paired_participant_intervals.csv": "df10da152d7fd2b714438648866ebeadca26966a65be0234a51eea886e67e6c0",
+    "evaluate/participant_macro.csv": "b3a8f3836aac2ebf05c759cb335a08500bdc4214d19fdb523c26c2ecf47a108d",
+    "evaluate/evaluation_receipt.json": "5b14a61b6018154bb47efbafcfa0e0908853386e7f1e53c2d0d7379a522b232f",
+    "evaluate/frozen_predictions.json": "8ae698f2db45cb8545f4ad966248cf36f084febbe9848aa78fa155776c39cea5",
+    "evaluate/RESULT_TABLES.md": "921bc93f59a26e15c9ed4556f42a512e98f432fbfc9d268d3f7a339900c6918a",
+    "evaluate/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "population_benchmark/MIMIC_diagnostics.csv": "3cb2315e6dfe4cbe53f7eb5e26d20ede3bb39e08990a54cf5fc13a329247fdf4",
+    "population_benchmark/MIMIC_participant_macro.csv": "9e69bcb962a3437658b51d7583ca1c15fd265317b80ecd55dc85583f811a5176",
+    "population_benchmark/Overall_diagnostics.csv": "0c4b5a24f9d3ce470e0667cb9477f0b9fe5e4b492d0b98d51ac083964def9a75",
+    "population_benchmark/Overall_participant_macro.csv": "0eab91b08c6aa3473be3c995ec838bba106b48d9e38ce66b5e1c8c6d993192dd",
+    "population_benchmark/VitalDB_diagnostics.csv": "d2c566c74f4b62e730bb2a1abb1a4a722b50a93f7df3a2d11bd42e65611f22a5",
+    "population_benchmark/VitalDB_participant_macro.csv": "04779276f3b580896ebb96c8e3b88098eecabf8b07f42543d599dd5e7ba2b8db",
+    "population_benchmark/diagnostic_tables.csv": "e9843a39bf279d77eb1f5f733897d6275c3a96934f3bbadd5717c07b94a3e4c6",
+    "population_benchmark/participant_macro.csv": "cab9659ac13f138e61f822e64378184550d965788c4be2dff104bd73eae3c99a",
+    "population_benchmark/evaluation_receipt.json": "7849692608cfafbc5a5911044cd5e4167fe1cbcac40a9a299d43b5782000d403",
+    "population_benchmark/frozen_predictions.json": "1307500208598d4d5d147b64eeed76112ae5ab2f5855d3f2114b2f11f3649672",
+    "population_benchmark/RESULT_TABLES.md": "0cf78383a9e27d3531dd6fd9d13a539d9fb273a310a2fb4b4555a541055a3120"
+  }
+}

@@ -1,8 +1,74 @@
 # Verified project status
 
-Last updated: 2026-09-09.
+Last updated: 2026-09-10.
 
-## 200-person post-training enrollment — running; verified 18:14 CST
+## 200-person enrollment — complete; verified 10 September 2026
+
+**[Formal results and ablations](../results/post_enrollment_200_v1_20260910/README.md)**
+are available with nine settings, Overall/MIMIC/VitalDB diagnostic tables and
+participant-paired intervals. Jobs 1735–1742 all completed with exit 0:0.
+Final scoring ended **2026-09-09 22:54:55 CST**; the user's queue is empty at
+the 10 September check. This review submitted no new training or evaluation
+tasks and did not change predictions, partitions or the frozen protocol.
+
+| Method | Overall SBP / DBP MAE | MIMIC SBP / DBP MAE | VitalDB SBP / DBP MAE |
+|---|---:|---:|---:|
+| New-person LoRA | 3.9049 / 2.1858 | 4.2868 / 2.3628 | 3.5230 / 2.0088 |
+| Shared-feature memory only | 3.4846 / 1.9178 | 3.8867 / 2.1361 | 3.0825 / 1.6996 |
+| LoRA-feature memory only | 3.3696 / 1.8519 | 3.7708 / 2.0602 | 2.9685 / 1.6436 |
+| LoRA + reference memory | 3.3312 / 1.8442 | 3.7162 / 2.0353 | 2.9463 / 1.6531 |
+
+All200 people/8,000 queries remain. The primary Overall mean-MAE contrast is
+3.0453→2.5877, gain0.4576mmHg/15.03%, 95% paired source-stratified bootstrap
+CI[0.3930,0.5232], 186people improve/14worsen. MIMIC/VitalDB each93/100 improve;
+their mean gains are0.4491/0.4661. These are pointwise, exploratory intervals
+conditional on this fixed fit, not repeated-seed uncertainty. Both LoRA and
+the complete candidate meet numerical AAMI/BHS-A screens in all three scopes;
+they are not clinical certifications.
+
+The complete candidate remains worth retaining, but memory-only is a necessary
+strong comparator. Compared with shared-feature pure retrieval, its mean gain
+is only0.1135; compared with adapted-feature pure retrieval, only0.0230. The
+latter has slightly better VitalDB DBP. Equal-neighbor and fixed-half controls
+are only0.0452/0.0562 worse in Overall mean MAE. No claim that all components
+improve all endpoints or have established indispensable synergy.
+
+Population inner fit ran43epochs, selected35; fresh final refit35. All200
+personal adapters trained, selected6–1225epochs (median284.5),2,048parameters
+each. Both personal shards finished in11:24/12:26 by reusing frozen features.
+All shared-state, profile reload and ablation reload checks pass200/200.
+
+On-server read-only review independently recomputed27enrollment primary rows,
+54diagnostic rows,3remaining-population primary rows,6diagnostic rows and72saved
+paired interval rows. Query keys/targets match across all nine settings and
+frozen predictions match shard outputs exactly.800personal artifact hashes
+match.24aggregate/receipt files match work/NAS/local; the new verification
+summary itself is also archived with matching hash. No raw signals, identity
+lists, personal predictions, adapters or memory banks were downloaded/published.
+Content-duplicate conclusions use the existing frozen preparation audit, not a
+new raw-waveform rescan in this review.
+
+The 200 people are absent from the new shared model; one duplicate-linked
+outside identity was quarantined, leaving2,305. Their within-person budget is
+360labelled registration/40test windows. New200 cross-cohort identity/content
+overlap and own registration/test duplicate content are0; remainingpopulation
+retains34disclosed official source-native duplicates. Three selectedpeople
+overlap the earlier30; this is exploratory accumulated-history enrollment,
+not exactofficial2506, K-shot cuffs, untouched external validation or cross-day
+forecasting. The older30-person results remain unchanged and are not paired
+with these200.
+
+Runtime: `78ca7f50de8a311a428747758d4be0fbdc39e94f` under
+`/home/jiangyu.cheng/work/ppg_bp/code/post_enrollment_78ca7f5`.
+Batch: `/home/jiangyu.cheng/work/ppg_bp/outputs/post-enrollment-200-v1_20260909-180700`.
+Source-tree hash: `9c8cec628e820052c4c92fca95835f87e697a4c7d8d95469c03809e94fbe9fa3`.
+[Verification](../results/post_enrollment_200_v1_20260910/verification_summary.json)
+and [all result tables](../results/post_enrollment_200_v1_20260910/enrollment/RESULT_TABLES.md).
+The result package and the previously committed implementation use the existing
+public branch `method/personal-feature-mechanisms`; no new branch or draft
+report is created for this update.
+
+## Historical startup snapshot — 9 September 18:14 CST; superseded above
 
 The user authorized expanding the whole-subject-excluded enrollment to 100 or
 200 people. The prespecified choice is 200: 100 MIMIC and 100 VitalDB, leaving

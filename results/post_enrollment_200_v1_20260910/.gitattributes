@@ -1,0 +1,5 @@
+# Preserve the exact aggregate bytes checked against server/NAS SHA-256 hashes.
+*.csv text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf
