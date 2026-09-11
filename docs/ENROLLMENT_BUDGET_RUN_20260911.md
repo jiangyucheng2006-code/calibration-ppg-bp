@@ -1,8 +1,47 @@
 # Enrollment budget execution record
 
-Protocol: `enrollment-budget-v1`. Status: preparation complete; first personal
-jobs running. This file reports execution, not model accuracy. No budget result
-has been claimed.
+Protocol: `enrollment-budget-v1`. Current status: **all stages completed**.
+The [final report](../results/enrollment_budget_v1_20260911/README.md) contains
+all eight budgets, both methods and the Overall/MIMIC/VitalDB result tables.
+
+## Verified completion: 11 September 2026
+
+Jobs 1783–1818 all completed with exit 0:0 on hpc-2. Final scorer 1818 ended
+at 09:07:47 UTC / 17:07:47 China time. This is 32 completed personal-fitting
+shards, preparation, two scorers and the successful smoke check. The current
+user queue was empty at the result inspection; no stopped or unfinished arm
+was inferred merely from an empty GPU display.
+
+The scoring receipt retains exactly 762 final people and 78,237 query windows
+in each of sixteen prediction sets. All predictions were frozen before target
+access. A separate read-only audit at 09:56 UTC recomputed 48 primary summary
+rows, 96 diagnostic rows and seven planned primary interval comparisons;
+maximum numeric discrepancy was 1.42e-14. Final aggregate copies match work,
+NAS and the local transferred files. The 90% predictions are byte-identical
+to the previous parent 90% result, not an additional independent replication.
+
+This publication adds reports, aggregate tables and verification receipts.
+No new job, model change, data exclusion or protocol amendment was made.
+The earlier status snapshots below are preserved as execution history.
+
+## Verified live state: 11 September 2026, 15:33 China time
+
+All jobs 1783–1813 completed with exit 0:0. All eight validation conditions
+were scored together on the same 763 people / 76,909 queries; the receipt
+confirms all sixteen prediction sets were frozen first and no score feedback
+was passed to fitting. No validation metrics were analyzed in this status check.
+
+Final personal runs for 20%–70% are complete, but the all-budget final scorer
+has not run. At 15:33:15, 80% job 1814 had completed 356/381 profiles and job
+1815 had completed 347/381. Both were RUNNING on hpc-2, with completed profile
+reload/shared-state checks passing and no reported errors. The final 90%
+jobs 1816/1817 and scorer 1818 are waiting on normal dependencies.
+
+This is 28 completed, two running and two pending personal-fitting shards.
+The approximate remaining duration is 1.5–2 hours based on current progress
+and observed 90% validation runtimes, assuming no interruption. The final
+scoring receipt is still absent; do not present completed predictions as final
+MAE/AAMI/BHS results. No retraining, resubmission or protocol change was made.
 
 ## Verified live state: 11 September 2026, 02:15 China time
 
@@ -100,7 +139,7 @@ submission table, completed stage outputs and logs are retained in the NAS
 archive. Active waveform reads and profile writes remain in the work area.
 The existing full-cohort store and shared checkpoint are reused without changes.
 
-Expected final outputs under `test_score/`:
+Completed final outputs under `test_score/`:
 
 - `all_budgets_participant_macro.csv` and separate Overall/MIMIC/VitalDB views;
 - `all_budgets_diagnostics.csv` and the three requested source diagnostic views;
@@ -113,6 +152,8 @@ rounding and fallback per person. `prepare/budget_summary.csv` contains the
 corresponding source-level summaries. Query windows never become enrollment
 rows just because a nominal budget is small.
 
-This turn updates local project documentation and the operating Skill. No new
-GitHub push, raw-data download or global-memory write was performed. The prior
-completed full-cohort result remains published and unchanged.
+At submission and during the earlier operational checks, only local project
+documentation and the operating Skill were updated; no GitHub push was made
+in those steps. The completed result-publication package is now linked above.
+The prior full-cohort result is preserved unchanged. No raw-data transfer or
+global-memory update is part of this result-publication task.

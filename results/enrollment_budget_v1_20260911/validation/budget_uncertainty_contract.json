@@ -1,0 +1,14 @@
+{
+  "independent_unit": "participant",
+  "stratification": "PulseDB source",
+  "replicates": 2000,
+  "seed": 20260911,
+  "positive_difference": "lower-budget MAE is worse than 90-percent MAE",
+  "primary_family": "seven Overall mean-MAE differences vs 90% for LoRA+memory",
+  "simultaneous_method": "95% bootstrap maximum absolute centered deviation across seven contrasts",
+  "conditional_on": "this fitted shared model and one nested enrollment ordering",
+  "noninferiority_margin": null,
+  "no_automatic_equivalence_claim": true,
+  "no_test_based_budget_selection": true,
+  "no_temporal_reliability_claim": true
+}

@@ -2,6 +2,62 @@
 
 Last updated: 2026-09-11.
 
+## 2026-09-11 — Enrollment budget study complete; final report prepared for publication
+
+All jobs 1783–1818 completed with exit 0:0. Final scorer 1818 finished at
+17:07:47 China time; the user queue was empty during the read-only inspection.
+The [completed English report](../results/enrollment_budget_v1_20260911/README.md)
+includes all eight budgets, paired LoRA/memory results, Overall/MIMIC/VitalDB
+views, full STD/AAMI/BHS diagnostic tables, budget counts, uncertainty and
+validation results. No training was submitted during this reporting task.
+
+Every final arm retains 762 people / 78,237 queries. Primary memory SBP/DBP
+MAE is 4.5797/2.5934 at 20%, 4.1265/2.3816 at 30%, 3.6620/2.0886 at 50%,
+3.2850/1.8817 at 70%, and 3.2081/1.8336 at 90%. Memory lowers the mean errors
+in all source views at every budget. The 70% and 80% mean-MAE gaps to 90% are
+0.0625 and 0.0512 mmHg; no prespecified non-inferiority margin exists, so these
+are descriptive plateau candidates, not proven equivalent operating points.
+The 30% gap is 0.7332 [joint 95% interval 0.5131, 0.9533].
+
+Independent saved-prediction recomputation passed for 16 final settings,
+48 primary rows, 96 diagnostic rows and seven primary budget intervals.
+The maximum discrepancy was 1.42e-14; work/NAS/local aggregate hashes match.
+The 90% prediction hashes also match the completed parent exactly. This is
+not a new independent seed or untouched final cohort. All numerical screens
+are AAMI-style PASS / BHS-style Grade A, not clinical device certification.
+
+Retain LoRA + personal reference memory as the candidate method. The report
+does not select a new final-test winner or change the frozen protocol. The
+old K-shot direction remains discontinued. More random-history data does not
+establish cross-day reliability or universal per-user improvement: 718 people
+improve and 44 worsen from 20% to 90% in memory-model mean MAE. The previously
+discussed prospective acquisition plan remains proposed, not conducted.
+
+Publication contains only English reports, aggregate tables, checksums and
+code. Raw signals, individual predictions and personal profiles stay private.
+
+## 2026-09-11 15:33 China time — Budget batch healthy; final 80% arms running
+
+Read-only live inspection at 07:32–07:33 UTC confirms every job from 1783
+through 1813 completed with exit 0:0. All eight validation budgets and scorer
+1801 are complete. Its receipt covers 763 people / 76,909 queries, all sixteen
+predictions frozen before targets, the unchanged plan hash, and no training
+feedback or test-based selection.
+
+Final 20%–70% personal fits/predictions are complete. Final 80% jobs 1814/1815
+are RUNNING on hpc-2, with 356/381 and 347/381 profiles completed at 15:33:15.
+Completed profiles pass saved/reloaded equivalence and shared-state checks;
+neither report contains an error. Final 90% jobs 1816/1817 and scorer 1818 are
+PENDING on their normal dependencies. The final evaluation receipt does not
+exist yet; completed predictions are not a scored final result.
+
+There are 28 completed, two running and two pending personal-fitting shards.
+Based on observed 80% progress and approximately 86-minute validation 90%
+shards, a rough remaining duration is 1.5–2 hours (around 17:00–17:30 China
+time), conditional on uninterrupted resources and fitting; this is not a
+completion promise. No jobs, code, data, model settings, scores or GitHub state
+were changed. This update only records the verified operational status.
+
 ## 2026-09-11 — Budget study submitted after successful verification
 
 Latest live check at 02:15:12 China time: preparation 1784 completed (82 s,

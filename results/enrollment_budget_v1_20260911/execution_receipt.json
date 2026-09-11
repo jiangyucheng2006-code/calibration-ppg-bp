@@ -1,0 +1,334 @@
+{
+  "run_id": "enrollment-budget-v1_20260910-180706",
+  "timezone": "UTC",
+  "success_jobs": 36,
+  "formal_jobs": 35,
+  "personal_shards": 32,
+  "final_scoring_completed_at_utc": "2026-09-11T09:07:47Z",
+  "rows": [
+    {
+      "job_id": 1783,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:01:39",
+      "start_utc": "2026-09-10T18:07:19Z",
+      "end_utc": "2026-09-10T18:08:58Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1784,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:01:22",
+      "start_utc": "2026-09-10T18:09:28Z",
+      "end_utc": "2026-09-10T18:10:50Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1785,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:24:49",
+      "start_utc": "2026-09-10T18:10:51Z",
+      "end_utc": "2026-09-10T18:35:40Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1786,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:24:16",
+      "start_utc": "2026-09-10T18:10:51Z",
+      "end_utc": "2026-09-10T18:35:07Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1787,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:31:39",
+      "start_utc": "2026-09-10T18:35:40Z",
+      "end_utc": "2026-09-10T19:07:19Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1788,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:31:40",
+      "start_utc": "2026-09-10T18:35:07Z",
+      "end_utc": "2026-09-10T19:06:47Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1789,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:39:05",
+      "start_utc": "2026-09-10T19:07:20Z",
+      "end_utc": "2026-09-10T19:46:25Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1790,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:40:41",
+      "start_utc": "2026-09-10T19:06:47Z",
+      "end_utc": "2026-09-10T19:47:28Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1791,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:50:45",
+      "start_utc": "2026-09-10T19:46:25Z",
+      "end_utc": "2026-09-10T20:37:10Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1792,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:50:42",
+      "start_utc": "2026-09-10T19:47:28Z",
+      "end_utc": "2026-09-10T20:38:10Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1793,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:56:45",
+      "start_utc": "2026-09-10T20:37:10Z",
+      "end_utc": "2026-09-10T21:33:55Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1794,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:58:23",
+      "start_utc": "2026-09-10T20:38:10Z",
+      "end_utc": "2026-09-10T21:36:33Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1795,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:07:28",
+      "start_utc": "2026-09-10T21:33:56Z",
+      "end_utc": "2026-09-10T22:41:24Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1796,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:08:21",
+      "start_utc": "2026-09-10T21:36:34Z",
+      "end_utc": "2026-09-10T22:44:55Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1797,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:17:07",
+      "start_utc": "2026-09-10T22:41:24Z",
+      "end_utc": "2026-09-10T23:58:31Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1798,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:17:32",
+      "start_utc": "2026-09-10T22:44:55Z",
+      "end_utc": "2026-09-11T00:02:27Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1799,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:26:14",
+      "start_utc": "2026-09-10T23:58:31Z",
+      "end_utc": "2026-09-11T01:24:45Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1800,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:26:03",
+      "start_utc": "2026-09-11T00:02:27Z",
+      "end_utc": "2026-09-11T01:28:30Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1801,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:01:09",
+      "start_utc": "2026-09-11T01:28:30Z",
+      "end_utc": "2026-09-11T01:29:39Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1802,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:25:18",
+      "start_utc": "2026-09-11T01:29:39Z",
+      "end_utc": "2026-09-11T01:54:57Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1803,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:25:05",
+      "start_utc": "2026-09-11T01:29:39Z",
+      "end_utc": "2026-09-11T01:54:44Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1804,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:35:25",
+      "start_utc": "2026-09-11T01:54:57Z",
+      "end_utc": "2026-09-11T02:30:22Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1805,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:35:11",
+      "start_utc": "2026-09-11T01:54:44Z",
+      "end_utc": "2026-09-11T02:29:55Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1806,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:43:05",
+      "start_utc": "2026-09-11T02:30:22Z",
+      "end_utc": "2026-09-11T03:13:27Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1807,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:44:13",
+      "start_utc": "2026-09-11T02:29:55Z",
+      "end_utc": "2026-09-11T03:14:08Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1808,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:51:59",
+      "start_utc": "2026-09-11T03:13:27Z",
+      "end_utc": "2026-09-11T04:05:26Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1809,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:52:38",
+      "start_utc": "2026-09-11T03:14:08Z",
+      "end_utc": "2026-09-11T04:06:46Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1810,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:00:46",
+      "start_utc": "2026-09-11T04:05:27Z",
+      "end_utc": "2026-09-11T05:06:13Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1811,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:00:17",
+      "start_utc": "2026-09-11T04:06:46Z",
+      "end_utc": "2026-09-11T05:07:03Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1812,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:10:25",
+      "start_utc": "2026-09-11T05:06:13Z",
+      "end_utc": "2026-09-11T06:16:38Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1813,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:12:14",
+      "start_utc": "2026-09-11T05:07:03Z",
+      "end_utc": "2026-09-11T06:19:17Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1814,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:20:34",
+      "start_utc": "2026-09-11T06:16:39Z",
+      "end_utc": "2026-09-11T07:37:13Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1815,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:18:47",
+      "start_utc": "2026-09-11T06:19:17Z",
+      "end_utc": "2026-09-11T07:38:04Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1816,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:23:18",
+      "start_utc": "2026-09-11T07:37:13Z",
+      "end_utc": "2026-09-11T09:00:31Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1817,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "01:28:25",
+      "start_utc": "2026-09-11T07:38:04Z",
+      "end_utc": "2026-09-11T09:06:29Z",
+      "node": "hpc-2"
+    },
+    {
+      "job_id": 1818,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:01:18",
+      "start_utc": "2026-09-11T09:06:29Z",
+      "end_utc": "2026-09-11T09:07:47Z",
+      "node": "hpc-2"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "protocol_id": "enrollment-budget-v1",
+  "cohort": "validation",
+  "status": "frozen",
+  "plan_sha256": "49e023ba7a323baf7fd72cebed4bfb46e17ddd7c1e7b56f6f04fbc20366fb665",
+  "checkpoint_sha256": "5340902ef5bf81c1f8a704380d3376d9b7e1b1df3d509175b0b89c7d494397ed",
+  "methods": [
+    "new_person_lora",
+    "new_person_lora_memory"
+  ],
+  "percentages": [
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90
+  ],
+  "config": {
+    "methods": [
+      "new_person_lora",
+      "new_person_lora_memory"
+    ],
+    "seed": 20260910,
+    "within_person_split": "random_content_grouped",
+    "registration_fraction": "budget_percent_divided_by_100_nominal",
+    "personal_inner_fit_fraction": 0.8888888888888888,
+    "personal_seed_base": 20260909,
+    "minimum_query_windows": 1,
+    "minimum_inner_validation_windows": 1,
+    "backbone": "resnet_small",
+    "feature_dim": 256,
+    "adapter_rank": 4,
+    "personal_parameters": 2048,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "huber_delta": 0.5,
+    "gradient_clip": 5.0,
+    "patience": 8,
+    "batch_size": 64,
+    "memory_k": 5,
+    "memory_temperature": 0.1,
+    "memory_block_size": 40,
+    "old_checkpoint_permitted": "verified_subject_disjoint_parent_only",
+    "test_feedback_permitted": false,
+    "population_selection": "meta_validation_query_macro_zero_adapter_registration_anchor",
+    "personal_selection": "own_registration_inner_validation_then_fresh_full_registration_refit",
+    "cross_outer_duplicate_policy": "quarantine_all_members_of_cross_role_identity_components",
+    "duplicate_allocation": "same_content_and_overlapping_intervals_stay_in_one_personal_role",
+    "cohort_scope": "all_original_subjects_all_valid_windows",
+    "minimum_inner_fit_windows": 1,
+    "memory_query_chunk_size": 128,
+    "exact_within_outer_duplicates": "retain_one_canonical_window",
+    "budget_percentages": [
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90
+    ],
+    "budget_assignment_seed": 20260911,
+    "budget_denominator": "eligible_registration_plus_fixed_query_windows",
+    "query_policy": "exact_parent_query_ids_unchanged",
+    "selection_policy": "seeded_label_blind_nested_complete_group_prefix",
+    "target_count": "max_1_floor_percent_times_eligible_count_capped_by_parent_bank",
+    "upper_budget_policy": "90_percent_exact_parent_registration_and_inner_roles",
+    "single_group_fallback": "zero_adapter",
+    "personal_warm_start": false,
+    "shared_checkpoint_policy": "reuse_verified_subject_disjoint_parent_only",
+    "reporting": "all_eight_budgets_no_test_selected_winner",
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 20260911
+  },
+  "subjects": 763,
+  "query_windows": 76909,
+  "query_ids_sha256": "0a180c6446b5600023f8d46b2bbf7ce3e6a276f62571ae0145ac0edcde0a09c3",
+  "all_sixteen_predictions_frozen_before_targets": true,
+  "prediction_files": {
+    "p20_new_person_lora_frozen_predictions.parquet": "b3b786b2659de75b446e4bf4bb94aaaef4eda24b29cc1a216dd5a1ca5484fbc1",
+    "p20_new_person_lora_memory_frozen_predictions.parquet": "08cd1be5699808b3257d427c93bb5fe74dcf0433b9ff9121625e2aea87f31e15",
+    "p30_new_person_lora_frozen_predictions.parquet": "a13527bed28e53714f11caf3a54e5301aff5e909a84ffb4de05fe1d87ddafe9b",
+    "p30_new_person_lora_memory_frozen_predictions.parquet": "021e36343c9df80ab138aefe1579a0c2fb9f4d86242be5314e8b96068a485b9e",
+    "p40_new_person_lora_frozen_predictions.parquet": "966576712c791ee828238e7aa00ee4c3c97818a9102f992361041a7f23a065cf",
+    "p40_new_person_lora_memory_frozen_predictions.parquet": "d3cec85057fe4aa00cb38c791f38dd02c5e2ad9bb192f4e01f9e7ceec718ce2b",
+    "p50_new_person_lora_frozen_predictions.parquet": "0c0132569a2738b8b88aa0fc897fc82c6821d348659c5384bd4084727f63d80b",
+    "p50_new_person_lora_memory_frozen_predictions.parquet": "930e652c3df21f10e9d70805955d7212c034b92d3a745dafc9764605f393fce4",
+    "p60_new_person_lora_frozen_predictions.parquet": "6ca8d398c8b09da19bf251261717025c7b5a5e043db5d54088465cddff36c0ba",
+    "p60_new_person_lora_memory_frozen_predictions.parquet": "7d87cb865b4df2f52cce4dabc19ac34aeffcb363fd64061fca55ced3e3aa7a1e",
+    "p70_new_person_lora_frozen_predictions.parquet": "ce7c121d146bbb073a066d8d7f467e9e7387da93774e4bd057bb40569a0cf742",
+    "p70_new_person_lora_memory_frozen_predictions.parquet": "2971ebbf822d7d7460016979ba2845d6ff9c0c528665b49d4ae23e6f1040dd93",
+    "p80_new_person_lora_frozen_predictions.parquet": "3d611e848f32828f1e76ce3dc2f0fdd268216defe20f5af418d3f78afaf816f6",
+    "p80_new_person_lora_memory_frozen_predictions.parquet": "1f27a2053c68686b4da6820e75db5851cb0a19be02190686a8f1562a8dbda912",
+    "p90_new_person_lora_frozen_predictions.parquet": "4d745153eaad11e725e3f6dc273e762cbf2fd6cee6fc531ac960b3916714d310",
+    "p90_new_person_lora_memory_frozen_predictions.parquet": "377ab8eede17503e6c8bd8360d8743bb0b4a0ccce38b85df51708de4cd6a34af"
+  },
+  "personal_receipts": [
+    {
+      "stage": "validation_p20_0",
+      "run_sha256": "5d2985bb62d0180e1d51e14a4ae9b3fc2d33f63b7afecefb12cee115eabddfa3"
+    },
+    {
+      "stage": "validation_p20_1",
+      "run_sha256": "13d45b13e4577932a2747fa0c88461b8d10ba74713447e78a6a2ebffbf2d2225"
+    },
+    {
+      "stage": "validation_p30_0",
+      "run_sha256": "3c174fa866728a0bc37cc5ed3e0f6952743a812e4aff7835bfe1d2b5036688c5"
+    },
+    {
+      "stage": "validation_p30_1",
+      "run_sha256": "6cd69135c1ec5479803a650c5d8bb4dfd135de73d965585828a98fd220321b8d"
+    },
+    {
+      "stage": "validation_p40_0",
+      "run_sha256": "cff3092e967b10b496f8156b9bbcacf7f8e26fbd68371d6308e70336fbd208ab"
+    },
+    {
+      "stage": "validation_p40_1",
+      "run_sha256": "4a424d429356d3dd8276b25349814bc5606a2254d5fd6271a71689b6504862fe"
+    },
+    {
+      "stage": "validation_p50_0",
+      "run_sha256": "557f100147f86091e44beaf3feac2016f044212f603667be94480e1aa999fce9"
+    },
+    {
+      "stage": "validation_p50_1",
+      "run_sha256": "911c0003e8bf75ce90d77c7350472815c904fff9407faa0b82469a3fbb931702"
+    },
+    {
+      "stage": "validation_p60_0",
+      "run_sha256": "4c90eb2626481d6ea5c0fe7b03fd8b7d2c18e78337f9c89992b2d4a6d12d67d2"
+    },
+    {
+      "stage": "validation_p60_1",
+      "run_sha256": "b86008caa3c6ca9df0fd9e532a82669c7e4b879e80ce47657017a527bcd587a8"
+    },
+    {
+      "stage": "validation_p70_0",
+      "run_sha256": "4837145d33fc5211fd2818308bf60377d10bee52eca9395e955367fceb814765"
+    },
+    {
+      "stage": "validation_p70_1",
+      "run_sha256": "89c6123cc4cdda1ae233c7aff70114b9a069a91233d877b3348638c99cd49eae"
+    },
+    {
+      "stage": "validation_p80_0",
+      "run_sha256": "f09feed9ce9b83a96de569ddadccd3e25c455aceb0c6d6d89a916881e95dfc94"
+    },
+    {
+      "stage": "validation_p80_1",
+      "run_sha256": "d12762d0f18f8b472ffd081cd4108fde459f4bff5367c1a15b62cea0f431ba15"
+    },
+    {
+      "stage": "validation_p90_0",
+      "run_sha256": "17f6c2f3cd4ebce3ff5174bf2faae6d68e8591b296ceee1138bdda6841879c9b"
+    },
+    {
+      "stage": "validation_p90_1",
+      "run_sha256": "b22d0110caf7d87efea273a0e587a73a80b433fed5a6675e46792c542fc1d747"
+    }
+  ],
+  "test_based_selection": false,
+  "training_feedback": false
+}

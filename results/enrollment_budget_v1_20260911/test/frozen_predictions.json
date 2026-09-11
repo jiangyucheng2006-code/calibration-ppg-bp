@@ -1,0 +1,169 @@
+{
+  "protocol_id": "enrollment-budget-v1",
+  "cohort": "test",
+  "status": "frozen",
+  "plan_sha256": "49e023ba7a323baf7fd72cebed4bfb46e17ddd7c1e7b56f6f04fbc20366fb665",
+  "checkpoint_sha256": "5340902ef5bf81c1f8a704380d3376d9b7e1b1df3d509175b0b89c7d494397ed",
+  "methods": [
+    "new_person_lora",
+    "new_person_lora_memory"
+  ],
+  "percentages": [
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90
+  ],
+  "config": {
+    "methods": [
+      "new_person_lora",
+      "new_person_lora_memory"
+    ],
+    "seed": 20260910,
+    "within_person_split": "random_content_grouped",
+    "registration_fraction": "budget_percent_divided_by_100_nominal",
+    "personal_inner_fit_fraction": 0.8888888888888888,
+    "personal_seed_base": 20260909,
+    "minimum_query_windows": 1,
+    "minimum_inner_validation_windows": 1,
+    "backbone": "resnet_small",
+    "feature_dim": 256,
+    "adapter_rank": 4,
+    "personal_parameters": 2048,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "huber_delta": 0.5,
+    "gradient_clip": 5.0,
+    "patience": 8,
+    "batch_size": 64,
+    "memory_k": 5,
+    "memory_temperature": 0.1,
+    "memory_block_size": 40,
+    "old_checkpoint_permitted": "verified_subject_disjoint_parent_only",
+    "test_feedback_permitted": false,
+    "population_selection": "meta_validation_query_macro_zero_adapter_registration_anchor",
+    "personal_selection": "own_registration_inner_validation_then_fresh_full_registration_refit",
+    "cross_outer_duplicate_policy": "quarantine_all_members_of_cross_role_identity_components",
+    "duplicate_allocation": "same_content_and_overlapping_intervals_stay_in_one_personal_role",
+    "cohort_scope": "all_original_subjects_all_valid_windows",
+    "minimum_inner_fit_windows": 1,
+    "memory_query_chunk_size": 128,
+    "exact_within_outer_duplicates": "retain_one_canonical_window",
+    "budget_percentages": [
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90
+    ],
+    "budget_assignment_seed": 20260911,
+    "budget_denominator": "eligible_registration_plus_fixed_query_windows",
+    "query_policy": "exact_parent_query_ids_unchanged",
+    "selection_policy": "seeded_label_blind_nested_complete_group_prefix",
+    "target_count": "max_1_floor_percent_times_eligible_count_capped_by_parent_bank",
+    "upper_budget_policy": "90_percent_exact_parent_registration_and_inner_roles",
+    "single_group_fallback": "zero_adapter",
+    "personal_warm_start": false,
+    "shared_checkpoint_policy": "reuse_verified_subject_disjoint_parent_only",
+    "reporting": "all_eight_budgets_no_test_selected_winner",
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 20260911
+  },
+  "subjects": 762,
+  "query_windows": 78237,
+  "query_ids_sha256": "fdec318023a1ff0cf2616c51e889eaea5d3f083cf58591d5097be3dcb5f7144a",
+  "all_sixteen_predictions_frozen_before_targets": true,
+  "prediction_files": {
+    "p20_new_person_lora_frozen_predictions.parquet": "fd45f2a9a5cd9f21bd31fb0d2092af332038ef2e0b7c8f8e3b5eca287027dbb0",
+    "p20_new_person_lora_memory_frozen_predictions.parquet": "41c76728e604cb0820d5fdc18c376e3505bd9c9687a10d935569c13761499564",
+    "p30_new_person_lora_frozen_predictions.parquet": "ae4f2445807ba7e298b7a29d763f82134bd64a53568b677994ab8e2a111f84ce",
+    "p30_new_person_lora_memory_frozen_predictions.parquet": "3bbd0c3e501e1bd82c5f34c45b9d74c05f5bb9d2240952c270668ffe4b4c133c",
+    "p40_new_person_lora_frozen_predictions.parquet": "441de7f56477db56f292ccaa38b3eecf9b8c844d481f101d7a223c254a60be06",
+    "p40_new_person_lora_memory_frozen_predictions.parquet": "40f71c9f1f0f43393e949d7ce7d0a2d3ba6a7c3dd66357f0b338929ef78f962e",
+    "p50_new_person_lora_frozen_predictions.parquet": "0f1022793122e14c4f3d6653032f88e2f790add441ebdfdeb41acb58c758e16f",
+    "p50_new_person_lora_memory_frozen_predictions.parquet": "d4d65d5c8dc8c4dd9402460f7725a8f4719e94caa3fa95517320959a2b6513f4",
+    "p60_new_person_lora_frozen_predictions.parquet": "08ff0fef09b4962a714020ee4304e3fc3f5e4e790964d73f0c149dae436746a3",
+    "p60_new_person_lora_memory_frozen_predictions.parquet": "06f8c5c2b8aa8c6a04a4277d5eca1eee7ac6a41659d19211f82b8faec0f8be9c",
+    "p70_new_person_lora_frozen_predictions.parquet": "f15b33d6f18fd4319123a7278a6f277193f6c44c15fa6b4913d3cb568cf9a019",
+    "p70_new_person_lora_memory_frozen_predictions.parquet": "eeb2a03329744954235430f83014786de6beffa681f3fe74a421f8d84dd6bad9",
+    "p80_new_person_lora_frozen_predictions.parquet": "d92f1b4de781d0fd04b781112bb5154aeb9ea9512d31a13ea975f121577f7b92",
+    "p80_new_person_lora_memory_frozen_predictions.parquet": "8be64535538e99a7da753e03eae8b127ce82496aa51076e657764b06b701b93f",
+    "p90_new_person_lora_frozen_predictions.parquet": "a47b069dbe34bcd538597ebfa2092765d9980686ba54481f88c6767666a7b6f8",
+    "p90_new_person_lora_memory_frozen_predictions.parquet": "9ea2474359ece24c8367709c4c384bfe1a94b5cd62e2a5366cdfca2c3a64ecd7"
+  },
+  "personal_receipts": [
+    {
+      "stage": "test_p20_0",
+      "run_sha256": "d8bda210018498f46400f45dcb1f9b933ca0f407ba1ccf44dcc200aa4a6a8476"
+    },
+    {
+      "stage": "test_p20_1",
+      "run_sha256": "92b162079a837d3e7e5651b6e4e6a711bc42d57a35c27f3d07b56f660cc5ad44"
+    },
+    {
+      "stage": "test_p30_0",
+      "run_sha256": "846f52c6390e6c955b038dfb99cab9bb9e79ef1f27f45382fd52db9055d5d78a"
+    },
+    {
+      "stage": "test_p30_1",
+      "run_sha256": "286d371db789a38a8e95d089c471967da1e5039fe53bb4596296110f169e7efd"
+    },
+    {
+      "stage": "test_p40_0",
+      "run_sha256": "c7db3f1c40f8697fd510bcd6d49dd9757b5f1dbd184febc1369506ab8ef073b1"
+    },
+    {
+      "stage": "test_p40_1",
+      "run_sha256": "1c8e84d9baacae581a9c03cf25bfc0a19ce95d50f7bd3c554b97a61474565725"
+    },
+    {
+      "stage": "test_p50_0",
+      "run_sha256": "43b4ac46cbe3036e8799f678136cffc97af4cfb379d14ccfaf49e2f1a1799557"
+    },
+    {
+      "stage": "test_p50_1",
+      "run_sha256": "8e275179b27969cdb3d16b894626a6a538f4464428105c37720ef3cf13bfb06d"
+    },
+    {
+      "stage": "test_p60_0",
+      "run_sha256": "f041040cf3c129a653329b184bf295af05e26ea555f12006254819e634dfaf6c"
+    },
+    {
+      "stage": "test_p60_1",
+      "run_sha256": "787ed210f31b7ea1240170a90427ee937802e67870754dad81278fb47804949b"
+    },
+    {
+      "stage": "test_p70_0",
+      "run_sha256": "02278f1a40c0b5cfb64b765063eb6242832640e0229076af8aaabd0c4f2b01ac"
+    },
+    {
+      "stage": "test_p70_1",
+      "run_sha256": "d1c8c21736c3e3310014167c9210db88a72c9a4eed4b6028eb0553589b263384"
+    },
+    {
+      "stage": "test_p80_0",
+      "run_sha256": "1a7a518bac0ca362863a49bbb9aada0c1e38a4ad6e888d3b05113a9c86d98ede"
+    },
+    {
+      "stage": "test_p80_1",
+      "run_sha256": "f3d99cd22582bad3e4dda5e10b7d5b60eb1fe575ba879151c0c8f1139d8f28cc"
+    },
+    {
+      "stage": "test_p90_0",
+      "run_sha256": "f4ac358ed73f25bf3266ffe83a07b39d8fbfd247f903c9cc4595ccd1034902c4"
+    },
+    {
+      "stage": "test_p90_1",
+      "run_sha256": "6420f95ff2990cab669faa87e11320785a4492213098dc2a4100243a7f3f6b8c"
+    }
+  ],
+  "test_based_selection": false,
+  "training_feedback": false
+}

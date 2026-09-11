@@ -1,0 +1,10 @@
+Setting,Reference,Scope,BP,primary_contrast,gain_mmHg,ci95_low_mmHg,ci95_high_mmHg,participants,improved_participants,bootstrap_replicates
+new_person_lora_memory,new_person_lora,Overall,Mean,True,0.535900648020704,0.4855738199225358,0.589187364634835,762,606,2000
+new_person_lora_memory,new_person_lora,Overall,SBP,False,0.7049580413771149,0.6301300397101153,0.7823065323807175,762,604,2000
+new_person_lora_memory,new_person_lora,Overall,DBP,False,0.3668432546642931,0.3316439226448909,0.40227477521088456,762,593,2000
+new_person_lora_memory,new_person_lora,MIMIC,Mean,False,0.4885922322036656,0.405808444797818,0.5838707968952028,343,259,2000
+new_person_lora_memory,new_person_lora,MIMIC,SBP,False,0.6411447854300795,0.5178106044920964,0.7869081976520139,343,260,2000
+new_person_lora_memory,new_person_lora,MIMIC,DBP,False,0.3360396789772517,0.28164897024609487,0.396134738184218,343,258,2000
+new_person_lora_memory,new_person_lora,VitalDB,Mean,False,0.5746280624007617,0.5205702810343031,0.6292691027244738,419,347,2000
+new_person_lora_memory,new_person_lora,VitalDB,SBP,False,0.7571965778683636,0.6842093164441455,0.8329474565716967,419,344,2000
+new_person_lora_memory,new_person_lora,VitalDB,DBP,False,0.39205954693315986,0.3532446830595095,0.43207902786648006,419,335,2000

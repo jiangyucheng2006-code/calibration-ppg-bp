@@ -2,6 +2,14 @@
 
 Verified on 10 September 2026. This index retrieves existing experiments; it does not launch or modify training. All MAEs are in mmHg. Participant-macro MAE is primary. Different cohorts, label budgets, query definitions and split modes must not be ranked as if they were one controlled experiment.
 
+Latest publication, 11 September 2026: the **[20%-90% enrollment-budget study](../results/enrollment_budget_v1_20260911/README.md)**
+is complete. It retains the same shared model, 762 final people and 78,237
+queries at every budget. Memory SBP/DBP MAE is 4.5797/2.5934 at 20%,
+3.2850/1.8817 at 70% and 3.2081/1.8336 at 90%. The 90% reference is an exact
+repeat of the parent predictions, not an independent replication. The report
+preserves all eight budgets, both methods, three source views and the full
+diagnostic tables. No new training was submitted for this publication.
+
 Publication update, 11 September 2026: the full-cohort final evaluation is now
 complete. The [completed report](../results/full_cohort_enrollment_v1_20260910/README.md)
 contains both final and validation results. Final participant-macro LoRA

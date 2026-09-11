@@ -1,0 +1,116 @@
+{
+  "status": "pass",
+  "checked_at_utc": "2026-09-11T09:56:23.313480+00:00",
+  "protocol_id": "enrollment-budget-v1",
+  "run_id": "enrollment-budget-v1_20260910-180706",
+  "scope": "read-only recomputation from saved predictions, not a training-seed replication",
+  "prediction_sets_checked": 16,
+  "participant_macro_rows_checked": 48,
+  "pooled_diagnostic_rows_checked": 96,
+  "prespecified_primary_budget_intervals_reproduced": 7,
+  "identical_query_keys_and_targets_all_arms": true,
+  "frozen_prediction_hashes_and_values_match": true,
+  "all_participants_and_queries_retained": true,
+  "maximum_absolute_numeric_difference": 1.4210854715202004e-14,
+  "counts": {
+    "Overall": {
+      "participants": 762,
+      "query_windows": 78237
+    },
+    "MIMIC": {
+      "participants": 343,
+      "query_windows": 54664
+    },
+    "VitalDB": {
+      "participants": 419,
+      "query_windows": 23573
+    }
+  },
+  "participant_memory_changes": [
+    {
+      "budget_percent": 20,
+      "memory_better": 512,
+      "tied": 207,
+      "memory_worse": 43
+    },
+    {
+      "budget_percent": 30,
+      "memory_better": 556,
+      "tied": 170,
+      "memory_worse": 36
+    },
+    {
+      "budget_percent": 40,
+      "memory_better": 576,
+      "tied": 148,
+      "memory_worse": 38
+    },
+    {
+      "budget_percent": 50,
+      "memory_better": 604,
+      "tied": 124,
+      "memory_worse": 34
+    },
+    {
+      "budget_percent": 60,
+      "memory_better": 606,
+      "tied": 115,
+      "memory_worse": 41
+    },
+    {
+      "budget_percent": 70,
+      "memory_better": 611,
+      "tied": 110,
+      "memory_worse": 41
+    },
+    {
+      "budget_percent": 80,
+      "memory_better": 616,
+      "tied": 107,
+      "memory_worse": 39
+    },
+    {
+      "budget_percent": 90,
+      "memory_better": 626,
+      "tied": 97,
+      "memory_worse": 39
+    }
+  ],
+  "twenty_to_ninety_memory_mean_mae_changes": {
+    "better": 718,
+    "tied": 0,
+    "worse": 44
+  },
+  "work_nas_aggregate_identity": true,
+  "artifact_sha256": {
+    "prepare/budget_summary.csv": "b3a38047b00ce3b1745791282f6ee156cc0c4d1cfa2372d39cb19bdcda164063",
+    "test_score/MIMIC_all_budgets_diagnostics.csv": "01448865d9249aef6bba5d81a543c12ef9d2e32833dfeb89f36fdd34b02d1b2d",
+    "test_score/MIMIC_all_budgets_participant_macro.csv": "c0846f4bfd16f5dc66a85cadbfd1e231af7fe289f9a53555f4c1ba92491fea65",
+    "test_score/Overall_all_budgets_diagnostics.csv": "ff062c7b1c52dfb31c26d0c99e1b57fcd2c5dac4e5290683f83231a73cdfe797",
+    "test_score/Overall_all_budgets_participant_macro.csv": "4861f2af24093188c75c6a6ab674c1883bba0a0ecc3e0b9043191c18cc6ce1df",
+    "test_score/VitalDB_all_budgets_diagnostics.csv": "15b781f8462e277b9b8fc005c063d08c2c1e2a0b40fcdff56c3a22c159ed56bd",
+    "test_score/VitalDB_all_budgets_participant_macro.csv": "aefec5d6d237e3da426774d84b1cd75c85797cdb857556393fbf59d24c5cec5d",
+    "test_score/all_budgets_diagnostics.csv": "ebec8413cfcd3149ec239c83bd0b95283c4c9fd98d66218ce91cd24de762ee38",
+    "test_score/all_budgets_participant_macro.csv": "b725dda9020d4e6ba0fc75d5f089696a3f1c9d8384e3f5b8eac85e47be3ed768",
+    "test_score/budget_paired_intervals.csv": "adb8e288b7d7c7ca9de4b32929f71389e514594eed0d82581ce5d3dc15b61cca",
+    "test_score/budget_uncertainty_contract.json": "6ed561012ac4086f9a2e1e5c475fe66c9abe2d067f74d76a6dc188948bcbcfdc",
+    "test_score/evaluation_receipt.json": "57d24d7749172e7af6c1ef850a1a053fe9beabdce4b93e7151f00c535976b5dd",
+    "test_score/frozen_predictions.json": "4a1586c0ee841d1d05cafc9aee884adec4249b4c417bed7a508119add676fa76",
+    "test_score/p20/paired_participant_intervals.csv": "ceb41984c3690c67583da08fc7083cdb999844c8ad09e0e6c9be930071268911",
+    "test_score/p20/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p30/paired_participant_intervals.csv": "c59cd35aabcb8d378428088045ebe9b98e9c0f3472600d99c5cd9d02eeb7bb87",
+    "test_score/p30/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p40/paired_participant_intervals.csv": "1c5411b6d2497f91d8f4514d96462a84bc364e5767258ecd740b7824dd1ded68",
+    "test_score/p40/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p50/paired_participant_intervals.csv": "f27e4003421c08d3077b344681a40936829d54ff12e0f9c24801e81f8997b157",
+    "test_score/p50/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p60/paired_participant_intervals.csv": "16b575c2a91465d7df1ae78739718042cb589ca28dc87ccdfc07a8b569634bed",
+    "test_score/p60/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p70/paired_participant_intervals.csv": "de50a0c55b0fb0bfea5d5f7d94857936a68325f8efd63d7ebbe72219b59d8422",
+    "test_score/p70/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p80/paired_participant_intervals.csv": "e4ecadeef55aaa8db259ff2545d3752669b025aca1e60b6e0559edeca48768c5",
+    "test_score/p80/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03",
+    "test_score/p90/paired_participant_intervals.csv": "018a413796456f8c406a22f0cb68564bbba23f5e95bd3916020fc126dcf1d3c8",
+    "test_score/p90/uncertainty_contract.json": "c3e852b13d4d8c244ab016b50a99e7ccc081a4d5861624c36634054a34501b03"
+  }
+}

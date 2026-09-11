@@ -1,20 +1,47 @@
 # Calibration PPG BP
 
-## Current experiment — eight personal enrollment budgets, 11 September 2026
+## Latest results — eight personal enrollment budgets, 11 September 2026
 
-The [20%-90% fixed-query study](docs/ENROLLMENT_BUDGET_PLAN_20260911.md) is
-implemented and queued. It reuses the verified subject-disjoint shared model
-and creates fresh personal profiles at each of eight nested history budgets.
-Each budget produces paired LoRA and LoRA+reference-memory predictions for the
-same validation/test people and query windows. There are no new results yet.
+The **[20%-90% fixed-query results and report](results/enrollment_budget_v1_20260911/README.md)**
+are complete. All jobs 1783–1818 finished successfully; final scoring ended at
+17:07 China time. Both methods use the same 762 unseen-at-population-training
+people and 78,237 query windows at every budget. The shared network is fixed;
+personal profiles are fitted afresh from the permitted history at each budget.
 
-[Execution record and job table](docs/ENROLLMENT_BUDGET_RUN_20260911.md):
-77 tests and the GPU check passed; formal jobs 1784–1818 were accepted on hpc-2.
-The old K=1/2/3/5 few-event route is archived/discontinued as an active goal.
-The current direction is enrollment using accumulated labeled personal history;
-random-history budget curves are not a demonstration of longitudinal reliability.
+Primary values below are participant-macro SBP / DBP MAE in mmHg.
 
-## Latest results — full-cohort new-user enrollment, 11 September 2026
+| Personal enrollment | LoRA | LoRA + reference memory |
+| --- | ---: | ---: |
+| 20% | 5.2789 / 2.9869 | 4.5797 / 2.5934 |
+| 30% | 4.8066 / 2.7485 | 4.1265 / 2.3816 |
+| 40% | 4.5747 / 2.5739 | 3.9305 / 2.2189 |
+| 50% | 4.3334 / 2.4396 | 3.6620 / 2.0886 |
+| 60% | 4.1006 / 2.3282 | 3.3956 / 1.9613 |
+| 70% | 3.9677 / 2.2341 | 3.2850 / 1.8817 |
+| 80% | 3.9741 / 2.2235 | 3.2732 / 1.8709 |
+| 90% | 3.8556 / 2.1661 | 3.2081 / 1.8336 |
+
+Memory lowers all Overall/source mean errors at every budget. The 70% and 80%
+mean-MAE point estimates are within 0.0625/0.0512 mmHg of 90%, but equivalence
+has not been established. The 30% gap is 0.7332 mmHg. All eight conditions are
+reported; no new winner or operating threshold is selected on these queries.
+The 90% predictions exactly match the previous parent run, not a new seed.
+
+Full requested metric tables: **[Overall](results/enrollment_budget_v1_20260911/Overall_RESULT_TABLES.md)**,
+**[MIMIC](results/enrollment_budget_v1_20260911/MIMIC_RESULT_TABLES.md)**,
+**[VitalDB](results/enrollment_budget_v1_20260911/VitalDB_RESULT_TABLES.md)**.
+The report includes STD, numerical AAMI/BHS screens, paired uncertainty, actual
+enrollment counts, validation results and independent saved-prediction checks.
+Pooled diagnostic MAE is not interchangeable with participant-macro MAE.
+
+[Execution history](docs/ENROLLMENT_BUDGET_RUN_20260911.md) and
+[current project status](docs/STATUS.md) preserve the full run record. No new
+training was submitted for this publication. The current direction remains
+accumulated-history new-user enrollment; the old K=1/2/3/5 few-event goal is
+archived/discontinued. Random-history gains are not proof of cross-day wrist
+accuracy, automatic per-user improvement, or clinical device certification.
+
+## Previous results — full-cohort new-user enrollment, 11 September 2026
 
 The [full-cohort study](docs/PLAN_FULL_COHORT_ENROLLMENT_V1.md) is complete.
 All 5,361 original people were considered; 5,275 remained after documented
