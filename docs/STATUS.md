@@ -2,7 +2,12 @@
 
 Last updated: 2026-09-11.
 
-## 2026-09-11 — Enrollment budget study complete; final report prepared for publication
+## 2026-09-11 — Enrollment budget study complete; final results published
+
+The complete result package was pushed to the existing public repository on
+`method/personal-feature-mechanisms`, result commit `d40c5c4`. The remote branch
+hash and GitHub report-content endpoint were checked after the push. This is
+an update to the existing project, not a new repository or a private draft.
 
 All jobs 1783–1818 completed with exit 0:0. Final scorer 1818 finished at
 17:07:47 China time; the user queue was empty during the read-only inspection.
